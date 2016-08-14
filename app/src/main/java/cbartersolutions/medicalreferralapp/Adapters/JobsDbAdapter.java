@@ -162,15 +162,17 @@ public class JobsDbAdapter {
         return notes;
     }
 
+
+    String orderByCategory_DESC = COLUMN_CATEGORY + " DESC";
+    String orderByTime_DESC = COLUMN_DATE + " DESC";
+    String orderByTime_ASC = COLUMN_DATE + " ASC";
+
     public ArrayList<Note> getNonDeletedJobs() {
         ArrayList<Note> notes = new ArrayList<>();
 
         String add = ", ";
-        String orderByCategory_DESC = COLUMN_CATEGORY + " DESC";
-        String orderByTime_DESC = COLUMN_DATE + " DESC";
-        String orderByTime_ASC = COLUMN_DATE + " ASC";
 
-        String orderBy = orderByCategory_DESC + add + orderByTime_ASC;
+        String orderBy = orderByCategory_DESC;
 
         int is_deleted = 0;
 
@@ -192,8 +194,11 @@ public class JobsDbAdapter {
 
         String test = "test";
         int deleted = 1;
+
+        String orderBy = orderByCategory_DESC;
+
         Cursor cursor = sqlDB.query(JOBS_TABLE, allColumns, COLUMN_DELETED + " = " + deleted,
-                null,null,null,null);
+                null,null,null,orderBy);
 
 //        Cursor cursor = sqlDB.rawQuery(query_deleted, null);
 

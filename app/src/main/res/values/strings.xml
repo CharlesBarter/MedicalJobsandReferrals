@@ -52,8 +52,10 @@
 
 
     //job or referral titles
-    <string name="job">Jobs</string>
-    <string name="referral">Referrals</string>
+    <string name="jobs">Jobs</string>
+    <string name="referrals">Referrals</string>
+    <string name="job_singular">Job</string>
+    <string name="referral_singular">Referral</string>
 
     //confirm dialog strings
     <string name="confirm_title">Are you sure?</string>
@@ -64,8 +66,8 @@
     <string name="undo">Undo</string>
 
     //snackbar strings
-    <string name="job_deleted">Job marked DONE</string>
-    <string name="restore_job_snackbar_string">Job restored</string>
+    <string name="marked_done"> marked DONE</string>
+    <string name="restored_snackbar_string"> restored</string>
 
 
     <!-- Activity Titles -->

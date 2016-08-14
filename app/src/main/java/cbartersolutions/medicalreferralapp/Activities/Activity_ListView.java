@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -15,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import android.support.design.widget.FloatingActionButton;
-import android.widget.ImageButton;
 
 import cbartersolutions.medicalreferralapp.Fragments.ListViewFragment;
 import cbartersolutions.medicalreferralapp.Listeners.OnSwipeTouchListener;
@@ -82,7 +80,7 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
         View view = findViewById(R.id.list_activity_layout);
 
         //code for onTouchListener
-//        view.setOnTouchListener(onTouchListener);
+        view.setOnTouchListener(onTouchListener);
 
         //for view pager code
 //        makeViewPager();
@@ -162,10 +160,10 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
 
             switch (typeofNote){
                 case JOB:
-                    title_typeOfNote = getString(R.string.job);
+                    title_typeOfNote = getString(R.string.jobs);
                     break;
                 case REFERRAL:
-                    title_typeOfNote = getString(R.string.referral);
+                    title_typeOfNote = getString(R.string.referrals);
             }
             switch (pos){
                 case 0:

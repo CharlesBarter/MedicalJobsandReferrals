@@ -44,12 +44,12 @@ public class OnSwipeTouchListener implements OnTouchListener {
         public boolean onDown(MotionEvent event) {
             return true; //allows more complex gestures than just onDown, if false only onDown allowed
         }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent motionEvent) {
-            onSingleTap();
-            return false;
-        }
+//
+//        @Override
+//        public boolean onSingleTapUp(MotionEvent motionEvent) {
+//            onSingleTap();
+//            return false;
+//        }
 
         @Override
         public void onLongPress(MotionEvent motionEvent) {

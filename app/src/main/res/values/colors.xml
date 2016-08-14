@@ -13,4 +13,6 @@
 
     <color name="white">#ffffff</color>
     <color name="background">#f9f9f9</color>
+
+    <color name="swipeBackground">#d50000</color>
 </resources>

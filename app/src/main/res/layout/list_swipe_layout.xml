@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.daimajia.swipe.SwipeLayout
+    xmlns:swipe="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/list_swipe"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    swipe:drag_edge="left"
+    swipe:leftEdgeSwipeOffset="0dp"
+    swipe:rightEdgeSwipeOffset="0dp">
+
+    <LinearLayout
+        android:id="@+id/swipe_background"
+        android:layout_width="260dp"
+        android:layout_height="80dp"
+        android:background="@color/swipeBackground"
+        android:gravity="end"
+        android:tag="Bottom3"
+        android:weightSum="10">
+
+        <ImageView
+            android:id="@+id/trash"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:layout_gravity="center|start"
+            android:src="@android:drawable/ic_menu_delete" />
+
+
+        <ImageView
+            android:id="@+id/recover"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:layout_gravity="center|start"
+            android:src="@android:drawable/ic_menu_add" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/swipe_background2"
+        android:layout_width="260dp"
+        android:layout_height="80dp"
+        android:background="@color/background"
+        android:gravity="end"
+        android:tag="Bottom3"
+        android:weightSum="10">
+
+        <ImageView
+            android:id="@+id/trash2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:layout_gravity="center|start"
+            android:src="@android:drawable/ic_menu_delete" />
+
+    </LinearLayout>
+
+    <include layout = "@layout/joblistrow"/>
+
+</com.daimajia.swipe.SwipeLayout>

@@ -3,12 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFF9F9F9"
-    android:paddingRight="10dp"
     android:paddingBottom="10dp"
     android:paddingTop="10dp"
     android:id="@+id/singleItemOnlistViewLayout"
-    android:descendantFocusability="blocksDescendants"
-    android:longClickable="true">
+    android:descendantFocusability="blocksDescendants">
 
     <ImageView
         android:layout_width="wrap_content"
@@ -25,7 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/listItemPatientName"
-        android:text="Patient\'s Name"
+        android:text="@string/hint_patient_name"
         android:textAppearance="?android:textAppearanceLarge"
         android:layout_alignParentTop="true"
         android:layout_toEndOf="@id/listItemNoteImage"
@@ -43,7 +41,7 @@
         android:ellipsize="end"
         android:maxLength="7"
         android:layout_marginBottom="2dp"
-        android:layout_marginRight="5dp"
+        android:layout_marginStart="5dp"
         android:layout_alignTop="@+id/listItemPatientName"
         android:layout_alignParentEnd="true"/>
 
@@ -55,19 +53,17 @@
         android:layout_toEndOf="@id/listItemNoteImage"
         android:layout_toStartOf="@+id/list_age_sex"
         android:ellipsize="end"
-        android:maxLines="2"
-        android:text="testing the length"/>
+        android:maxLines="2"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/list_age_sex"
         android:layout_below="@id/listItemPatientNHI"
-        android:text="111M"
         android:textAppearance="?android:textAppearanceListItem"
         android:layout_marginEnd="5dp"
         android:layout_alignParentEnd="true"
-        android:gravity="right"/>
+        android:gravity="end"/>
 
 
 

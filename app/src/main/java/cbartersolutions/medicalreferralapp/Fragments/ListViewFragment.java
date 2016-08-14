@@ -11,17 +11,20 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
 //import com.github.clans.fab.FloatingActionButton;
+
+import com.daimajia.swipe.util.Attributes;
 
 import java.util.ArrayList;
 
 import cbartersolutions.medicalreferralapp.Activities.DetailActivity;
 import cbartersolutions.medicalreferralapp.Adapters.JobsDbAdapter;
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
-import cbartersolutions.medicalreferralapp.Listeners.MyListener;
+import cbartersolutions.medicalreferralapp.Adapters.NoteSwipeAdapter;
 import cbartersolutions.medicalreferralapp.Others.Note;
 import cbartersolutions.medicalreferralapp.Adapters.NoteAdapter;
 import cbartersolutions.medicalreferralapp.R;
@@ -31,10 +34,11 @@ import cbartersolutions.medicalreferralapp.Adapters.ReferralsDbAdapter;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ListViewFragment extends android.support.v4.app.ListFragment implements MyListener {
+public class ListViewFragment extends android.support.v4.app.ListFragment  {
 
     private ArrayList<Note> referralslist, jobslist;
     private NoteAdapter noteAdapter;
+    private NoteSwipeAdapter noteSwipeAdapter;
     private Intent intent;
     MainActivity.TypeofNote typeofNote;
 
@@ -44,6 +48,9 @@ public class ListViewFragment extends android.support.v4.app.ListFragment implem
     private Bundle fragment_bundle;
 
     private Boolean deleted_notes, long_press_deleted_notes;
+
+    private ListView listView;
+
 
     @Override
     public void onActivityCreated (Bundle savedInstanceState){
@@ -89,11 +96,6 @@ public class ListViewFragment extends android.support.v4.app.ListFragment implem
 //        });
     }
 
-    @Override
-    public void onSingleClick(int position){
-        launchDetailActivity(MainActivity.FragmentToLaunch.VIEW, position);
-    }
-
     public static ListViewFragment newInstance (Bundle bundle){
         ListViewFragment listViewFragment = new ListViewFragment();
         listViewFragment.setArguments(bundle);
@@ -101,8 +103,8 @@ public class ListViewFragment extends android.support.v4.app.ListFragment implem
     }
 
     @Override
-    public void onListItemClick(ListView list_view, View v, int position, long id) {
-        super.onListItemClick(list_view, v, position, id);
+    public void onListItemClick(ListView referrallistview, View v, int position, long id) {
+        super.onListItemClick(referrallistview, v, position, id);
         //launch job detail activity with the position of the list item clicked sent to the code as position
         launchDetailActivity(MainActivity.FragmentToLaunch.VIEW, position);
     }
@@ -140,33 +142,30 @@ public class ListViewFragment extends android.support.v4.app.ListFragment implem
                     return true;
                 case R.id.delete:
                     //delete note depending on typeOfNote
+                    Intent row_for_delete = putIntentInfo(rowPosition);
                     switch (typeofNote) {
                         case JOB:
                             // get the data from the list item clicked on and make it an intent
-                            Intent row_for_delete = putIntentInfo(rowPosition);
                             //load the on Activity result code which works for the done button
 //                        jobDone(row_for_delete);
                             if (!deleted_notes) {
                                 jobDone(row_for_delete); //change the note to a deleted note
                             } else {
                                 permanentlyDeleteJob(note.getNoteId(), rowPosition);//permanently deleted note
-                                setListAdapter(makeAdapter(typeofNote));
+//                                setListAdapter(makeAdapter(typeofNote));
                             }
                             break;
                         case REFERRAL:
-                            ReferralsDbAdapter referralsDbAdapter = new ReferralsDbAdapter(getActivity().getBaseContext());
-                            referralsDbAdapter.open();
                             if (!deleted_notes) {
                                 int is_deleted = 1;
-                                updateReferral(note, is_deleted, referralsDbAdapter);
+                                updateReferral(row_for_delete, is_deleted);
                             } else {
-                                referralsDbAdapter.deleteReferral(note.getNoteId()); //permanently deletes note
+                                permanentlyDeleteReferal(note.getNoteId());//permanently deletes note
                             }
                             //notify the array that a delete has occurred and update it
                             referralslist.remove(rowPosition);
                             noteAdapter.notifyDataSetChanged();
-                            //close the database adaptor
-                            referralsDbAdapter.close();
+                            noteSwipeAdapter.notifyDataSetChanged();
                     }
             }
             return super.onContextItemSelected(item);
@@ -191,11 +190,20 @@ public class ListViewFragment extends android.support.v4.app.ListFragment implem
         startActivityForResult(intent, 0);
     }
 
+    Note note;
+
     //get the information for the position clicked into an intent
     public Intent putIntentInfo(int position){
         //grab the note information that launches out noteDetailActivity using the position identifier
-        Note note = (Note) getListAdapter().getItem(position);
+//        note = (Note) getListAdapter().getItem(position);
 
+        switch (typeofNote) {
+            case JOB:
+                note = jobslist.get(position);
+                break;
+            case REFERRAL:
+                note = referralslist.get(position);
+        }
         intent = new Intent(getActivity(), DetailActivity.class);
 
         //pass along the information of the clicked note to the note detail activity
@@ -219,24 +227,42 @@ public class ListViewFragment extends android.support.v4.app.ListFragment implem
 
     private int is_deleted;
     private int undo_deleted;
-    private String snackbar_words;
+    private String snackbar_words, what_happened_to_note;
 
     public void jobDone (Intent data){
-            final Intent previous_intent = getActivity().getIntent();
-            Boolean job_done_deleted_notes = previous_intent.getBooleanExtra(MainActivity.DELETED_NOTES, false);
-            //get data from the intent
-            final Intent intent = data;
-            if(!job_done_deleted_notes) { //allows the same code to change the note from deleted to none deleted
-                is_deleted = 1;
-                undo_deleted = 0; //allow for the undo button to do the opposite
-                snackbar_words = getString(R.string.job_deleted);
-            }else {
-                is_deleted = 0;
-                undo_deleted = 1; //if UNDO action in snackbar clicked changes back to a completed job
-                snackbar_words = getString(R.string.restore_job_snackbar_string);
-            }
+        final Intent previous_intent = getActivity().getIntent();
+        Boolean job_done_deleted_notes = previous_intent.getBooleanExtra(MainActivity.DELETED_NOTES, false);
+        //get data from the intent
+        final Intent intent = data;
 
-            updateJob(intent, is_deleted);//update the job to be deleted
+        final int position = previous_intent.getExtras().getInt(MainActivity.LIST_POSITION);
+
+        if(!job_done_deleted_notes) { //allows the same code to change the note from deleted to none deleted
+            is_deleted = 1;
+            undo_deleted = 0; //allow for the undo button to do the opposite
+            what_happened_to_note = getString(R.string.marked_done); //set the words of the snackbar
+        }else {
+            is_deleted = 0;
+            undo_deleted = 1; //if UNDO action in snackbar clicked changes back to a completed job
+            what_happened_to_note = getString(R.string.restored_snackbar_string);
+        }
+
+        switch (typeofNote){
+            case JOB:
+                updateJob(intent, is_deleted);//update the job to be deleted
+//                jobslist.remove(position);
+//                noteSwipeAdapter.notifyDataSetChanged();
+                snackbar_words = getString(R.string.job_singular) + " " + what_happened_to_note;
+                break;
+            case REFERRAL:
+                updateReferral(intent, is_deleted);
+//                referralslist.remove(position);
+                snackbar_words = getString(R.string.referral_singular) + " " + what_happened_to_note;
+                break;
+        }
+
+//            noteSwipeAdapter.notifyDataSetChanged();
+//                noteSwipeAdapter.notifyDataSetInvalidated();
             setListAdapter(makeAdapter(typeofNote)); //reset the GUI so the note is gone
 
             //snackbar code
@@ -245,10 +271,17 @@ public class ListViewFragment extends android.support.v4.app.ListFragment implem
                     .setAction(R.string.undo, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            updateJob(intent, undo_deleted); //update the job to undeleted
-                            previous_intent.putExtra(MainActivity.JOB_DONE, false);
-                            startActivity(previous_intent);
-//                            setListAdapter(makeAdapter(typeofNote));
+                            switch (typeofNote){
+                                case JOB:
+                                    updateJob(intent, undo_deleted); //update the job to undeleted
+                                    break;
+                                case REFERRAL:
+                                    updateReferral(intent, undo_deleted);
+                                    break;
+                            }
+//                            previous_intent.putExtra(MainActivity.JOB_DONE, false);
+//                            startActivity(previous_intent);
+                            setListAdapter(makeAdapter(typeofNote));
                         }
                     });
             snackbar.setActionTextColor(Color.RED);
@@ -256,13 +289,32 @@ public class ListViewFragment extends android.support.v4.app.ListFragment implem
 
     }
 
-    public void updateReferral (Note note, int is_deleted, ReferralsDbAdapter referralsDbAdapter){
-        referralsDbAdapter.updateReferral(note.getNoteId(), note.getPatientname(),
-                note.getPatientNHI(), note.getPatient_Age_Sex(), note.getPatient_location(),
-                note.get_date_and_time(), note.getReferrerName(), note.getReferrerContact(),
-                note.getdetails(), note.getCategory(), is_deleted);
+    public void updateReferral (Intent data, int is_deleted){
+
+        ReferralsDbAdapter referralsDbAdapter = new ReferralsDbAdapter(getActivity().getBaseContext());
+        referralsDbAdapter.open();
+        referralsDbAdapter.updateReferral(
+                data.getExtras().getLong(MainActivity.NOTE_ID),
+                data.getExtras().getString(MainActivity.NOTE_PATIENT_NAME) + "",
+                data.getExtras().getString(MainActivity.NOTE_PATIENT_NHI) + "",
+                data.getExtras().getString(MainActivity.NOTE_PATIENT_AGE_AND_SEX) + "",
+                data.getExtras().getString(MainActivity.NOTE_PATIENT_LOCATION),
+                data.getExtras().getLong(MainActivity.NOTE_DATE_AND_TIME),
+                data.getExtras().getString(MainActivity.NOTE_REFERRER_NAME),
+                data.getExtras().getString(MainActivity.NOTE_REFERRER_CONTACT),
+                data.getExtras().getString(MainActivity.NOTE_DETAILS) + "",
+                (Note.Category) data.getSerializableExtra(MainActivity.NOTE_CATEGORY),
+                is_deleted
+        );
+        referralsDbAdapter.close();
     }
 
+    public void permanentlyDeleteReferal(Long noteId){
+        ReferralsDbAdapter referralsDbAdapter = new ReferralsDbAdapter(getActivity().getBaseContext());
+        referralsDbAdapter.open();
+        referralsDbAdapter.deleteReferral(noteId);
+        referralsDbAdapter.close();
+    }
 
     public void updateJob (Intent data, int deleted){
 
@@ -282,12 +334,33 @@ public class ListViewFragment extends android.support.v4.app.ListFragment implem
         jobsDbAdapter.close();
     }
 
-    public void permanentlyDeleteJob(Long noteId, int row_Position){
+    public void permanentlyDeleteJob(Long noteId, int rowPosition){
         //delete the note currently shown
         JobsDbAdapter jobsDbAdapter = new JobsDbAdapter(getActivity().getBaseContext());
         jobsDbAdapter.open();
         jobsDbAdapter.deleteJob(noteId);
         jobsDbAdapter.close();
+        jobslist.remove(rowPosition);
+        noteSwipeAdapter.notifyDataSetChanged();
+    }
+
+
+    public void permanentDeleteNote(Long noteId, int position){
+        switch (typeofNote){
+            case JOB:
+                JobsDbAdapter jobsDbAdapter = new JobsDbAdapter(getActivity().getBaseContext());
+                jobsDbAdapter.open();
+                jobsDbAdapter.deleteJob(noteId);
+                jobsDbAdapter.close();
+                break;
+            case REFERRAL:
+                ReferralsDbAdapter referralsDbAdapter = new ReferralsDbAdapter(getActivity().getBaseContext());
+                referralsDbAdapter.open();
+                referralsDbAdapter.deleteReferral(noteId);
+                referralsDbAdapter.close();
+        }
+//        noteSwipeAdapter.notifyDataSetChanged();
+        setListAdapter(makeAdapter(typeofNote));
     }
 
     JobsDbAdapter jobsDbAdapter;
@@ -312,6 +385,7 @@ public class ListViewFragment extends android.support.v4.app.ListFragment implem
                     jobslist = jobsDbAdapter.getDeleteJobs();
                 }
                 noteAdapter = new NoteAdapter(getActivity(), jobslist, ListViewFragment.this);
+                noteSwipeAdapter = new NoteSwipeAdapter(getActivity(), jobslist, ListViewFragment.this);
                 jobsDbAdapter.close();
                 break;
             case REFERRAL:
@@ -323,9 +397,12 @@ public class ListViewFragment extends android.support.v4.app.ListFragment implem
                     referralslist = referralsDbAdapter.getDeletedReferrals();
                 }
                 noteAdapter = new NoteAdapter(getActivity(), referralslist, ListViewFragment.this);
+                noteSwipeAdapter = new NoteSwipeAdapter(getActivity(), referralslist, ListViewFragment.this);
                 referralsDbAdapter.close();
                 break;
         }
-        return noteAdapter;
+//        return noteAdapter;
+        noteSwipeAdapter.setMode(Attributes.Mode.Single);
+        return noteSwipeAdapter;
     }
 }
