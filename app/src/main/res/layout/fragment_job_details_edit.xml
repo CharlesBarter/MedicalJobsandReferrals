@@ -1,0 +1,327 @@
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragments.DetailsEditFragment"
+    android:id="@+id/referralsEditDetailsFragment"
+    android:scrollbars="none">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/edit_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:theme="@style/AppTheme.AppBarOverlay"
+            app:contentInsetLeft="16dp"
+            app:contentInsetStart="16dp"
+            >
+
+            <RelativeLayout
+                android:id="@+id/top_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_collapseMode="pin"
+                >
+
+                <EditText
+                    android:id="@+id/editPatientName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginBottom="@dimen/gapBetweenNameandAge"
+                    android:layout_toStartOf="@+id/editPatientNHI"
+                    android:hint="@string/hint_patient_name"
+                    android:ellipsize="end"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/toolbar_hint_colour"
+                    android:background="@android:color/transparent"
+                    />
+
+                <EditText
+                    android:id="@+id/editPatientNHI"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:maxLength="7"
+                    android:inputType="textCapCharacters"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="20dp"
+                    android:hint="@string/hint_patient_NHI"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/toolbar_hint_colour"
+                    android:background="@android:color/transparent"
+                    android:layout_marginBottom="@dimen/gapBetweenNameandAge"
+                    />
+
+                <EditText
+                    android:id="@+id/edit_age_sex"
+                    android:layout_width="@dimen/sizeofAgeSex"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_patient_age_sex"
+                    android:textSize="18sp"
+                    android:inputType="textCapCharacters"
+                    android:layout_below="@id/editPatientName"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/toolbar_hint_colour"
+                    android:background="@android:color/transparent"
+                    android:layout_marginBottom="15dp"
+                    />
+
+                <EditText
+                    android:id="@+id/editLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/edit_age_sex"
+                    android:layout_below="@id/editPatientName"
+                    android:hint="@string/hint_patient_location"
+                    android:ems="6"
+                    android:layout_marginStart="25dp"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/toolbar_hint_colour"
+                    android:background="@android:color/transparent"
+                    />
+
+            </RelativeLayout>
+        </android.support.v7.widget.Toolbar>
+
+        <ScrollView
+            android:id="@+id/ScrollViewDetailsView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/edit_toolbar"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/editNoteIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_priority_high_xhdpi"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="5dp"
+                    android:background="@android:color/transparent"
+                    />
+
+                <EditText
+                    android:id="@+id/edit_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/editNoteIcon"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="15dp"
+                    android:ems="7"
+                    android:onClick="onClick"
+                    android:background="@android:color/transparent"
+                    android:focusable="false"
+                    android:clickable="true"
+                    />
+
+                <EditText
+                    android:id="@+id/edit_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/edit_date"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:ems="4"
+                    android:background="@android:color/transparent"
+                    android:focusable="false"
+                    android:onClick="onClick"
+                    />
+
+                <TextView
+                    android:id="@+id/detailsHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/detailsHeader"
+                    android:layout_below="@+id/editNoteIcon"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp"
+                    />
+
+                <EditText
+                    android:id="@+id/editDetails"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/detailsHeader"
+                    android:hint="@string/hint_details"
+                    android:textSize="18sp"
+                    android:textColor="@android:color/black"
+                    android:minLines="3"
+                    android:inputType="textMultiLine"
+                    android:gravity="top"
+                    android:layout_marginTop="-8dp"
+                    android:layout_marginStart="-4dp"
+                    android:layout_marginEnd="-4dp"
+                    />
+            </RelativeLayout>
+        </ScrollView>
+
+    </RelativeLayout>
+
+    <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/save_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:fab_size="mini"
+        android:src="@android:drawable/ic_menu_save"
+        app:layout_anchor="@id/top_section"
+        app:layout_anchorGravity="bottom|right|end"
+        app:rippleColor="@color/minifab"
+        app:fab_colorNormal="@color/minifab"
+        app:fab_colorPressed="@color/minifabDark"
+        android:clickable="true"/>
+
+
+</android.support.design.widget.CoordinatorLayout>
+
+
+
+    <!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:paddingTop="10dp"-->
+        <!--android:paddingBottom="10dp"-->
+        <!--android:background="#f9f9f9"-->
+        <!--android:scrollbars="none">-->
+
+        <!--<ImageButton-->
+            <!--android:id="@+id/editNoteIcon"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@drawable/ic_priority_high_xhdpi"-->
+            <!--android:layout_alignParentTop="true"-->
+            <!--android:layout_alignParentStart="true"-->
+            <!--android:layout_marginStart="10dp"-->
+            <!--android:layout_marginEnd="10dp"-->
+            <!--android:background="@android:color/transparent"-->
+            <!--/>-->
+
+        <!--<EditText-->
+            <!--android:id="@+id/editPatientName"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_toEndOf="@id/editNoteIcon"-->
+            <!--android:layout_toStartOf="@+id/editPatientNHI"-->
+            <!--android:layout_alignParentTop="true"-->
+            <!--android:hint="@string/patient_name"-->
+            <!--android:ellipsize="end"-->
+            <!--android:textSize="20dp"-->
+            <!--android:layout_marginTop="-10dp"-->
+            <!--/>-->
+
+        <!--<EditText-->
+            <!--android:id="@+id/editPatientNHI"-->
+            <!--android:layout_width="100dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textSize="20sp"-->
+            <!--android:layout_alignParentTop="true"-->
+            <!--android:layout_alignParentRight="true"-->
+            <!--android:layout_marginEnd="10dp"-->
+            <!--android:layout_marginTop="-10dp"-->
+            <!--android:maxLength="7"-->
+            <!--android:inputType="textCapCharacters"-->
+            <!--android:hint="@string/nhi"-->
+            <!--/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/between_NHI_and_age"-->
+            <!--android:layout_width="30dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_toEndOf="@id/editPatientNHI"-->
+            <!--android:layout_below="@id/editPatientName"-->
+            <!--/>-->
+
+        <!--<EditText-->
+            <!--android:id="@+id/edit_age_sex"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_toEndOf="@id/editNoteIcon"-->
+            <!--android:layout_below="@id/editPatientName"-->
+            <!--android:hint="Age/Sex"-->
+            <!--android:layout_marginTop="-10dp"-->
+            <!--android:textSize="18sp"-->
+            <!--android:inputType="textCapCharacters"-->
+            <!--/>-->
+        <!--<TextView-->
+            <!--android:id="@+id/rightofAge"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_below="@id/editPatientName"-->
+            <!--android:layout_toEndOf="@id/edit_age_sex"/>-->
+
+
+        <!--<ScrollView-->
+            <!--android:id="@+id/ScrollViewDetailsView"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_below="@id/edit_age_sex"-->
+            <!--android:paddingLeft="10dp"-->
+            <!--android:paddingRight="10dp"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:layout_alignParentStart="true">-->
+
+            <!--<EditText-->
+                <!--android:id="@+id/editDetails"-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:hint="@string/details"-->
+                <!--android:textSize="18sp"-->
+                <!--android:textColor="@android:color/black"-->
+                <!--android:minLines="3"-->
+                <!--android:inputType="textMultiLine"-->
+                <!--android:gravity="top"-->
+                <!--/>-->
+
+        <!--</ScrollView>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/textViewforPositioning"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="10dp"-->
+            <!--android:textAppearance="?android:attr/textAppearanceLarge"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:layout_below="@+id/editPatientNHI"-->
+            <!--android:layout_alignParentStart="true" />-->
+
+    <!--</RelativeLayout>-->
+
+    <!--<com.github.clans.fab.FloatingActionButton-->
+        <!--android:id="@+id/save_fab"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_margin="16dp"-->
+        <!--app:fab_size="mini"-->
+        <!--android:src="@android:drawable/ic_menu_save"-->
+        <!--app:layout_anchor="@id/rightofAge"-->
+        <!--app:layout_anchorGravity="bottom|right|end"-->
+        <!--app:rippleColor="@color/colorPrimaryDark"-->
+        <!--app:fab_colorNormal="@color/colorPrimaryDark"-->
+        <!--app:fab_colorPressed="@color/colorPrimaryDark"-->
+        <!--android:clickable="true"/>-->
+
+<!--</android.support.design.widget.CoordinatorLayout>-->

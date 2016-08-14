@@ -1,0 +1,87 @@
+<resources>
+    <string name="app_name">Medical Jobs</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="done">Mark job as DONE</string>
+
+    //main page strings
+    <string name="jobs_list_button">Jobs</string>
+    <string name="referral_list_button">Referrals</string>
+
+    //view details of job/referral strings
+    <string name="referred_by">Referred by:</string>
+    <string name="referrer_contact_details">Referrer contact:</string>
+    <string name="detailsHeader">Details:</string>
+
+    //hint titles
+    <string name="hint_patient_name">Enter patient name</string>
+    <string name="hint_patient_NHI">Enter NHI</string>
+    <string name="hint_patient_age_sex">Enter Age/Sex</string>
+    <string name="hint_patient_location">Enter location</string>
+    <string name="hint_details">Enter details</string>
+    <string name="hint_referrer_name">Enter referrer name</string>
+    <string name="hint_referrer_contact">Enter contact</string>
+
+    //list long click strings
+    <string name="long_list_edit_menu">Edit</string>
+    <string name="list_delete_menu">Permanently delete</string>
+    <string name="mark_complete">Mark complete</string>
+
+    //delete string
+    <string name="delete_job">Delete Job</string>
+    <string name="delete_referral">Delete Referral</string>
+
+    <string name="restore_job_button_string">Make this an active Job</string>
+
+    //main menu titles
+    <string name="AddJob">Add Job</string>
+    <string name="AddReferralShort">Add Refer</string>
+    <string name="AddReferralWhole">Add Referral</string>
+    <string name="create_new_job_from_referral_details">Create a job for this patient</string>
+
+    //fragment titles
+    <string name="edit_job_fragment">Edit Job</string>
+    <string name="edit_referral_fragment">Edit Referral Details</string>
+
+    <string name="completed_list_title">Completed </string>
+
+    //titles of type of view edit/view/new
+    <string name="edit">Edit</string>
+    <string name="view">View</string>
+    <string name="create_new">New</string>
+
+
+    //job or referral titles
+    <string name="job">Jobs</string>
+    <string name="referral">Referrals</string>
+
+    //confirm dialog strings
+    <string name="confirm_title">Are you sure?</string>
+    <string name="confirm_message">Clicking CONFIRM will mark this referral COMPLETED</string>
+    <string name="permanently_delete_message">Clicking CONFIRM wil PERMANENTLY delete this Referral</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="undo">Undo</string>
+
+    //snackbar strings
+    <string name="job_deleted">Job marked DONE</string>
+    <string name="restore_job_snackbar_string">Job restored</string>
+
+
+    <!-- Activity Titles -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_jobs_list">Jobs</string>
+    <string name="title_activity_job_detail">Job Details</string>
+    <string name="title_activity_referral_list">Referrals</string>
+    <string name="title_activity_referral_detail"></string>
+
+    //menu titles
+    <string name="view_completed_jobs">Show completed jobs</string>
+    <string name="view_current_jobs">Show current jobs</string>
+    <string name="view_completed_referrals">Show completed referrals</string>
+    <string name="view_current_referrals">Show current referrals</string>
+    <string name="gap">__________________</string>
+
+
+
+</resources>

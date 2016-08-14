@@ -1,0 +1,349 @@
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragments.DetailsViewFragment"
+    android:id="@+id/viewjobdetailsFragment">
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/view_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        app:popupTheme="@style/AppTheme.PopupOverlay"
+        app:theme="@style/AppTheme.AppBarOverlay"
+        app:contentInsetLeft="16dp"
+        app:contentInsetStart="16dp"
+        >
+
+        <RelativeLayout
+            android:id="@+id/top_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_collapseMode="pin">
+
+            <TextView
+                android:id="@+id/viewPatientName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginBottom="@dimen/gapBetweenNameandAge"
+                android:layout_toStartOf="@+id/viewPatientNHI"
+                android:hint="@string/hint_patient_name"
+                android:ellipsize="end"
+                android:textColor="@color/white"
+                android:textColorHint="@color/toolbar_hint_colour"
+                android:background="@android:color/transparent"
+                />
+
+            <TextView
+                android:id="@+id/viewPatientNHI"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:maxLength="7"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="20dp"
+                android:hint="@string/hint_patient_NHI"
+                android:textColor="@color/white"
+                android:textColorHint="@color/toolbar_hint_colour"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="@dimen/gapBetweenNameandAge"
+                />
+
+            <TextView
+                android:id="@+id/view_age_sex"
+                android:layout_width="@dimen/sizeofAgeSex"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_below="@id/viewPatientName"
+                android:textColor="@color/white"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="15dp"
+                android:textAppearance="@android:style/Widget.EditText"
+                />
+
+            <TextView
+                android:id="@+id/viewLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/view_age_sex"
+                android:layout_below="@id/viewPatientName"
+                android:ems="6"
+                android:layout_marginStart="25dp"
+                android:textColor="@color/white"
+                android:textColorHint="@color/toolbar_hint_colour"
+                android:background="@android:color/transparent"
+                android:textAppearance="@android:style/Widget.EditText"
+                android:textSize="18sp"
+                />
+
+        </RelativeLayout>
+    </android.support.v7.widget.Toolbar>
+
+    <ScrollView
+        android:id="@+id/ScrollViewDetailsView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/view_toolbar"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/viewNoteIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_priority_high_xhdpi"
+                android:layout_alignParentStart="true"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="5dp"
+                android:background="@android:color/transparent"
+                />
+
+            <TextView
+                android:id="@+id/view_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/viewNoteIcon"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="15dp"
+                android:ems="7"
+                android:background="@android:color/transparent"
+                android:focusable="false"
+                android:clickable="true"
+                android:textAppearance="@android:style/TextAppearance.Widget.EditText"
+                android:textSize="18sp"
+                />
+
+            <TextView
+                android:id="@+id/view_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/view_date"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:ems="4"
+                android:background="@android:color/transparent"
+                android:textAppearance="@android:style/Widget.EditText"
+                android:textSize="18sp"
+                />
+
+            <TextView
+                android:id="@+id/detailsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/detailsHeader"
+                android:layout_below="@+id/viewNoteIcon"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:textAppearance="@android:style/Widget.EditText"
+                />
+
+            <TextView
+                android:id="@+id/viewDetails"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/detailsHeader"
+                android:layout_marginTop="2dp"
+                android:textSize="18sp"
+                android:textColor="@android:color/black"
+                android:textAppearance="@android:style/Widget.EditText"
+                />
+        </RelativeLayout>
+    </ScrollView>
+
+
+    <Button
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/done"
+    android:textColor="@color/colorPrimary"
+    android:id="@+id/done_button"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentEnd="true"
+    android:layout_marginEnd="16dp"
+    android:background="@android:color/transparent"/>
+
+</RelativeLayout>
+
+
+<com.github.clans.fab.FloatingActionButton
+    android:id="@+id/edit_fab"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    android:src="@android:drawable/ic_menu_edit"
+    app:fab_size="mini"
+    app:layout_anchor="@id/view_toolbar"
+    app:layout_anchorGravity="bottom|right|end"
+    app:rippleColor="@color/minifab"
+    app:fab_colorNormal="@color/minifab"
+    app:fab_colorPressed="@color/minifabDark"
+    android:clickable="true"
+    android:onClick="onClick"/>
+
+
+    </android.support.design.widget.CoordinatorLayout>
+
+
+
+<!--<android.support.design.widget.CoordinatorLayout-->
+    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+    <!--xmlns:tools="http://schemas.android.com/tools"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--tools:context=".Fragments.DetailsViewFragment"-->
+    <!--android:id="@+id/viewjobdetailsFragment">-->
+
+    <!--<RelativeLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:paddingTop="10dp"-->
+        <!--android:paddingBottom="10dp"-->
+        <!--android:background="#f9f9f9"-->
+        <!--&gt;-->
+
+        <!--<ImageView-->
+            <!--android:id="@+id/viewNoteIcon"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@drawable/ic_priority_high_xhdpi"-->
+            <!--android:layout_alignParentTop="true"-->
+            <!--android:layout_alignParentStart="true"-->
+            <!--android:layout_marginStart="10dp"-->
+            <!--android:layout_marginEnd="15dp" />-->
+
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textAppearance="?android:attr/textAppearanceLarge"-->
+            <!--android:layout_toEndOf="@id/viewNoteIcon"-->
+            <!--android:layout_toStartOf="@+id/viewPatientNHI"-->
+            <!--android:layout_alignParentTop="true"-->
+            <!--android:text="@string/patient_name"-->
+            <!--android:ellipsize="end"-->
+            <!--android:id="@+id/viewPatientName"/>-->
+
+           <!--<TextView-->
+            <!--android:layout_width="90dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textAppearance="?android:attr/textAppearanceLarge"-->
+            <!--android:textSize="20sp"-->
+               <!--android:layout_alignParentTop="true"-->
+            <!--android:layout_alignParentRight="true"-->
+            <!--android:text="@string/nhi"-->
+            <!--android:maxLength="7"-->
+            <!--android:id="@+id/viewPatientNHI"-->
+            <!--android:layout_marginStart="5dp"-->
+            <!--android:layout_marginEnd="10dp"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/between_NHI_and_age"-->
+            <!--android:layout_width="30dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_toEndOf="@id/viewPatientNHI"-->
+            <!--android:layout_below="@id/viewPatientName"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/view_age_sex"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_toEndOf="@id/viewNoteIcon"-->
+            <!--android:layout_below="@id/viewPatientName"-->
+            <!--android:text="Age/Sex"-->
+            <!--android:textAppearance="?android:attr/textAppearanceLarge"-->
+            <!--android:textSize="20sp"-->
+            <!--android:layout_marginTop="2dp"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/rightofAge"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_below="@id/viewPatientName"-->
+            <!--android:layout_toEndOf="@id/view_age_sex"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/textViewforPositioning"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="5dp"-->
+            <!--android:textAppearance="?android:attr/textAppearanceLarge"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:layout_below="@+id/viewPatientNHI"-->
+            <!--android:layout_alignParentStart="true" />-->
+
+        <!--<ScrollView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_below="@id/view_age_sex"-->
+            <!--android:paddingLeft="10dp"-->
+            <!--android:paddingRight="10dp"-->
+            <!--android:layout_marginTop="15dp"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:layout_alignParentStart="true"-->
+            <!--android:id="@+id/ScrollViewDetailsView">-->
+
+            <!--<TextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:hint="@string/details"-->
+                <!--android:id="@+id/viewDetails"-->
+                <!--android:textSize="18sp"-->
+                <!--android:textColor="@android:color/black"-->
+                <!--android:layout_marginStart="5dp"-->
+                <!--android:layout_marginEnd="5dp"/>-->
+
+        <!--</ScrollView>-->
+
+        <!--<Button-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="@string/done"-->
+            <!--android:textColor="@color/colorPrimary"-->
+            <!--android:id="@+id/done_button"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_alignEnd="@+id/textViewforPositioning"-->
+            <!--android:background="@android:color/transparent"/>-->
+
+    <!--</RelativeLayout>-->
+
+    <!--<com.github.clans.fab.FloatingActionButton-->
+    <!--android:id="@+id/edit_fab"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_margin="16dp"-->
+    <!--android:clickable="true"-->
+    <!--app:fab_size="mini"-->
+    <!--app:rippleColor="@color/colorPrimaryDark"-->
+    <!--app:fab_colorNormal="@color/colorPrimaryDark"-->
+    <!--app:fab_colorPressed="@color/colorPrimaryDark"-->
+    <!--android:src="@android:drawable/ic_menu_edit"-->
+    <!--app:layout_anchor="@id/rightofAge"-->
+    <!--app:layout_anchorGravity="bottom|right|end"-->
+    <!--android:tint="@android:color/white"-->
+    <!--app:backgroundTint="@color/colorPrimary"/>-->
+
+<!--</android.support.design.widget.CoordinatorLayout>-->
+
+
