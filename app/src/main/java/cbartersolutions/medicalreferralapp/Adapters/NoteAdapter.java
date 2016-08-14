@@ -32,7 +32,7 @@ import cbartersolutions.medicalreferralapp.R;
 /**
  * Created by Charles on 13/07/2016.
  */
-public class NoteAdapter extends ArrayAdapter<Note> implements View.OnCreateContextMenuListener{
+public class NoteAdapter extends ArrayAdapter<Note>{
 
     public static class ViewHolder{
         TextView notePatientName;
@@ -44,12 +44,11 @@ public class NoteAdapter extends ArrayAdapter<Note> implements View.OnCreateCont
 
     Context mcon;
     ListViewFragment fragment_called_from;
-    MyListener myListener;
 
     public NoteAdapter(Context context, ArrayList<Note> notes, ListViewFragment fragment){
         super(context, 0, notes);
         mcon = context;
-        fragment_called_from = fragment;
+        this.fragment_called_from = fragment;
     }
 
     @Override
@@ -95,13 +94,16 @@ public class NoteAdapter extends ArrayAdapter<Note> implements View.OnCreateCont
                 Intent intent_to_delete = fragment_called_from.putIntentInfo(position);
                 fragment_called_from.jobDone(intent_to_delete);
                 Log.d("Adapter", "Swipe"+position);
-                notifyDataSetChanged();
             }
             @Override
             public void onSingleTap(){
 //                myListener.onSingleClick(position);
                 fragment_called_from.launchDetailActivity(MainActivity.FragmentToLaunch.VIEW, position);
                 Log.d("Adapter","Single tap"+position);
+            }
+            @Override
+            public void onLong_Press(){
+                Log.d("NoteAdapter", "onLongPress: ");
             }
         });
 
@@ -111,9 +113,4 @@ public class NoteAdapter extends ArrayAdapter<Note> implements View.OnCreateCont
         return convertView;
 
     }
-
-    public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-        // empty implementation
-    }
-
 }

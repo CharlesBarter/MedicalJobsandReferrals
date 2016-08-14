@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import android.support.design.widget.FloatingActionButton;
+import android.widget.ImageButton;
 
 import cbartersolutions.medicalreferralapp.Fragments.ListViewFragment;
 import cbartersolutions.medicalreferralapp.Listeners.OnSwipeTouchListener;
@@ -209,6 +210,15 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
         int id = item.getItemId();
 
         switch(id) {
+            case android.R.id.home:
+                if(!deleted_notes){
+                    finish();
+                }else{
+                    Intent go_back_to_not_deleted_notes = new Intent(this, Activity_ListView.class);
+                    go_back_to_not_deleted_notes.putExtra(MainActivity.NOTE_TYPE, typeofNote);
+                    go_back_to_not_deleted_notes.putExtra(MainActivity.DELETED_NOTES, false);
+                    startActivity(go_back_to_not_deleted_notes);
+                }
             case R.id.action_settings:
                 return true;
             case R.id.action_add:

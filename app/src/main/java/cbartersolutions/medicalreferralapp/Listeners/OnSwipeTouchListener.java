@@ -27,13 +27,18 @@ public class OnSwipeTouchListener implements OnTouchListener {
     public void onSingleTap(){
     }
 
+    public void onLong_Press(){
+    }
+
     public boolean onTouch(View view, MotionEvent event) {
         return gestureDetector.onTouchEvent(event);
     }
 
-    private final class GestureListener extends GestureDetector.SimpleOnGestureListener{
-        private static final int SWIPE_DISTANCE_THRESHOLD = 100;
-        private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+    String TAG = "OnSwipeAdapter";
+
+    private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
+        private static final int SWIPE_DISTANCE_THRESHOLD = 50;
+        private static final int SWIPE_VELOCITY_THRESHOLD = 50;
 
         @Override
         public boolean onDown(MotionEvent event) {
@@ -41,9 +46,14 @@ public class OnSwipeTouchListener implements OnTouchListener {
         }
 
         @Override
-        public boolean onSingleTapConfirmed(MotionEvent event){
+        public boolean onSingleTapUp(MotionEvent motionEvent) {
             onSingleTap();
             return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent motionEvent) {
+            onLong_Press();
         }
 
         @Override
@@ -63,6 +73,5 @@ public class OnSwipeTouchListener implements OnTouchListener {
         }
 
     }
-
 
 }

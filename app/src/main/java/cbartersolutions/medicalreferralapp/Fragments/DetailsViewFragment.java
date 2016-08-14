@@ -290,7 +290,6 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
         switch(typeofNote){
             case REFERRAL:
                 inflater.inflate(R.menu.detail_view_menu, menu);
-                final MenuItem item = menu.findItem(R.id.delete);
                 break;
         }
     }
