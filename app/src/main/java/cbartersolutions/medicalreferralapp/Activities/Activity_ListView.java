@@ -209,14 +209,7 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
 
         switch(id) {
             case android.R.id.home:
-                if(!deleted_notes){
-                    finish();
-                }else{
-                    Intent go_back_to_not_deleted_notes = new Intent(this, Activity_ListView.class);
-                    go_back_to_not_deleted_notes.putExtra(MainActivity.NOTE_TYPE, typeofNote);
-                    go_back_to_not_deleted_notes.putExtra(MainActivity.DELETED_NOTES, false);
-                    startActivity(go_back_to_not_deleted_notes);
-                }
+                finish();
             case R.id.action_settings:
                 return true;
             case R.id.action_add:
@@ -252,9 +245,16 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
 
     @Override
     public void finish(){
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
-        startActivity(intent);
+        if(!deleted_notes) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
+            startActivity(intent);
+        }else{
+            Intent go_back_to_not_deleted_notes = new Intent(this, Activity_ListView.class);
+            go_back_to_not_deleted_notes.putExtra(MainActivity.NOTE_TYPE, typeofNote);
+            go_back_to_not_deleted_notes.putExtra(MainActivity.DELETED_NOTES, false);
+            startActivity(go_back_to_not_deleted_notes);
+        }
     }
 
 }

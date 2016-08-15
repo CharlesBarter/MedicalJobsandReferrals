@@ -232,10 +232,10 @@ public class DetailActivity extends AppCompatActivity  {
         //set part of the title based on the note type
         switch (typeofNote){
             case JOB:
-                title = getResources().getString(R.string.jobs);
+                title = getResources().getString(R.string.jobSingular);
                 break;
             case REFERRAL:
-                title = getResources().getString(R.string.referrals);
+                title = getResources().getString(R.string.referralSingular);
                 break;
         }
 

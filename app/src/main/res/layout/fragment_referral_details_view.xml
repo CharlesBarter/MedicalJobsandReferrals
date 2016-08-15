@@ -212,8 +212,8 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/detailsHeader"
-                    android:textSize="18sp"
-                    android:textColor="@android:color/black"
+                    android:textSize="@dimen/detailsViewDetailsTextSize"
+                    android:textColor="@color/detailsViewDetailsText"
                     android:gravity="top"
                     android:textAppearance="@android:style/Widget.EditText"
                     />

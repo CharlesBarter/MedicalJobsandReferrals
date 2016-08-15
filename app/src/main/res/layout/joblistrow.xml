@@ -12,19 +12,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/listItemNoteImage"
-        android:src="@drawable/ic_priority_high_xhdpi"
-        android:layout_alignParentTop="true"
+        android:src="@drawable/ic_priority_medium_xhdpi"
+        android:layout_marginTop="6dp"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="5dp"
+        android:layout_marginStart="10dp"
         android:layout_marginEnd="5dp"
         android:clickable="true"
-        android:longClickable="true"/>
+        android:longClickable="true"
+        android:fadingEdgeLength="10dp"
+        />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/listItemPatientName"
         android:text="@string/hint_patient_name"
-        android:textAppearance="?android:textAppearanceLarge"
+        android:textAppearance="?android:textAppearanceListItem"
+        android:textSize="17sp"
         android:layout_alignParentTop="true"
         android:layout_toEndOf="@id/listItemNoteImage"
         android:layout_toStartOf="@+id/listItemPatientNHI"
@@ -36,12 +39,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/listItemPatientNHI"
-        android:textAppearance="?android:textAppearanceLarge"
+        android:textAppearance="?android:textAppearanceListItem"
+        android:textSize="17sp"
         android:singleLine="true"
         android:ellipsize="end"
         android:maxLength="7"
         android:layout_marginBottom="2dp"
         android:layout_marginStart="5dp"
+        android:layout_marginEnd="16dp"
         android:layout_alignTop="@+id/listItemPatientName"
         android:layout_alignParentEnd="true"/>
 
@@ -52,6 +57,8 @@
         android:layout_below="@id/listItemPatientName"
         android:layout_toEndOf="@id/listItemNoteImage"
         android:layout_toStartOf="@+id/list_age_sex"
+        android:textAppearance="?android:textAppearanceListItemSecondary"
+        android:textColor="@color/listViewSecondaryText"
         android:ellipsize="end"
         android:maxLines="2"/>
 
@@ -61,7 +68,7 @@
         android:id="@+id/list_age_sex"
         android:layout_below="@id/listItemPatientNHI"
         android:textAppearance="?android:textAppearanceListItem"
-        android:layout_marginEnd="5dp"
+        android:layout_marginEnd="16dp"
         android:layout_alignParentEnd="true"
         android:gravity="end"/>
 

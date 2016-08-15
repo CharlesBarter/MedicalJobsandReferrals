@@ -15,4 +15,10 @@
     <color name="background">#f9f9f9</color>
 
     <color name="swipeBackground">#d50000</color>
+
+    //Text Colours
+    <color name="listViewSecondaryText">#757575</color>
+    
+    <color name="detailsViewDetailsText">#757575</color>
+
 </resources>

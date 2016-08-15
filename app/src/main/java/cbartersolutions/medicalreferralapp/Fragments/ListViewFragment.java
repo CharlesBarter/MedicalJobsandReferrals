@@ -11,7 +11,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
@@ -252,12 +251,12 @@ public class ListViewFragment extends android.support.v4.app.ListFragment  {
                 updateJob(intent, is_deleted);//update the job to be deleted
 //                jobslist.remove(position);
 //                noteSwipeAdapter.notifyDataSetChanged();
-                snackbar_words = getString(R.string.job_singular) + " " + what_happened_to_note;
+                snackbar_words = getString(R.string.jobSingular) + " " + what_happened_to_note;
                 break;
             case REFERRAL:
                 updateReferral(intent, is_deleted);
 //                referralslist.remove(position);
-                snackbar_words = getString(R.string.referral_singular) + " " + what_happened_to_note;
+                snackbar_words = getString(R.string.referralSingular) + " " + what_happened_to_note;
                 break;
         }
 

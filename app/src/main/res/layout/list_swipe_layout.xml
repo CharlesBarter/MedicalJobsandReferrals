@@ -12,16 +12,16 @@
     <LinearLayout
         android:id="@+id/swipe_background"
         android:layout_width="260dp"
-        android:layout_height="80dp"
+        android:layout_height="75dp"
         android:background="@color/swipeBackground"
-        android:gravity="end"
+        android:gravity="start"
         android:tag="Bottom3"
         android:weightSum="10">
 
         <ImageView
             android:id="@+id/trash"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_weight="1"
             android:layout_gravity="center|start"
             android:src="@android:drawable/ic_menu_delete" />
@@ -29,8 +29,8 @@
 
         <ImageView
             android:id="@+id/recover"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_weight="1"
             android:layout_gravity="center|start"
             android:src="@android:drawable/ic_menu_add" />
@@ -41,7 +41,7 @@
     <LinearLayout
         android:id="@+id/swipe_background2"
         android:layout_width="260dp"
-        android:layout_height="80dp"
+        android:layout_height="75dp"
         android:background="@color/background"
         android:gravity="end"
         android:tag="Bottom3"
@@ -49,8 +49,8 @@
 
         <ImageView
             android:id="@+id/trash2"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_weight="1"
             android:layout_gravity="center|start"
             android:src="@android:drawable/ic_menu_delete" />

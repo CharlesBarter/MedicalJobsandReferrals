@@ -54,8 +54,8 @@
     //job or referral titles
     <string name="jobs">Jobs</string>
     <string name="referrals">Referrals</string>
-    <string name="job_singular">Job</string>
-    <string name="referral_singular">Referral</string>
+    <string name="jobSingular">Job</string>
+    <string name="referralSingular">Referral</string>
 
     //confirm dialog strings
     <string name="confirm_title">Are you sure?</string>

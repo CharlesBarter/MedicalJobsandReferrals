@@ -5,4 +5,7 @@
     <dimen name="fab_margin">24dp</dimen>
     <dimen name="gapBetweenNameandAge">15dp</dimen>
     <dimen name="sizeofAgeSex">115dp</dimen>
+
+    //Text Sizes
+    <dimen name="detailsViewDetailsTextSize">17dp</dimen>
 </resources>
