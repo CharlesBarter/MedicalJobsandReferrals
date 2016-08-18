@@ -41,6 +41,8 @@ import cbartersolutions.medicalreferralapp.Adapters.ReferralsDbAdapter;
 
 public class DetailsEditFragment extends Fragment implements View.OnClickListener {
 
+    private static String TAG = "DetailsEditFragment";
+
     private Intent intent;
 
     private View fragmentlayout;

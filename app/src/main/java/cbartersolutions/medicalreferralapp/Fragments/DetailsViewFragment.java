@@ -35,6 +35,8 @@ import cbartersolutions.medicalreferralapp.R;
  */
 public class DetailsViewFragment extends Fragment implements View.OnClickListener {
 
+    private static String TAG = "DetailsViewFragment";
+
     private Bundle view_pager_bundle;
 
     private View fragmentlayout;
@@ -145,7 +147,6 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
                         startActivity(callIntent );
                     }
                 });
-
                 break;
         }
 

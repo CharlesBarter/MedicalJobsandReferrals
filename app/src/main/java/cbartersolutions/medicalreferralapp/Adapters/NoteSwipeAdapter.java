@@ -14,7 +14,11 @@ import com.daimajia.swipe.SimpleSwipeListener;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Handler;
 
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.Fragments.ListViewFragment;
@@ -26,10 +30,18 @@ import cbartersolutions.medicalreferralapp.R;
  */
 public class NoteSwipeAdapter extends BaseSwipeAdapter {
 
+    private static String TAG = "NoteSwipeAdapter";
+
     private Context mContext;
     private final ListViewFragment fragment_called_from;
     private ArrayList<Note> notes;
     private boolean deleted_notes;
+
+    private boolean mIsOpen;
+
+    private Handler handler;
+
+
 
     public NoteSwipeAdapter(Context mContext, ArrayList<Note> notes, ListViewFragment fragment){
         this.mContext = mContext;
@@ -46,13 +58,18 @@ public class NoteSwipeAdapter extends BaseSwipeAdapter {
         return R.id.list_swipe;
     }
 
+    Boolean code_run;
 
     @Override
     public View generateView(final int position, ViewGroup parent) {
         View v = LayoutInflater.from(mContext).inflate(R.layout.list_swipe_layout, parent, false);
-        SwipeLayout swipeLayout = (SwipeLayout)v.findViewById(getSwipeLayoutResourceId(position));
+        final SwipeLayout swipeLayout = (SwipeLayout)v.findViewById(getSwipeLayoutResourceId(position));
         swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
         swipeLayout.addDrag(SwipeLayout.DragEdge.Left, v.findViewById(R.id.swipe_background));
+        swipeLayout.setMinVelocity(20000);
+        swipeLayout.setWillOpenPercentAfterOpen(0f);
+        swipeLayout.setWillOpenPercentAfterClose(0.99f);
+        swipeLayout.setDragDistance(160);
 
         View trash_icon = swipeLayout.findViewById(R.id.trash); //create the trash icon
         View add_icon = swipeLayout.findViewById(R.id.recover);
@@ -69,8 +86,7 @@ public class NoteSwipeAdapter extends BaseSwipeAdapter {
                     int c = (Integer) evaluate(fraction, Color.parseColor("#f9f9f9"), Color.parseColor("#d50000"));
                     child.setBackgroundColor(c);
 //                if (distance >= 1000){
-//                    Intent intent_to_delete = fragment_called_from.putIntentInfo(position);
-//                    fragment_called_from.jobDone(intent_to_delete);
+//                    mIsOpen = true;
 //                }
             }
         });
@@ -79,22 +95,35 @@ public class NoteSwipeAdapter extends BaseSwipeAdapter {
             swipeLayout.addRevealListener(R.id.swipe_background2, new SwipeLayout.OnRevealListener() {
                 @Override
                 public void onReveal(View child, SwipeLayout.DragEdge edge, float fraction, int distance) {
-                    if(distance >= 500) {
-                        int c = (Integer) evaluate(fraction, Color.parseColor("#f9f9f9"), Color.parseColor("#000000"));
-                        child.setBackgroundColor(c);
-                    }
-                    if (distance >= 1000) {
-                        fragment_called_from.permanentDeleteNote(notes.get(position).getNoteId(), position);
-                    }
+                    int c = (Integer) evaluate(fraction, Color.parseColor("#f9f9f9"), Color.parseColor("#000000"));
+                    Log.d(TAG, "fraction" + fraction);
+                    child.setBackgroundColor(c);
                 }
             });
         }
+
+        code_run = false;
+
         swipeLayout.addSwipeListener(new SimpleSwipeListener(){
+
             @Override
-            public void onOpen(SwipeLayout layout) {
-                Log.d("Test", "onOpen");
-                Intent intent_to_delete = fragment_called_from.putIntentInfo(position);
-                fragment_called_from.jobDone(intent_to_delete);
+            public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
+                SwipeLayout.DragEdge currentDragEdge = swipeLayout.getCurrentDragEdge();
+                Log.d(TAG, "Drag Edge" + currentDragEdge);
+                if(swipeLayout.getOpenStatus()== SwipeLayout.Status.Open && !code_run) {
+                    if(currentDragEdge == SwipeLayout.DragEdge.Left) {
+                        code_run = true;
+                        Log.d(TAG, "onHandRelease");
+                        Intent intent_to_delete = fragment_called_from.putIntentInfo(position);
+                        fragment_called_from.jobDone(intent_to_delete);
+                    }else if (currentDragEdge == SwipeLayout.DragEdge.Right){
+                        fragment_called_from.permanentDeleteNote(notes.get(position).getNoteId(),
+                                position);
+                    }
+//                    refreshList();
+                }else if(!code_run){
+                    closeItem(position);
+                }
             }
         });
         return v;
@@ -111,6 +140,7 @@ public class NoteSwipeAdapter extends BaseSwipeAdapter {
         TextView notePatientNHI = (TextView) convertView.findViewById(R.id.listItemPatientNHI);
         TextView notePatient_Age_Sex = (TextView) convertView.findViewById(R.id.list_age_sex);
         TextView noteDetails = (TextView) convertView.findViewById(R.id.listItemDetails);
+        TextView noteLocation = (TextView) convertView.findViewById(R.id.listItemLocation);
         ImageView noteIcon = (ImageView) convertView.findViewById(R.id.listItemNoteImage);
 
 
@@ -119,6 +149,7 @@ public class NoteSwipeAdapter extends BaseSwipeAdapter {
         notePatientNHI.setText(note.getPatientNHI());
         notePatient_Age_Sex.setText(note.getPatient_Age_Sex());
         noteDetails.setText(note.getdetails());
+        noteLocation.setText(note.getPatient_location());
         noteIcon.setImageResource(note.getAssociatedDrawable());
     }
 
@@ -158,6 +189,14 @@ public class NoteSwipeAdapter extends BaseSwipeAdapter {
                ((startR + (int) (fraction * (endR - startR))) << 16) |
                ((startG + (int) (fraction * (endG - startG))) << 8) |
                ((startB + (int) (fraction * (endB - startB))));
+    }
+
+    public void refreshList(){
+        List<Integer> openItems = getOpenItems();
+        for (int i = 0; i < openItems.size(); i++){
+            closeItem(openItems.get(i));
+        }
+        notifyDataSetChanged();
     }
 
 }

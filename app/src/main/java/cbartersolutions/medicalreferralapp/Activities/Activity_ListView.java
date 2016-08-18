@@ -22,6 +22,8 @@ import cbartersolutions.medicalreferralapp.R;
 
 public class Activity_ListView extends AppCompatActivity implements View.OnClickListener{
 
+    private static String TAG = "Activity_ListView";
+
     MainActivity.TypeofNote typeofNote;
     FloatingActionButton fab;
 
@@ -177,7 +179,7 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
         }
     }
 
-    //on ViewPager chane code
+    //on ViewPager change code
     private ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.SimpleOnPageChangeListener(){
         @Override
         public void onPageSelected (int pos){

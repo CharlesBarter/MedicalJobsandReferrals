@@ -22,6 +22,8 @@ import cbartersolutions.medicalreferralapp.R;
 
 public class DetailActivity extends AppCompatActivity  {
 
+    private static String TAG = "Details Activity";
+
     private MainActivity.TypeofNote typeofNote;
     private String title;
     private String fullTitle;

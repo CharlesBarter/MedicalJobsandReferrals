@@ -18,6 +18,8 @@ import cbartersolutions.medicalreferralapp.Others.Note;
  */
 public class ReferralsDbAdapter {
 
+    private static String TAG = "ReferralsDbAdapter";
+
     private static final String DATABASE_NAME = "Referrals.db";
     private static final int DATABASE_VERSION = 1;
 

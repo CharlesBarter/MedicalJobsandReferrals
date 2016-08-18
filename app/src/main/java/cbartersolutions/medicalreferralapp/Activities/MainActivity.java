@@ -17,6 +17,8 @@ import cbartersolutions.medicalreferralapp.R;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static String TAG = "MainActivity";
+
     public static final String NOTE_ID = "com.cbartersolutions.medicalreferralapp.Identifier";
     public static final String NOTE_PATIENT_NAME = "com.cbartersolutions.medicalreferralapp.Patient_Name";
     public static final String NOTE_PATIENT_NHI = "com.cbartersolutions.medicalreferralapp.Patient_NHI";

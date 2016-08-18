@@ -1,13 +1,7 @@
 apply plugin: 'com.android.application'
-buildscript {
-    repositories {
-        jcenter()
-    }
 
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.2'
-    }
-}
+apply plugin: 'com.github.dcendents.android-maven'
+
 android {
     compileSdkVersion 24
     buildToolsVersion "24.0.1"
@@ -27,15 +21,13 @@ android {
     }
 }
 
-repositories {
-    jcenter()
-}
-
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:24.1.1'
     compile 'com.android.support:design:24.1.1'
     compile 'com.android.support:support-v4:24.1.1'
+    compile 'com.android.support:recyclerview-v7:24.1.1'
     compile 'com.github.clans:fab:1.6.4'
-    compile "com.daimajia.swipelayout:library:1.2.0@aar"
+    compile project(':libs:AndroidSwipeLayout')
+//    compile project(':AndroidSwipeLayout-master')
 }

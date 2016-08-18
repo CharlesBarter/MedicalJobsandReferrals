@@ -2,9 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF9F9F9"
-    android:paddingBottom="10dp"
-    android:paddingTop="10dp"
+    android:background="@color/background"
+    android:paddingBottom="7dp"
+    android:paddingTop="7dp"
     android:id="@+id/singleItemOnlistViewLayout"
     android:descendantFocusability="blocksDescendants">
 
@@ -44,11 +44,12 @@
         android:singleLine="true"
         android:ellipsize="end"
         android:maxLength="7"
-        android:layout_marginBottom="2dp"
         android:layout_marginStart="5dp"
         android:layout_marginEnd="16dp"
         android:layout_alignTop="@+id/listItemPatientName"
-        android:layout_alignParentEnd="true"/>
+        android:layout_alignParentEnd="true"
+        android:scrollbarSize="15sp"
+        android:text="AAA9999"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -56,11 +57,24 @@
         android:id="@+id/listItemDetails"
         android:layout_below="@id/listItemPatientName"
         android:layout_toEndOf="@id/listItemNoteImage"
-        android:layout_toStartOf="@+id/list_age_sex"
-        android:textAppearance="?android:textAppearanceListItemSecondary"
+        android:layout_toStartOf="@+id/listItemPatientNHI"
+        android:textAppearance="?android:textAppearanceListItem"
         android:textColor="@color/listViewSecondaryText"
         android:ellipsize="end"
-        android:maxLines="2"/>
+        android:maxLines="2"
+        android:text="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"/>
+
+    <TextView
+        android:id="@+id/listItemLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/list_age_sex"
+        android:layout_marginEnd="16dp"
+        android:textSize="14sp"
+        android:textAppearance="?android:textAppearanceListItem"
+        android:text="5N A01"
+        />
 
     <TextView
         android:layout_width="wrap_content"
@@ -70,7 +84,8 @@
         android:textAppearance="?android:textAppearanceListItem"
         android:layout_marginEnd="16dp"
         android:layout_alignParentEnd="true"
-        android:gravity="end"/>
+        android:gravity="end"
+        android:text="101F"/>
 
 
 

@@ -16,6 +16,9 @@ import cbartersolutions.medicalreferralapp.Others.Note;
  * Created by Charles on 17/07/2016.
  */
 public class JobsDbAdapter {
+
+    private static String TAG = "JobsDbAdapter";
+
     private static final String DATABASE_NAME = "Jobs.db";
     private static final int DATABASE_VERSION = 2;
 

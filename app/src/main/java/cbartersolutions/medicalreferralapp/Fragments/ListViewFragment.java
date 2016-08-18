@@ -35,6 +35,8 @@ import cbartersolutions.medicalreferralapp.Adapters.ReferralsDbAdapter;
  */
 public class ListViewFragment extends android.support.v4.app.ListFragment  {
 
+    private static String TAG = "ListViewFragment";
+
     private ArrayList<Note> referralslist, jobslist;
     private NoteAdapter noteAdapter;
     private NoteSwipeAdapter noteSwipeAdapter;
@@ -49,6 +51,8 @@ public class ListViewFragment extends android.support.v4.app.ListFragment  {
     private Boolean deleted_notes, long_press_deleted_notes;
 
     private ListView listView;
+
+    JobsDbAdapter jobsDbAdapter = new JobsDbAdapter(getActivity());
 
 
     @Override
@@ -260,9 +264,16 @@ public class ListViewFragment extends android.support.v4.app.ListFragment  {
                 break;
         }
 
-//            noteSwipeAdapter.notifyDataSetChanged();
-//                noteSwipeAdapter.notifyDataSetInvalidated();
-            setListAdapter(makeAdapter(typeofNote)); //reset the GUI so the note is gone
+//        noteSwipeAdapter.closeItem(position);
+//        jobslist.clear();
+//        jobsDbAdapter.open();
+//        ArrayList<Note> new_jobslist = jobsDbAdapter.getNonDeletedJobs();
+//        jobsDbAdapter.close();
+//        jobslist.addAll(new_jobslist);
+//        jobslist.remove(position);
+//        noteSwipeAdapter.notifyDataSetChanged();
+
+        setListAdapter(makeAdapter(typeofNote)); //reset the GUI so the note is gone
 
             //snackbar code
             Snackbar snackbar = Snackbar
@@ -361,8 +372,6 @@ public class ListViewFragment extends android.support.v4.app.ListFragment  {
 //        noteSwipeAdapter.notifyDataSetChanged();
         setListAdapter(makeAdapter(typeofNote));
     }
-
-    JobsDbAdapter jobsDbAdapter;
 
     //make the adapter depending on the type of job
     public ListAdapter makeAdapter (MainActivity.TypeofNote typeofNote) {

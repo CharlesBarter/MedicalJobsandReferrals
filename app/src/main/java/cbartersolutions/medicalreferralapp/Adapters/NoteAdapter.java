@@ -34,6 +34,8 @@ import cbartersolutions.medicalreferralapp.R;
  */
 public class NoteAdapter extends ArrayAdapter<Note>{
 
+    private static String TAG = "NoteAdapter";
+
     public static class ViewHolder{
         TextView notePatientName;
         TextView notePatientNHI;
