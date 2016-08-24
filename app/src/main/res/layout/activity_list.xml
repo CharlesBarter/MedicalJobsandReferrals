@@ -40,14 +40,19 @@
 
     </android.support.v4.view.ViewPager>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="29dp"
-        android:src="@drawable/ic_add_white_mdpi"
-        app:backgroundTint="@color/colorPrimaryDark"/>
+    <!--<android.support.design.widget.FloatingActionButton-->
+        <!--android:id="@+id/fab"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="bottom|end"-->
+        <!--android:layout_margin="29dp"-->
+        <!--android:src="@drawable/ic_add_white_mdpi"-->
+        <!--app:backgroundTint="@color/colorPrimaryDark"-->
+        <!--app:layout_anchor="@+id/recycler_list_widget"-->
+        <!--app:layout_anchorGravity="bottom|right"/>-->
+        <!--/>-->
+
+
     <!--<com.github.clans.fab.FloatingActionButton-->
         <!--android:id="@+id/fab"-->
         <!--android:layout_width="wrap_content"-->

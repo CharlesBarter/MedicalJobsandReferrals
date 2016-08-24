@@ -5,7 +5,6 @@
     android:id="@+id/list_swipe"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    swipe:drag_edge="left"
     swipe:leftEdgeSwipeOffset="0dp"
     swipe:rightEdgeSwipeOffset="0dp">
 
@@ -57,6 +56,6 @@
 
     </LinearLayout>
 
-    <include layout = "@layout/joblistrow"/>
+    <include layout = "@layout/joblistrow" />
 
 </com.daimajia.swipe.SwipeLayout>

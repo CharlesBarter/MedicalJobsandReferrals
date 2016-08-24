@@ -87,6 +87,4 @@
         android:gravity="end"
         android:text="101F"/>
 
-
-
 </RelativeLayout>

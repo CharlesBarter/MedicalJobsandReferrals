@@ -138,6 +138,12 @@ public class ReferralsDbAdapter {
         return sqlDB.update(REFERRALS_TABLE, values, COLUMN_ID + " = "+ idToUpdate, null);
     }
 
+    public long changeDeleteStatus(long idToUpdate, int deleted){
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_DELETED, deleted);
+        return  sqlDB.update(REFERRALS_TABLE, values, COLUMN_ID + " = " + idToUpdate, null);
+    }
+
 
    //cycles through the database and creates notes to add to the Arraylist<Note> which is then used by
     //all the other code to populate the data

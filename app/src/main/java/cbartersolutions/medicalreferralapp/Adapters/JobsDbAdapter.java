@@ -10,6 +10,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.Others.Note;
 
 /**
@@ -140,6 +141,12 @@ public class JobsDbAdapter {
         values.put(COLUMN_DATE, date);
 
         //update the database with the new information
+        return sqlDB.update(JOBS_TABLE, values, COLUMN_ID + " = " + idToUpdate, null);
+    }
+
+    public long changeJobsDeletedStatus (long idToUpdate, int deleted){
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_DELETED, deleted);
         return sqlDB.update(JOBS_TABLE, values, COLUMN_ID + " = " + idToUpdate, null);
     }
 

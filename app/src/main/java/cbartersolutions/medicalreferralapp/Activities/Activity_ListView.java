@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.support.design.widget.FloatingActionButton;
 
 import cbartersolutions.medicalreferralapp.Fragments.ListViewFragment;
+import cbartersolutions.medicalreferralapp.Fragments.RecyclerViewFragment;
 import cbartersolutions.medicalreferralapp.Listeners.OnSwipeTouchListener;
 import cbartersolutions.medicalreferralapp.R;
 //import com.github.clans.fab.FloatingActionButton;
@@ -72,11 +74,14 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
                 break;
         }
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(this);
+//        fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(this);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
+        //fragment for recyclerview
+        createRecyclerViewFragment();
 
 //        //code to swipe back to main activity with 2 buttons
         View view = findViewById(R.id.list_activity_layout);
@@ -86,6 +91,15 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
 
         //for view pager code
 //        makeViewPager();
+;
+    }
+
+    private void createRecyclerViewFragment(){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        RecyclerViewFragment recyclerViewFragment = new RecyclerViewFragment();
+        fragmentTransaction.add(R.id.list_layout, recyclerViewFragment);
+        fragmentTransaction.commit();
     }
 
     private View.OnTouchListener onTouchListener = new OnSwipeTouchListener(getBaseContext()){

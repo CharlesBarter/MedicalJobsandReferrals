@@ -34,17 +34,10 @@ public class Note {
                 String patient_location, long date_and_time,
                 String referrerName, String referrerContact,
                 String details, Category category, long noteId, long dateCreatedMilli){
-        this.patientname = patientname;
-        this.patientNHI = patientNHI;
-        this.patient_Age_Sex = patient_Age_Sex;
-        this.patient_location = patient_location;
-        this.date_and_time = date_and_time;
+        this(patientname, patientNHI, patient_Age_Sex, patient_location, date_and_time,
+                details, category, noteId, dateCreatedMilli);
         this.referrerName = referrerName;
         this.referrerContact = referrerContact;
-        this.details = details;
-        this.category = category;
-        this.noteId = noteId;
-        this.dateCreatedMilli = dateCreatedMilli;
     }
 
     public String getPatientname(){

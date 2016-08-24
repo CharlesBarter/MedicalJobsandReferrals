@@ -151,6 +151,7 @@ public class NoteSwipeAdapter extends BaseSwipeAdapter {
         noteDetails.setText(note.getdetails());
         noteLocation.setText(note.getPatient_location());
         noteIcon.setImageResource(note.getAssociatedDrawable());
+        noteIcon.setImageResource(note.getAssociatedDrawable());
     }
 
     @Override
