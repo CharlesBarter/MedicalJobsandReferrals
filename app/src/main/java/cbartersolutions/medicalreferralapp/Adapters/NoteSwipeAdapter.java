@@ -64,7 +64,7 @@ public class NoteSwipeAdapter extends BaseSwipeAdapter {
         final SwipeLayout swipeLayout = (SwipeLayout)v.findViewById(getSwipeLayoutResourceId(position));
         swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
         swipeLayout.addDrag(SwipeLayout.DragEdge.Left, v.findViewById(R.id.swipe_background));
-        swipeLayout.setMinVelocity(20000);
+//        swipeLayout.setMinVelocity(20000);
         swipeLayout.setWillOpenPercentAfterOpen(0f);
         swipeLayout.setWillOpenPercentAfterClose(0.99f);
         swipeLayout.setDragDistance(160);
@@ -106,7 +106,7 @@ public class NoteSwipeAdapter extends BaseSwipeAdapter {
 
             @Override
             public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
-                SwipeLayout.DragEdge currentDragEdge = swipeLayout.getCurrentDragEdge();
+                SwipeLayout.DragEdge currentDragEdge = swipeLayout.getDragEdge();
                 Log.d(TAG, "Drag Edge" + currentDragEdge);
                 if(swipeLayout.getOpenStatus()== SwipeLayout.Status.Open && !code_run) {
                     if(currentDragEdge == SwipeLayout.DragEdge.Left) {

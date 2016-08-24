@@ -10,8 +10,6 @@ import android.widget.TextView;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.RecyclerSwipeAdapter;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 
 import cbartersolutions.medicalreferralapp.Fragments.RecyclerViewFragment;
@@ -40,7 +38,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
     public static class SimpleViewHolder extends RecyclerView.ViewHolder{
         SwipeLayout swipeLayout;
         TextView listPatientName, listPatientNHI, listPatientAge_Sex, listPatientLocation,
-        listDetails;
+                listDetails;
 
         public SimpleViewHolder(final View itemView) {
             super(itemView);
@@ -83,7 +81,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
     }
 
     @Override
-    public int getItemCount() {
+    public int getItemCount(){
         return mNotes.size();
     }
 
