@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:id="@+id/swipe_background"
+        android:layout_width="160dp"
+        android:layout_height="75dp"
+        android:background="@color/swipeBackground"
+        android:gravity="start"
+        android:tag="Bottom3"
+        android:weightSum="10">
+
+        <ImageView
+            android:id="@+id/red_bar"
+            android:layout_width="600dp"
+            android:layout_height="75dp"
+            android:background="@color/swipeBackground"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:id="@+id/trash"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_weight="1"
+            android:layout_gravity="center|start"
+            android:src="@android:drawable/ic_menu_delete" />
+
+
+        <ImageView
+            android:id="@+id/recover"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_weight="1"
+            android:layout_gravity="center|start"
+            android:src="@android:drawable/ic_menu_add" />
+
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -41,8 +41,6 @@ public class NoteSwipeAdapter extends BaseSwipeAdapter {
 
     private Handler handler;
 
-
-
     public NoteSwipeAdapter(Context mContext, ArrayList<Note> notes, ListViewFragment fragment){
         this.mContext = mContext;
         this.fragment_called_from = fragment;
