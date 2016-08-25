@@ -33,6 +33,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
     private String TAG = "RecyclerViewAdapter";
     private Context mContext;
     private ArrayList<Note> mNotes;
+    private Note deleted_note;
     private RecyclerViewFragment fragment_using_adapter;
     private boolean deleted_notes;
     private MainActivity.TypeofNote typeofNote;
@@ -92,7 +93,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(final SimpleViewHolder viewHolder, int position) {
-        final Note note = mNotes.get(position);
+        final Note note = mNotes.get(viewHolder.getAdapterPosition());
 
         //setdata into list
         viewHolder.listPatientName.setText(note.getPatientname());
@@ -130,6 +131,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
             what_happened_to_note = mContext.getString(R.string.marked_done);
         }
 
+        //set words for snackbar
         switch (typeofNote){
             case JOB:
                 snackbar_words = mContext.getString(R.string.jobSingular) + " " + what_happened_to_note;
@@ -191,6 +193,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                                     alteringDatabase.changeReferralDeletedStatus(note.getNoteId(),
                                             is_change_deleted_status);
                             }
+                            deleted_note = mNotes.get(position);
                             mNotes.remove(position);
                             notifyItemRemoved(position);
                             notifyItemRangeChanged(position, mNotes.size());
@@ -212,10 +215,10 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                                                     break;
                                             }
                                             viewHolder.swipeLayout.getSurfaceView().setVisibility(View.VISIBLE);
-                                            mNotes.add(position, note);
+                                            mNotes.add(position, deleted_note);
                                             notifyItemInserted(position);
                                             notifyItemRangeChanged(position, mNotes.size());
-                                            mItemManger.closeAllItems();
+//                                            mItemManger.closeAllItems();
                                         }
                                     });
                             snackbar.setActionTextColor(Color.RED);

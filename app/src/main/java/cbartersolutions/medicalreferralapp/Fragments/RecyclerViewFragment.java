@@ -3,6 +3,7 @@ package cbartersolutions.medicalreferralapp.Fragments;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -41,7 +42,7 @@ public class RecyclerViewFragment extends Fragment {
     private Intent intent;
 
     MainActivity.TypeofNote typeofNote;
-    private boolean deleted_notes;
+    private boolean deleted_notes, job_done;
 
     JobsDbAdapter jobsDbAdapter = new JobsDbAdapter(getActivity());
 
@@ -67,6 +68,11 @@ public class RecyclerViewFragment extends Fragment {
         //fling code
 //        View view = fragmentLayout.findViewById(R.id.recycler_view_fragment_coordinator_layout);
 //        view.setOnTouchListener(onTouchListener);
+
+        job_done = getActivity().getIntent().getBooleanExtra(MainActivity.JOB_DONE, false);
+        if(job_done){
+            jobDone(getActivity().getIntent().getExtras().getLong(MainActivity.NOTE_ID));
+        }
 
         return fragmentLayout;
     }
@@ -183,6 +189,7 @@ public class RecyclerViewFragment extends Fragment {
 
         //work out if a deleted note
         Boolean job_done_deleted_notes = getActivity().getIntent().getBooleanExtra(MainActivity.DELETED_NOTES, false);
+        final int position = getActivity().getIntent().getExtras().getInt(MainActivity.LIST_POSITION);
 
         if(!job_done_deleted_notes) { //allows the same code to change the note from deleted to none deleted
             is_deleted = 1;
@@ -194,22 +201,64 @@ public class RecyclerViewFragment extends Fragment {
             what_happened_to_note = getString(R.string.restored_snackbar_string);
         }
 
+        switch (typeofNote){
+            case JOB:
+                snackbar_words = getString(R.string.jobSingular) + " " + what_happened_to_note;
+                break;
+            case REFERRAL:
+                snackbar_words = getString(R.string.referralSingular) + " " + what_happened_to_note;
+                break;
+        }
+
+        final Note deleted_note = jobslist.get(position);
+
+        //alter note
+        Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                switch (typeofNote){
+                    case JOB:
+                        alteringDatabase.changeJobDeletedStatus(noteId, is_deleted); //update the job to undeleted
+                        //remove from the visable list
+                        jobslist.remove(position);
+                        mRecyclerViewAdapter.notifyItemRemoved(position);
+                        mRecyclerViewAdapter.notifyItemRangeChanged(position, jobslist.size());
+                        break;
+                    case REFERRAL:
+                        alteringDatabase.changeReferralDeletedStatus(noteId, is_deleted);
+                        snackbar_words = getString(R.string.referralSingular) + " " + what_happened_to_note;
+                        //remove from visible list
+                        referralslist.remove(position);
+                        mRecyclerViewAdapter.notifyItemRemoved(position);
+                        mRecyclerViewAdapter.notifyItemRangeChanged(position, referralslist.size());
+                        break;
+                }
+                mRecyclerViewAdapter.mItemManger.closeAllItems();
+            }
+        };
+        handler.removeCallbacks(runnable);
+        handler.postDelayed(runnable, 200);
 
         //snackbar code
         Snackbar snackbar = Snackbar
-            .make(getView(), snackbar_words, Snackbar.LENGTH_LONG)
+            .make(fragmentLayout.getRootView(), snackbar_words, Snackbar.LENGTH_LONG)
             .setAction(R.string.undo, new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     switch (typeofNote){
                         case JOB:
                             alteringDatabase.changeJobDeletedStatus(noteId, undo_deleted); //update the job to undeleted
+                            jobslist.add(position, deleted_note);
+                            mRecyclerViewAdapter.notifyItemInserted(position);
+                            mRecyclerViewAdapter.notifyItemRangeChanged(position, jobslist.size());
                             break;
                         case REFERRAL:
                             alteringDatabase.changeReferralDeletedStatus(noteId, undo_deleted);
+                            mRecyclerViewAdapter.notifyItemInserted(position);
+                            mRecyclerViewAdapter.notifyItemRangeChanged(position, referralslist.size());
                             break;
                     }
-                    recyclerView.setAdapter(makeAdapter(typeofNote));
                 }
             });
         snackbar.setActionTextColor(Color.RED);
