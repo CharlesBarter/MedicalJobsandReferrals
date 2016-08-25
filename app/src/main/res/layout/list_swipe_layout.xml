@@ -38,10 +38,10 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/swipe_background2"
+        android:id="@+id/swipe_background_recover"
         android:layout_width="200dp"
         android:layout_height="75dp"
-        android:background="@color/background"
+        android:background="@color/permanentDeleteSwipeBackground"
         android:gravity="end"
         android:tag="Bottom3"
         android:weightSum="10">

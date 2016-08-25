@@ -14,8 +14,6 @@ import com.daimajia.swipe.SimpleSwipeListener;
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Handler;
@@ -89,8 +87,8 @@ public class NoteSwipeAdapter extends BaseSwipeAdapter {
             }
         });
         if(deleted_notes) {
-            swipeLayout.addDrag(SwipeLayout.DragEdge.Right, v.findViewById(R.id.swipe_background2));
-            swipeLayout.addRevealListener(R.id.swipe_background2, new SwipeLayout.OnRevealListener() {
+            swipeLayout.addDrag(SwipeLayout.DragEdge.Right, v.findViewById(R.id.swipe_background_recover));
+            swipeLayout.addRevealListener(R.id.swipe_background_recover, new SwipeLayout.OnRevealListener() {
                 @Override
                 public void onReveal(View child, SwipeLayout.DragEdge edge, float fraction, int distance) {
                     int c = (Integer) evaluate(fraction, Color.parseColor("#f9f9f9"), Color.parseColor("#000000"));
