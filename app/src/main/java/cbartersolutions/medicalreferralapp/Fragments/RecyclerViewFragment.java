@@ -4,24 +4,31 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.PagerAdapter;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.Toast;
 
 import com.daimajia.swipe.util.Attributes;
 
 import java.util.ArrayList;
 
+import cbartersolutions.medicalreferralapp.Activities.Activity_ListView;
 import cbartersolutions.medicalreferralapp.Activities.DetailActivity;
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.Adapters.JobsDbAdapter;
 import cbartersolutions.medicalreferralapp.Adapters.RecyclerViewAdapter;
 import cbartersolutions.medicalreferralapp.Adapters.ReferralsDbAdapter;
+import cbartersolutions.medicalreferralapp.Listeners.OnRecyclerViewScrollListener;
 import cbartersolutions.medicalreferralapp.Listeners.OnSwipeTouchListener;
 import cbartersolutions.medicalreferralapp.Others.AlteringDatabase;
 import cbartersolutions.medicalreferralapp.Others.Note;
@@ -38,6 +45,7 @@ public class RecyclerViewFragment extends Fragment {
     private RecyclerViewAdapter mRecyclerViewAdapter;
     private View fragmentLayout;
     private AlteringDatabase alteringDatabase;
+    private FloatingActionButton fab;
 
     private Intent intent;
 
@@ -57,17 +65,23 @@ public class RecyclerViewFragment extends Fragment {
 
         deleted_notes = getActivity().getIntent().getBooleanExtra(MainActivity.DELETED_NOTES, false);
 
+////        Code for using a viewpager
+//        Bundle fragment_bundle = getArguments();
+//        if(fragment_bundle != null){
+//            deleted_notes = fragment_bundle.getBoolean(MainActivity.DELETED_NOTES, false);
+//        }
+
         fragmentLayout = inflater.inflate(R.layout.recycler_view_fragment, container, false);
 
         //create fab\
-        FloatingActionButton fab = (FloatingActionButton) fragmentLayout.findViewById(R.id.fab);
+        fab = (FloatingActionButton) fragmentLayout.findViewById(R.id.fab);
         fab.setOnClickListener(createNewfab);
 
         setUpRecyclerView();
 
         //fling code
-//        View view = fragmentLayout.findViewById(R.id.recycler_view_fragment_coordinator_layout);
-//        view.setOnTouchListener(onTouchListener);
+        RecyclerView view = (RecyclerView) fragmentLayout.findViewById(R.id.recycler_list_widget);
+        view.setOnTouchListener(onTouchListener);
 
         job_done = getActivity().getIntent().getBooleanExtra(MainActivity.JOB_DONE, false);
         if(job_done){
@@ -77,10 +91,33 @@ public class RecyclerViewFragment extends Fragment {
         return fragmentLayout;
     }
 
+    public static RecyclerViewFragment newInstance(Bundle bundle){
+        RecyclerViewFragment recyclerViewFragment = new RecyclerViewFragment();
+        recyclerViewFragment.setArguments(bundle);
+        return recyclerViewFragment;
+    }
+
     public RecyclerView setUpRecyclerView(){
         //create recyclerView
         recyclerView = (RecyclerView)fragmentLayout.findViewById(R.id.recycler_list_widget);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
+
+        //deal with scrolling
+//        recyclerView.addOnScrollListener(new OnRecyclerViewScrollListener() {
+//            @Override
+//            public void onScrollDown() {
+//                fab.animate().translationY(0)
+//                        .setInterpolator(new DecelerateInterpolator()).start();
+//            }
+//
+//            @Override
+//            public void onScrollUp() {
+//                fab.animate().translationY(fab.getHeight()+params.bottomMargin)
+//                        .setInterpolator(new AccelerateInterpolator()).start();
+//            }
+//        });
 
         //create recycler adapter
         mRecyclerViewAdapter = makeAdapter(typeofNote);
@@ -93,17 +130,25 @@ public class RecyclerViewFragment extends Fragment {
 //                Toast.makeText(getActivity(), "Single Click " + " " + position,
 //                        Toast.LENGTH_SHORT).show();
             }
+
+            @Override
+            public void onLongClick(View itemView, int position) {
+                Toast.makeText(getActivity(), "LongCLick", Toast.LENGTH_SHORT).show();
+            }
         });
         recyclerView.setAdapter(mRecyclerViewAdapter);
         return recyclerView;
     }
 
     private View.OnTouchListener onTouchListener = new OnSwipeTouchListener(getActivity()){
+//        Intent intent = new Intent(getActivity(), Activity_ListView.class);
         @Override
         public void onSwipeRight() {
             if(!deleted_notes) {
                 getActivity().finish();
             }else{
+                intent = new Intent(getActivity(), Activity_ListView.class);
+                intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
                 intent.putExtra(MainActivity.DELETED_NOTES, false);
                 intent.putExtra(MainActivity.JOB_DONE, false);
                 startActivity(intent);
@@ -112,6 +157,8 @@ public class RecyclerViewFragment extends Fragment {
         @Override
         public void onSwipeLeft() {
             if (!deleted_notes) {
+                intent = new Intent(getActivity(), Activity_ListView.class);
+                intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
                 intent.putExtra(MainActivity.DELETED_NOTES, true);
                 intent.putExtra(MainActivity.JOB_DONE, false);
                 startActivity(intent);

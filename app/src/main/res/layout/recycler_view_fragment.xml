@@ -9,7 +9,8 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_list_widget"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+    </android.support.v7.widget.RecyclerView>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -20,7 +21,8 @@
         android:src="@drawable/ic_add_white_mdpi"
         app:backgroundTint="@color/colorPrimaryDark"
         app:layout_anchor="@+id/recycler_list_widget"
-        app:layout_anchorGravity="bottom|right"/>
+        app:layout_anchorGravity="bottom|right"
+        app:layout_behavior="cbartersolutions.medicalreferralapp.Behaviours.ScrollAwareFABBehaviour"/>
 
 
 </android.support.design.widget.CoordinatorLayout>

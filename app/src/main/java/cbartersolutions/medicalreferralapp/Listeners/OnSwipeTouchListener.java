@@ -58,16 +58,18 @@ public class OnSwipeTouchListener implements OnTouchListener {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            float distanceX = e2.getX() - e1.getX(); //distance moved in X direction
-            float distanceY = e2.getY() - e1.getY(); //distance moved in y direction
-            if (Math.abs(distanceX) > Math.abs(distanceY) //if move in X direction more than Y direction do...
-                    && Math.abs(distanceX) > SWIPE_DISTANCE_THRESHOLD //if moved more than the threhold in a lateral direction
-                    && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) { //if moved t more than a certain speed in lateral direction
-                if (distanceX > 0) //move to the right, ended futher to the right of the screen than started on
-                    onSwipeRight();
-                else
-                    onSwipeLeft();
-                return true;
+            if (e1 != null) {
+                float distanceX = e2.getX() - e1.getX(); //distance moved in X direction
+                float distanceY = e2.getY() - e1.getY(); //distance moved in y direction
+                if (Math.abs(distanceX) > Math.abs(distanceY) //if move in X direction more than Y direction do...
+                        && Math.abs(distanceX) > SWIPE_DISTANCE_THRESHOLD //if moved more than the threhold in a lateral direction
+                        && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) { //if moved t more than a certain speed in lateral direction
+                    if (distanceX > 0) //move to the right, ended further to the right of the screen than started on
+                        onSwipeRight();
+                    else
+                        onSwipeLeft();
+                    return true;
+                }
             }
             return false; //if a fling is detected no other gestures will do anything until hand released
         }

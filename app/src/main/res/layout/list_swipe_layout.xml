@@ -10,7 +10,7 @@
 
     <LinearLayout
         android:id="@+id/swipe_background"
-        android:layout_width="160dp"
+        android:layout_width="100dp"
         android:layout_height="75dp"
         android:background="@color/swipeBackground"
         android:gravity="start"

@@ -91,7 +91,7 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
 
         //for view pager code
 //        makeViewPager();
-;
+
     }
 
     private void createRecyclerViewFragment(){
@@ -148,17 +148,19 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
                 case 0:
                     bundle.putBoolean(MainActivity.DELETED_NOTES, false);
                     bundle.putBoolean(MainActivity.JOB_DONE, false);
-                    return ListViewFragment.newInstance(bundle);
+//                    return ListViewFragment.newInstance(bundle);
+                    return  RecyclerViewFragment.newInstance(bundle);
 
                 case 1:
                     bundle.putBoolean(MainActivity.DELETED_NOTES, true);
                     bundle.putBoolean(MainActivity.JOB_DONE, false);
-                    return ListViewFragment.newInstance(bundle);
-
+//                    return ListViewFragment.newInstance(bundle);
+                    return RecyclerViewFragment.newInstance(bundle);
                 default:
                     bundle.putBoolean(MainActivity.DELETED_NOTES, false);
                     bundle.putBoolean(MainActivity.JOB_DONE, false);
-                    return ListViewFragment.newInstance(bundle);
+//                    return ListViewFragment.newInstance(bundle);
+                    return RecyclerViewFragment.newInstance(bundle);
             }
         }
         @Override
@@ -237,11 +239,8 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
             case R.id.view_deleted_jobs:
                 Boolean deleted_wanted;
 
-                if(!deleted_notes){ // switches between deleted and current notes using the same menu button
-                    deleted_wanted = true;
-                }else{
-                    deleted_wanted = false;
-                }
+                // switches between deleted and current notes using the same menu button
+                deleted_wanted = !deleted_notes;
                 //restart intent
                 Intent deleted_intent = new Intent(this, Activity_ListView.class);
                 deleted_intent.putExtra(MainActivity.DELETED_NOTES, deleted_wanted);
