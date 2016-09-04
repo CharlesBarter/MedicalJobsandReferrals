@@ -78,11 +78,14 @@
     <string name="title_activity_referral_detail"></string>
 
     //menu titles
-    <string name="view_completed_jobs">Show completed jobs</string>
-    <string name="view_current_jobs">Show current jobs</string>
-    <string name="view_completed_referrals">Show completed referrals</string>
-    <string name="view_current_referrals">Show current referrals</string>
+    <string name="view_completed_jobs">Completed jobs</string>
+    <string name="view_current_jobs">Current jobs</string>
+    <string name="view_completed_referrals">Completed referrals</string>
+    <string name="view_current_referrals">Current referrals</string>
     <string name="gap">__________________</string>
+    <string name="navigation_drawer_open">Drawer open</string>
+    <string name="navigation_drawer_close">Drawer closed</string>
+    //
 
 
 

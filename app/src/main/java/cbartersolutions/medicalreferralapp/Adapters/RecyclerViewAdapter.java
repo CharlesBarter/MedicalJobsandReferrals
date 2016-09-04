@@ -21,9 +21,10 @@ import com.daimajia.swipe.adapters.RecyclerSwipeAdapter;
 import java.util.ArrayList;
 
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
+import cbartersolutions.medicalreferralapp.ArrayLists.Header;
 import cbartersolutions.medicalreferralapp.Fragments.RecyclerViewFragment;
 import cbartersolutions.medicalreferralapp.Others.AlteringDatabase;
-import cbartersolutions.medicalreferralapp.Others.Note;
+import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 import cbartersolutions.medicalreferralapp.R;
 
 /**
@@ -44,7 +45,11 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
     private String what_happened_to_note, snackbar_words;
     private Handler handler = new Handler();
     private Handler setVisibilityHandler = new Handler();
-    boolean code_run;
+    private boolean code_run, mOpen;
+
+    private static final int ITEM_TYPE_HEADER = 0;
+    private static final int ITEM_TYPE_NOTE = 1;
+
 
     private static OnItemClickListener listener;
 
@@ -62,16 +67,24 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
         TextView listPatientName, listPatientNHI, listPatientAge_Sex, listPatientLocation,
                 listDetails;
         ImageView listIcon;
+        TextView mHeader;
 
-        public SimpleViewHolder(final View itemView) {
+        public SimpleViewHolder(final View itemView, int itemType) {
             super(itemView);
-            swipeLayout = (SwipeLayout) itemView.findViewById(R.id.list_swipe);
-            listPatientName = (TextView) itemView.findViewById(R.id.listItemPatientName);
-            listPatientNHI = (TextView) itemView.findViewById(R.id.listItemPatientNHI);
-            listPatientAge_Sex = (TextView) itemView.findViewById(R.id.list_age_sex);
-            listPatientLocation = (TextView) itemView.findViewById(R.id.listItemLocation);
-            listDetails = (TextView) itemView.findViewById(R.id.listItemDetails);
-            listIcon = (ImageView) itemView.findViewById(R.id.listItemNoteImage);
+            switch (itemType) {
+                case ITEM_TYPE_NOTE:
+                    swipeLayout = (SwipeLayout) itemView.findViewById(R.id.list_swipe);
+                    listPatientName = (TextView) itemView.findViewById(R.id.listItemPatientName);
+                    listPatientNHI = (TextView) itemView.findViewById(R.id.listItemPatientNHI);
+                    listPatientAge_Sex = (TextView) itemView.findViewById(R.id.list_age_sex);
+                    listPatientLocation = (TextView) itemView.findViewById(R.id.listItemLocation);
+                    listDetails = (TextView) itemView.findViewById(R.id.listItemDetails);
+                    listIcon = (ImageView) itemView.findViewById(R.id.listItemNoteImage);
+                    break;
+                case ITEM_TYPE_HEADER:
+                    mHeader = (TextView) itemView.findViewById(R.id.recycler_view_header_text_view);
+                    break;
+            }
         }
     }
 
@@ -79,226 +92,261 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
         mContext = context;
         mNotes = notes;
         fragment_using_adapter = fragment;
-        deleted_notes = fragment.getActivity().getIntent()
-                .getBooleanExtra(MainActivity.DELETED_NOTES, false);
-        typeofNote = (MainActivity.TypeofNote) fragment.getActivity().getIntent()
-                .getSerializableExtra(MainActivity.NOTE_TYPE);
+        deleted_notes = fragment.getArguments()
+                .getBoolean(MainActivity.DELETED_NOTES, false);
+        typeofNote = (MainActivity.TypeofNote) fragment.getArguments()
+                .getSerializable(MainActivity.NOTE_TYPE);
         alteringDatabase = new AlteringDatabase(context);
     }
 
     @Override
     public SimpleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_swipe_layout,
-                parent, false);
-        return new SimpleViewHolder(view);
+        if(viewType == ITEM_TYPE_HEADER){
+            View header_View = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.header_recycler_view, null);
+            return new SimpleViewHolder(header_View, viewType);
+        }
+        else if (viewType == ITEM_TYPE_NOTE){
+            View note_View = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_swipe_layout, null);
+            return new SimpleViewHolder(note_View, viewType);
+        }
+        return null;
     }
 
     @Override
     public void onBindViewHolder(final SimpleViewHolder viewHolder, int position) {
-        final Note note = mNotes.get(viewHolder.getAdapterPosition());
 
-        //setdata into list
-        viewHolder.listPatientName.setText(note.getPatientname());
-        viewHolder.listPatientNHI.setText(note.getPatientNHI());
-        viewHolder.listPatientAge_Sex.setText(note.getPatient_Age_Sex());
-        viewHolder.listPatientLocation.setText(note.getPatient_location());
-        viewHolder.listDetails.setText(note.getdetails());
-        viewHolder.listIcon.setImageResource(note.getAssociatedDrawable());
+        final int itemType = getItemViewType(position);
 
-        //create the 2 icons
-        View trash_icon =  viewHolder.itemView.findViewById(R.id.trash);
-        View recover_icon = viewHolder.itemView.findViewById(R.id.recover);
-        View while_swiping_color = viewHolder.itemView.findViewById(R.id.swipe_background);
+        switch (itemType) {
+            case ITEM_TYPE_NOTE:
+                final Note note = mNotes.get(viewHolder.getAdapterPosition());
+                //setdata into list
+                viewHolder.listPatientName.setText(note.getPatientname());
+                viewHolder.listPatientNHI.setText(note.getPatientNHI());
+                viewHolder.listPatientAge_Sex.setText(note.getPatient_Age_Sex());
+                viewHolder.listPatientLocation.setText(note.getPatient_location());
+                viewHolder.listDetails.setText(note.getdetails());
+                viewHolder.listIcon.setImageResource(note.getAssociatedDrawable());
 
-        //show items depending on typeOfNot
-        if(deleted_notes){//if this view is of deleted notes
-            trash_icon.setVisibility(View.GONE); //only show recover add button
-            recover_icon.setVisibility(View.VISIBLE);
-            while_swiping_color.setBackgroundColor(ContextCompat.getColor(mContext,
-                    R.color.recoverSwipeBackground));
-            viewHolder.swipeLayout.setBackgroundColor(ContextCompat
-                    .getColor(mContext, R.color.recoverSwipeBackground));//set colour of background to recover background
-            viewHolder.swipeLayout.addDrag(SwipeLayout.DragEdge.Right, R.id.swipe_background_recover);
-            is_change_deleted_status = 0; //as deleted note change status to not deleted note
-            undo_change_deleted_status = 1; //as deleted note when UNDO pressed return to deleted note
-            what_happened_to_note = mContext.getString(R.string.restored_snackbar_string); //set the words of the snackbar
-        }else{//if NOT a deleted note
-            trash_icon.setVisibility(View.VISIBLE); //only trash icon visible
-            recover_icon.setVisibility(View.GONE);
-            viewHolder.swipeLayout.setBackgroundColor(ContextCompat
-                    .getColor(mContext, R.color.swipeBackground)); //set background to red
-            viewHolder.swipeLayout.setRightSwipeEnabled(false);
-            is_change_deleted_status = 1;//as NOT a deleted note change it to a deleted note
-            undo_change_deleted_status = 0;//as NOT a deleted note, UNDO back to not deleted
-            what_happened_to_note = mContext.getString(R.string.marked_done);
-        }
+                //create the 2 icons
+                View trash_icon = viewHolder.itemView.findViewById(R.id.trash);
+                View recover_icon = viewHolder.itemView.findViewById(R.id.recover);
+                View while_swiping_color = viewHolder.itemView.findViewById(R.id.swipe_background);
 
-        //set words for snackbar
-        switch (typeofNote){
-            case JOB:
-                snackbar_words = mContext.getString(R.string.jobSingular) + " " + what_happened_to_note;
-                break;
-            case REFERRAL:
-                snackbar_words = mContext.getString(R.string.referralSingular) + " " + what_happened_to_note;
-                break;
-        }
+                //show items depending on typeOfNot
+                if (deleted_notes) {//if this view is of deleted notes
+                    trash_icon.setVisibility(View.GONE); //only show recover add button
+                    recover_icon.setVisibility(View.VISIBLE);
+                    while_swiping_color.setBackgroundColor(ContextCompat.getColor(mContext,
+                            R.color.recoverSwipeBackground));
+                    viewHolder.swipeLayout.setBackgroundColor(ContextCompat
+                            .getColor(mContext, R.color.recoverSwipeBackground));//set colour of background to recover background
+                    viewHolder.swipeLayout.addDrag(SwipeLayout.DragEdge.Right, R.id.swipe_background_recover);
+                    is_change_deleted_status = 0; //as deleted note change status to not deleted note
+                    undo_change_deleted_status = 1; //as deleted note when UNDO pressed return to deleted note
+                    what_happened_to_note = mContext.getString(R.string.restored_snackbar_string); //set the words of the snackbar
+                } else {//if NOT a deleted note
+                    trash_icon.setVisibility(View.VISIBLE); //only trash icon visible
+                    recover_icon.setVisibility(View.GONE);
+                    viewHolder.swipeLayout.setBackgroundColor(ContextCompat
+                            .getColor(mContext, R.color.swipeBackground)); //set background to red
+                    viewHolder.swipeLayout.setRightSwipeEnabled(false);
+                    is_change_deleted_status = 1;//as NOT a deleted note change it to a deleted note
+                    undo_change_deleted_status = 0;//as NOT a deleted note, UNDO back to not deleted
+                    what_happened_to_note = mContext.getString(R.string.marked_done);
+                }
 
-        //add main delete/recover swipe
-        viewHolder.swipeLayout.addDrag(SwipeLayout.DragEdge.Left, R.id.swipe_background);
+                //set words for snackbar
+                switch (typeofNote) {
+                    case JOB:
+                        snackbar_words = mContext.getString(R.string.jobSingular) + " " + what_happened_to_note;
+                        break;
+                    case REFERRAL:
+                        snackbar_words = mContext.getString(R.string.referralSingular) + " " + what_happened_to_note;
+                        break;
+                }
 
-        viewHolder.swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
-        viewHolder.swipeLayout.setWillOpenPercentAfterClose(1f);
-        viewHolder.swipeLayout.addSwipeDenier(new SwipeLayout.SwipeDenier() {
-            @Override
-            public boolean shouldDenySwipe(MotionEvent ev) {
-                return false;
-            }
-        });
-        viewHolder.swipeLayout.setMinVelocity(20000);
+                //add main delete/recover swipe
+                viewHolder.swipeLayout.addDrag(SwipeLayout.DragEdge.Left, R.id.swipe_background);
 
-        code_run = false;
+                viewHolder.swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
+                viewHolder.swipeLayout.setWillOpenPercentAfterClose(1f);
+                viewHolder.swipeLayout.setWillOpenPercentAfterOpen(1f);
 
-        //add swipe listener
-        viewHolder.swipeLayout.addSwipeListener(new SimpleSwipeListener(){
+                viewHolder.swipeLayout.addSwipeDenier(new SwipeLayout.SwipeDenier() {
+                    @Override
+                    public boolean shouldDenySwipe(MotionEvent ev) {
+                        return false;
+                    }
+                });
+                viewHolder.swipeLayout.setMinVelocity(20000);
 
-            @Override
-            public void onStartOpen(SwipeLayout layout) {
-                super.onStartOpen(layout);
-                currentDragEdge = viewHolder.swipeLayout.getDragEdge();//get the drag edge of the opening
-            }
+                code_run = false;
 
-            int position;
+                //add swipe listener
+                viewHolder.swipeLayout.addSwipeListener(new SimpleSwipeListener() {
 
-            @Override
-            public void onOpen(SwipeLayout layout) {
-                Log.d(TAG, "onOpen: ");
-                super.onOpen(layout);
-            }
+                    @Override
+                    public void onStartOpen(SwipeLayout layout) {
+                        super.onStartOpen(layout);
+                        currentDragEdge = viewHolder.swipeLayout.getDragEdge();//get the drag edge of the opening
+                    }
 
-            public void snackbar (){
-                //undo snackbar
-                Snackbar snackbar = Snackbar
-                        .make(fragment_using_adapter.getView(), snackbar_words, Snackbar.LENGTH_LONG)
-                        .setAction(mContext.getString(R.string.undo), new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                switch (typeofNote){
+                    @Override
+                    public void onStartClose(SwipeLayout layout) {
+                        super.onStartClose(layout);
+                        mOpen = false;
+                    }
+
+                    int position;
+
+                    @Override
+                    public void onOpen(SwipeLayout layout) {
+                        Log.d(TAG, "onOpen: ");
+                        super.onOpen(layout);
+                        mOpen = true;
+                    }
+
+                    public void snackbar() {
+                        //undo snackbar
+                        Snackbar snackbar = Snackbar
+                                .make(fragment_using_adapter.getView(), snackbar_words, Snackbar.LENGTH_LONG)
+                                .setAction(mContext.getString(R.string.undo), new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        switch (typeofNote) {
+                                            case JOB:
+                                                alteringDatabase.changeJobDeletedStatus(note.getNoteId(),
+                                                        undo_change_deleted_status);
+                                                break;
+                                            case REFERRAL:
+                                                alteringDatabase.changeReferralDeletedStatus(note.getNoteId(),
+                                                        undo_change_deleted_status);
+                                                break;
+                                        }
+                                        viewHolder.swipeLayout.getSurfaceView().setVisibility(View.VISIBLE);
+                                        mNotes.add(position, deleted_note);
+                                        notifyItemInserted(position);
+                                        notifyItemRangeChanged(position, mNotes.size());
+                                        mItemManger.closeAllItems();
+                                    }
+                                });
+                        snackbar.setActionTextColor(Color.RED);
+                        snackbar.show();
+                    }
+
+                    Runnable runnable = new Runnable() {
+                        public void run() {
+                            if (currentDragEdge == SwipeLayout.DragEdge.Right) {
+                                code_run = false;
+                                int permanently_deleted = 2;
+                                switch (typeofNote) {
+                                    case JOB:
+                                        alteringDatabase.changeJobDeletedStatus(note.getNoteId(), permanently_deleted);
+                                        break;
+                                    case REFERRAL:
+                                        alteringDatabase.changeReferralDeletedStatus(note.getNoteId(), permanently_deleted);
+                                        break;
+                                }
+                                mNotes.remove(position);
+                                notifyItemRemoved(position);
+                                notifyItemRangeChanged(position, mNotes.size());
+                                mItemManger.closeAllItems();
+                            } else if (currentDragEdge == SwipeLayout.DragEdge.Left) {
+                                Log.d("RecyclerViewAdapter", "left swipe onOpen" + code_run);
+                                code_run = false;
+                                switch (typeofNote) {
                                     case JOB:
                                         alteringDatabase.changeJobDeletedStatus(note.getNoteId(),
-                                                undo_change_deleted_status);
+                                                is_change_deleted_status);
                                         break;
                                     case REFERRAL:
                                         alteringDatabase.changeReferralDeletedStatus(note.getNoteId(),
-                                                undo_change_deleted_status);
-                                        break;
+                                                is_change_deleted_status);
                                 }
-                                viewHolder.swipeLayout.getSurfaceView().setVisibility(View.VISIBLE);
-                                mNotes.add(position, deleted_note);
-                                notifyItemInserted(position);
+                                deleted_note = mNotes.get(position);
+                                mNotes.remove(position);
+                                notifyItemRemoved(position);
                                 notifyItemRangeChanged(position, mNotes.size());
                                 mItemManger.closeAllItems();
                             }
-                        });
-                snackbar.setActionTextColor(Color.RED);
-                snackbar.show();
-            }
-
-            Runnable runnable = new Runnable() {
-                public void run() {
-                    if (currentDragEdge == SwipeLayout.DragEdge.Right) {
-                        code_run = false;
-                        int permanently_deleted = 2;
-                        switch (typeofNote) {
-                            case JOB:
-                                alteringDatabase.changeJobDeletedStatus(note.getNoteId(), permanently_deleted);
-                                break;
-                            case REFERRAL:
-                                alteringDatabase.changeReferralDeletedStatus(note.getNoteId(), permanently_deleted);
-                                break;
                         }
-                        mNotes.remove(position);
-                        notifyItemRemoved(position);
-                        notifyItemRangeChanged(position, mNotes.size());
-                        mItemManger.closeAllItems();
-                    } else if (currentDragEdge == SwipeLayout.DragEdge.Left) {
-                        Log.d("RecyclerViewAdapter", "left swipe onOpen" + code_run);
-                        code_run = false;
-                        switch (typeofNote) {
-                            case JOB:
-                                alteringDatabase.changeJobDeletedStatus(note.getNoteId(),
-                                        is_change_deleted_status);
-                                break;
-                            case REFERRAL:
-                                alteringDatabase.changeReferralDeletedStatus(note.getNoteId(),
-                                        is_change_deleted_status);
+                    };
+
+
+                    Runnable setVisibilityRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            viewHolder.swipeLayout.getSurfaceView().setVisibility(View.VISIBLE);
+                            Log.d(TAG, "run: Visible code");
                         }
-                        deleted_note = mNotes.get(position);
-                        mNotes.remove(position);
-                        notifyItemRemoved(position);
-                        notifyItemRangeChanged(position, mNotes.size());
-                        mItemManger.closeAllItems();
-                    }
-                }
-            };
+                    };
 
-
-            Runnable setVisibilityRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    viewHolder.swipeLayout.getSurfaceView().setVisibility(View.VISIBLE);
-                    Log.d(TAG, "run: Visible code");
-                }
-            };
-
-            @Override
-            public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
-                super.onHandRelease(layout, xvel, yvel);
-                Log.d(TAG, "onHandRelease: ");
-                handReleased = true;
-                position = viewHolder.getAdapterPosition();
-                if (position >= 0 && !code_run && isOpen(position)) { //stops error when position =-1;
-                    code_run = true;
-                    viewHolder.swipeLayout.getSurfaceView().setVisibility(View.INVISIBLE); //hide surface layer to show background
-                    //change background to black
-                    if(currentDragEdge == SwipeLayout.DragEdge.Right){
-                        viewHolder.swipeLayout.setBackgroundColor(ContextCompat.getColor(mContext,
-                                R.color.permanentDeleteSwipeBackground));
-                    }
-                    handler.removeCallbacks(runnable);
-                    handler.postDelayed(runnable, 300);
-                    if(currentDragEdge == SwipeLayout.DragEdge.Left) {
-                        snackbar();//sun snackbar code
-                    }
+                    @Override
+                    public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
+                        super.onHandRelease(layout, xvel, yvel);
+                        Log.d(TAG, "onHandRelease: ");
+                        handReleased = true;
+                        position = viewHolder.getAdapterPosition();
+                        if (position >= 0 && !code_run && mOpen) { //stops error when position =-1;
+                            code_run = true;
+                            viewHolder.swipeLayout.getSurfaceView().setVisibility(View.INVISIBLE); //hide surface layer to show background
+                            //change background to black
+                            if (currentDragEdge == SwipeLayout.DragEdge.Right) {
+                                viewHolder.swipeLayout.setBackgroundColor(ContextCompat.getColor(mContext,
+                                        R.color.permanentDeleteSwipeBackground));
+                            }
+                            handler.removeCallbacks(runnable);
+                            handler.postDelayed(runnable, 300);
+                            if (currentDragEdge == SwipeLayout.DragEdge.Left) {
+                                snackbar();//sun snackbar code
+                            }
 
 //                    handler.removeCallbacks(runnable);
 //                    handler.postDelayed(runnable, 300);
 
-                    setVisibilityHandler.postDelayed(setVisibilityRunnable, 560);
-                }
-            }
-        });
+                            setVisibilityHandler.postDelayed(setVisibilityRunnable, 560);
+                        }
+                    }
+                });
 
 
+                viewHolder.swipeLayout.getSurfaceView().setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        listener.onLongClick(viewHolder.itemView, viewHolder.getLayoutPosition());
+                        return true;
+                    }
+                });
 
-        viewHolder.swipeLayout.getSurfaceView().setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                listener.onLongClick(viewHolder.itemView, viewHolder.getLayoutPosition());
-                return true;
-            }
-        });
+                viewHolder.swipeLayout.getSurfaceView().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (listener != null) {
+                            //triggers click upwards to fragment
+                            listener.onItemClick(viewHolder.itemView, viewHolder.getLayoutPosition());
+                        }
+                    }
+                });
+                mItemManger.bind(viewHolder.itemView, position);
+                break;
+            case ITEM_TYPE_HEADER:
+                final Header header = (Header) mNotes.get(viewHolder.getAdapterPosition());
+//               viewHolder.textHeader.setText(header.getHeader());
+                viewHolder.mHeader.setText(header.getHeader());
+                break;
+        }
+    }
 
-        viewHolder.swipeLayout.getSurfaceView().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(listener != null){
-                    //triggers click upwards to fragment
-                    listener.onItemClick(viewHolder.itemView, viewHolder.getLayoutPosition());
-                }
-            }
-        });
-
-        mItemManger.bind(viewHolder.itemView, position);
+    @Override
+    public int getItemViewType(int position) {
+        if(mNotes.get(position) instanceof Header){
+            return ITEM_TYPE_HEADER;
+        }else{
+            return ITEM_TYPE_NOTE;
+        }
     }
 
     @Override

@@ -2,12 +2,17 @@ package cbartersolutions.medicalreferralapp.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.internal.NavigationMenu;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -22,14 +27,16 @@ import cbartersolutions.medicalreferralapp.Listeners.OnSwipeTouchListener;
 import cbartersolutions.medicalreferralapp.R;
 //import com.github.clans.fab.FloatingActionButton;
 
-public class Activity_ListView extends AppCompatActivity implements View.OnClickListener{
+public class Activity_ListView extends AppCompatActivity implements View.OnClickListener,
+        NavigationView.OnNavigationItemSelectedListener{
 
     private static String TAG = "Activity_ListView";
 
     MainActivity.TypeofNote typeofNote;
     FloatingActionButton fab;
 
-    private String jobs_menu_title, referrals_menu_title;
+    private String jobs_menu_title, referrals_menu_title,
+            is_deleted_title, fullTitle;;
     boolean deleted_notes;
 
     private ViewPager mViewPager;
@@ -42,7 +49,7 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
+        setContentView(R.layout.drawer_layout_list_view);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -54,8 +61,42 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
         deleted_notes = intent.getBooleanExtra(MainActivity.DELETED_NOTES, false);
         if(deleted_notes){position = 1;}else{position = 0;}
 
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(this);
+
+        //Set up drawer
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(MainActivity.NOTE_TYPE, typeofNote);
+        bundle.putBoolean(MainActivity.DELETED_NOTES, deleted_notes);
+
+        setTitle(getTitleString(bundle));
+
+        //fragment for recyclerview
+        createRecyclerViewFragment(bundle);
+
+        //for view pager code
+//        makeViewPager();
+    }
+
+    public String getTitleString(Bundle bundle){
+
+        deleted_notes = bundle.getBoolean(MainActivity.DELETED_NOTES);
+        typeofNote = (MainActivity.TypeofNote) bundle.getSerializable(MainActivity.NOTE_TYPE);
+
         //code to handle deleted note vs. not deleted on create title
-        final String is_deleted_title;
         if (!deleted_notes){//if current notes wanted
             is_deleted_title = "";
             jobs_menu_title = getResources().getString(R.string.view_completed_jobs);
@@ -67,37 +108,20 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
         } //switch case for titles depending on type of note
         switch(typeofNote) {//creates the title depending on if JOB/REFERRAL or deleted notes
             case JOB:
-                setTitle(is_deleted_title + getResources().getString(R.string.title_activity_jobs_list));
+                fullTitle = is_deleted_title + getResources().getString(R.string.title_activity_jobs_list);
                 break;
             case REFERRAL:
-                setTitle(is_deleted_title + getResources().getString(R.string.title_activity_referral_list));
+                fullTitle = is_deleted_title + getResources().getString(R.string.title_activity_referral_list);
                 break;
         }
-
-//        fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(this);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
-        //fragment for recyclerview
-        createRecyclerViewFragment();
-
-//        //code to swipe back to main activity with 2 buttons
-        View view = findViewById(R.id.list_activity_layout);
-
-        //code for onTouchListener
-        view.setOnTouchListener(onTouchListener);
-
-        //for view pager code
-//        makeViewPager();
-
+        return fullTitle;
     }
 
-    private void createRecyclerViewFragment(){
+    private void createRecyclerViewFragment(Bundle bundle){
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         RecyclerViewFragment recyclerViewFragment = new RecyclerViewFragment();
+        recyclerViewFragment.setArguments(bundle);
         fragmentTransaction.add(R.id.list_layout, recyclerViewFragment);
         fragmentTransaction.commit();
     }
@@ -256,6 +280,52 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
         intent.putExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA, MainActivity.FragmentToLaunch.CREATE);
         intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+        Intent intent = new Intent(this, Activity_ListView.class); //attempt via intent
+        FragmentManager fragmentManager = getSupportFragmentManager(); //for attempt via fragments (which I would prefer overall)
+        Bundle bundle = new Bundle(); //bundle to make fragment
+
+        switch (id){
+            case R.id.uncompleted_jobs_menu:
+//                intent.putExtra(MainActivity.NOTE_TYPE, (MainActivity.TypeofNote.JOB));
+//                intent.putExtra(MainActivity.DELETED_NOTES, false);
+//                startActivity(intent);
+                bundle.putSerializable(MainActivity.NOTE_TYPE, MainActivity.TypeofNote.JOB);
+                bundle.putBoolean(MainActivity.DELETED_NOTES, false);
+                break;
+            case R.id.completed_jobs_menu:
+//                intent.putExtra(MainActivity.NOTE_TYPE, (MainActivity.TypeofNote.JOB));
+//                intent.putExtra(MainActivity.DELETED_NOTES, true);
+//                startActivity(intent);
+                bundle.putSerializable(MainActivity.NOTE_TYPE, MainActivity.TypeofNote.JOB);
+                bundle.putBoolean(MainActivity.DELETED_NOTES, true);
+                break;
+            case R.id.uncompleted_referrals_menu:
+//                intent.putExtra(MainActivity.NOTE_TYPE, (MainActivity.TypeofNote.REFERRAL));
+//                intent.putExtra(MainActivity.DELETED_NOTES, false);
+                bundle.putSerializable(MainActivity.NOTE_TYPE, MainActivity.TypeofNote.REFERRAL);
+                bundle.putBoolean(MainActivity.DELETED_NOTES, false);
+                break;
+            case R.id.completed_referrals_menu:
+//                intent.putExtra(MainActivity.NOTE_TYPE, (MainActivity.TypeofNote.REFERRAL));
+//                intent.putExtra(MainActivity.DELETED_NOTES, true);
+                bundle.putSerializable(MainActivity.NOTE_TYPE, MainActivity.TypeofNote.REFERRAL);
+                bundle.putBoolean(MainActivity.DELETED_NOTES, true);
+                break;
+        }
+        RecyclerViewFragment fragment = RecyclerViewFragment.newInstance(bundle);
+        fragmentManager.beginTransaction()
+                .replace(R.id.list_layout, fragment)
+                .commit();
+        setTitle(getTitleString(bundle));
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     @Override

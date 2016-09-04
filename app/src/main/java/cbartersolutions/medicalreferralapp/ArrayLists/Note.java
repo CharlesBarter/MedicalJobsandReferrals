@@ -1,4 +1,4 @@
-package cbartersolutions.medicalreferralapp.Others;
+package cbartersolutions.medicalreferralapp.ArrayLists;
 
 import cbartersolutions.medicalreferralapp.R;
 
@@ -7,11 +7,13 @@ import cbartersolutions.medicalreferralapp.R;
  */
 public class Note {
     private String patientname, patientNHI, patient_Age_Sex, patient_location,
-            referrerName, referrerContact, details;
+            referrerName, referrerContact, details, is_header, header_string;
     private long noteId, date_and_time, dateCreatedMilli;
     private Category category;
 
     public enum Category{ HIGHIMPORTANCE, MODERATEIMPORTANCE, Z_LOWIMPORTANCE}
+
+    public Note(){}
 
     public Note(String patientname, String patientNHI, String patient_Age_Sex,
                 String patient_location, long date_and_time,

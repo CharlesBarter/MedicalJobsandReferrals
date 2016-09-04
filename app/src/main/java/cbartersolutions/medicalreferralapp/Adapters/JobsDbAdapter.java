@@ -10,8 +10,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import cbartersolutions.medicalreferralapp.Activities.MainActivity;
-import cbartersolutions.medicalreferralapp.Others.Note;
+import cbartersolutions.medicalreferralapp.ArrayLists.Header;
+import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 
 /**
  * Created by Charles on 17/07/2016.
@@ -221,8 +221,11 @@ public class JobsDbAdapter {
         return notes;
     }
 
+    String nextLocation = "";
+
     private Note cursorToNote(Cursor cursor) {
-        Note newNote = new Note(cursor.getString(1), cursor.getString(2), cursor.getString(3),
+        Note newNote;
+        newNote = new Note(cursor.getString(1), cursor.getString(2), cursor.getString(3),
                 cursor.getString(4),
                 cursor.getLong(5), cursor.getString(6),
                 Note.Category.valueOf(cursor.getString(7)), cursor.getLong(0), cursor.getLong(9));

@@ -12,6 +12,7 @@ import android.view.animation.DecelerateInterpolator;
 
 /**
  * Created by Charles on 27/08/2016.
+ *
  */
 public class ScrollAwareFABBehaviour extends FloatingActionButton.Behavior {
 

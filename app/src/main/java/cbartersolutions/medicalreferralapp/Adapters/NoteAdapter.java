@@ -17,11 +17,12 @@ import java.util.ArrayList;
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.Fragments.ListViewFragment;
 import cbartersolutions.medicalreferralapp.Listeners.OnSwipeTouchListener;
-import cbartersolutions.medicalreferralapp.Others.Note;
+import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 import cbartersolutions.medicalreferralapp.R;
 
 /**
  * Created by Charles on 13/07/2016.
+ *
  */
 public class NoteAdapter extends ArrayAdapter<Note>{
 

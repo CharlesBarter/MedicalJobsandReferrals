@@ -20,7 +20,7 @@ import java.util.logging.Handler;
 
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.Fragments.ListViewFragment;
-import cbartersolutions.medicalreferralapp.Others.Note;
+import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 import cbartersolutions.medicalreferralapp.R;
 
 /**

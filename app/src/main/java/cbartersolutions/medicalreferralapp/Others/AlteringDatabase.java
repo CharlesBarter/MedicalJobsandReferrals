@@ -3,11 +3,10 @@ package cbartersolutions.medicalreferralapp.Others;
 import android.content.Context;
 import android.content.Intent;
 
-import java.util.ArrayList;
-
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.Adapters.JobsDbAdapter;
 import cbartersolutions.medicalreferralapp.Adapters.ReferralsDbAdapter;
+import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 
 /**
  * Created by Charles on 22/08/2016.

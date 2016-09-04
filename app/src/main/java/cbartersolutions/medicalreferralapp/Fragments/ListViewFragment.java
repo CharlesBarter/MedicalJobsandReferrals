@@ -24,7 +24,7 @@ import cbartersolutions.medicalreferralapp.Activities.DetailActivity;
 import cbartersolutions.medicalreferralapp.Adapters.JobsDbAdapter;
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.Adapters.NoteSwipeAdapter;
-import cbartersolutions.medicalreferralapp.Others.Note;
+import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 import cbartersolutions.medicalreferralapp.Adapters.NoteAdapter;
 import cbartersolutions.medicalreferralapp.R;
 import cbartersolutions.medicalreferralapp.Adapters.ReferralsDbAdapter;

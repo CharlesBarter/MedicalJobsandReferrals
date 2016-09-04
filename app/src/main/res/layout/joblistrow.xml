@@ -2,9 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/background"
     android:paddingBottom="7dp"
     android:paddingTop="7dp"
+    android:paddingStart="10dp"
     android:id="@+id/singleItemOnlistViewLayout"
     android:descendantFocusability="blocksDescendants">
 
@@ -15,7 +17,6 @@
         android:src="@drawable/ic_priority_medium_xhdpi"
         android:layout_marginTop="6dp"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="10dp"
         android:layout_marginEnd="5dp"
         android:clickable="true"
         android:longClickable="true"

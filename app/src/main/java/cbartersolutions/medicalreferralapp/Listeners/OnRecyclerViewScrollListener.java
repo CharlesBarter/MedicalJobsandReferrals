@@ -5,6 +5,7 @@ import android.util.Log;
 
 /**
  * Created by Charles on 29/08/2016.
+ *
  */
 public abstract class OnRecyclerViewScrollListener extends RecyclerView.OnScrollListener {
     private String TAG = "Recycler View Scroll Listener";

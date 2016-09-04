@@ -11,7 +11,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import cbartersolutions.medicalreferralapp.Others.Note;
+import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 
 /**
  * Created by Charles on 17/07/2016.

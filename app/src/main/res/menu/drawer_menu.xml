@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:title="@string/jobs">
+        <menu>
+            <item
+                android:id="@+id/uncompleted_jobs_menu"
+                android:title="@string/view_current_jobs">
+            </item>
+            <item
+                android:id="@+id/completed_jobs_menu"
+                android:title="@string/view_completed_jobs">
+            </item>
+        </menu>
+    </item>
+    <item
+        android:title="@string/referrals">
+        <menu>
+            <item
+                android:id="@+id/uncompleted_referrals_menu"
+                android:title="@string/view_current_referrals">
+            </item>
+            <item
+                android:id="@+id/completed_referrals_menu"
+                android:title="@string/view_completed_referrals">
+            </item>
+        </menu>
+    </item>
+
+</menu>

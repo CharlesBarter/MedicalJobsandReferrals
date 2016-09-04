@@ -17,7 +17,7 @@ import cbartersolutions.medicalreferralapp.Adapters.JobsDbAdapter;
 import cbartersolutions.medicalreferralapp.Adapters.ReferralsDbAdapter;
 import cbartersolutions.medicalreferralapp.Fragments.DetailsEditFragment;
 import cbartersolutions.medicalreferralapp.Fragments.DetailsViewFragment;
-import cbartersolutions.medicalreferralapp.Others.Note;
+import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 import cbartersolutions.medicalreferralapp.R;
 
 public class DetailActivity extends AppCompatActivity  {
