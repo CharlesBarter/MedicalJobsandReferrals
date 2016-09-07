@@ -19,6 +19,7 @@ import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.RecyclerSwipeAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.ArrayLists.Header;
@@ -36,6 +37,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
     private Context mContext;
     private ArrayList<Note> mNotes;
     private Note deleted_note;
+    private Header deleted_header;
     private RecyclerViewFragment fragment_using_adapter;
     private boolean deleted_notes, handReleased;
     private MainActivity.TypeofNote typeofNote;
@@ -103,12 +105,12 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
     public SimpleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if(viewType == ITEM_TYPE_HEADER){
             View header_View = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.header_recycler_view, null);
+                    .inflate(R.layout.recycler_view_headers, parent, false);
             return new SimpleViewHolder(header_View, viewType);
         }
         else if (viewType == ITEM_TYPE_NOTE){
             View note_View = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.list_swipe_layout, null);
+                    .inflate(R.layout.list_swipe_layout, parent, false);
             return new SimpleViewHolder(note_View, viewType);
         }
         return null;
@@ -212,66 +214,94 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                     public void snackbar() {
                         //undo snackbar
                         Snackbar snackbar = Snackbar
-                                .make(fragment_using_adapter.getView(), snackbar_words, Snackbar.LENGTH_LONG)
-                                .setAction(mContext.getString(R.string.undo), new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        switch (typeofNote) {
-                                            case JOB:
-                                                alteringDatabase.changeJobDeletedStatus(note.getNoteId(),
-                                                        undo_change_deleted_status);
-                                                break;
-                                            case REFERRAL:
-                                                alteringDatabase.changeReferralDeletedStatus(note.getNoteId(),
-                                                        undo_change_deleted_status);
-                                                break;
-                                        }
-                                        viewHolder.swipeLayout.getSurfaceView().setVisibility(View.VISIBLE);
-                                        mNotes.add(position, deleted_note);
-                                        notifyItemInserted(position);
-                                        notifyItemRangeChanged(position, mNotes.size());
-                                        mItemManger.closeAllItems();
-                                    }
-                                });
+                            .make(fragment_using_adapter.getView(), snackbar_words, Snackbar.LENGTH_LONG)
+                            .setAction(mContext.getString(R.string.undo), new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                switch (typeofNote) {
+                                    case JOB:
+                                        alteringDatabase.changeJobDeletedStatus(note.getNoteId(),
+                                                undo_change_deleted_status);
+                                        break;
+                                    case REFERRAL:
+                                        alteringDatabase.changeReferralDeletedStatus(note.getNoteId(),
+                                                undo_change_deleted_status);
+                                        break;
+                                }
+                                viewHolder.swipeLayout.getSurfaceView().setVisibility(View.VISIBLE);
+                                if(deleted_header != null){//if header deleted
+                                    mNotes.add(position-1, deleted_note);
+                                    notifyItemInserted(position-1);
+                                    notifyItemRangeChanged(position-1, mNotes.size());
+                                    //reinsert header
+                                    mNotes.add(position-1, deleted_header);
+                                    notifyItemInserted(position-1);
+                                    notifyItemRangeChanged(position-1, mNotes.size());
+                                    deleted_header = null;
+                                }else{
+                                    mNotes.add(position, deleted_note);
+                                    notifyItemInserted(position);
+                                    notifyItemRangeChanged(position, mNotes.size());
+                                }
+                                mItemManger.closeAllItems();
+                                }
+                            });
                         snackbar.setActionTextColor(Color.RED);
                         snackbar.show();
                     }
 
                     Runnable runnable = new Runnable() {
                         public void run() {
-                            if (currentDragEdge == SwipeLayout.DragEdge.Right) {
-                                code_run = false;
-                                int permanently_deleted = 2;
-                                switch (typeofNote) {
-                                    case JOB:
-                                        alteringDatabase.changeJobDeletedStatus(note.getNoteId(), permanently_deleted);
-                                        break;
-                                    case REFERRAL:
-                                        alteringDatabase.changeReferralDeletedStatus(note.getNoteId(), permanently_deleted);
-                                        break;
-                                }
-                                mNotes.remove(position);
-                                notifyItemRemoved(position);
-                                notifyItemRangeChanged(position, mNotes.size());
-                                mItemManger.closeAllItems();
-                            } else if (currentDragEdge == SwipeLayout.DragEdge.Left) {
-                                Log.d("RecyclerViewAdapter", "left swipe onOpen" + code_run);
-                                code_run = false;
-                                switch (typeofNote) {
-                                    case JOB:
-                                        alteringDatabase.changeJobDeletedStatus(note.getNoteId(),
-                                                is_change_deleted_status);
-                                        break;
-                                    case REFERRAL:
-                                        alteringDatabase.changeReferralDeletedStatus(note.getNoteId(),
-                                                is_change_deleted_status);
-                                }
-                                deleted_note = mNotes.get(position);
-                                mNotes.remove(position);
-                                notifyItemRemoved(position);
-                                notifyItemRangeChanged(position, mNotes.size());
-                                mItemManger.closeAllItems();
+                        if (currentDragEdge == SwipeLayout.DragEdge.Right) {
+                            code_run = false;
+                            int permanently_deleted = 2;
+                            switch (typeofNote) {
+                                case JOB:
+                                    alteringDatabase.changeJobDeletedStatus(note.getNoteId(), permanently_deleted);
+                                    break;
+                                case REFERRAL:
+                                    alteringDatabase.changeReferralDeletedStatus(note.getNoteId(), permanently_deleted);
+                                    break;
                             }
+                            mNotes.remove(position);
+                            notifyItemRemoved(position);
+                            notifyItemRangeChanged(position, mNotes.size());
+                            //remove header
+                            if(getItemViewType(position-1) == ITEM_TYPE_HEADER){
+                                if(position >= mNotes.size() || getItemViewType(position) == ITEM_TYPE_HEADER) {
+                                    deleted_header = (Header) mNotes.get(position - 1);
+                                    mNotes.remove(position - 1);
+                                    notifyItemRemoved(position - 1);
+                                    notifyItemRangeChanged(position - 1, mNotes.size());
+                                }
+                            }
+                            mItemManger.closeAllItems();
+                        } else if (currentDragEdge == SwipeLayout.DragEdge.Left) {
+                            Log.d("RecyclerViewAdapter", "left swipe onOpen" + code_run);
+                            code_run = false;
+                            switch (typeofNote) {
+                                case JOB:
+                                    alteringDatabase.changeJobDeletedStatus(note.getNoteId(),
+                                            is_change_deleted_status);
+                                    break;
+                                case REFERRAL:
+                                    alteringDatabase.changeReferralDeletedStatus(note.getNoteId(),
+                                            is_change_deleted_status);
+                            }
+                            deleted_note = mNotes.get(position);
+                            mNotes.remove(position);
+                            notifyItemRemoved(position);
+                            notifyItemRangeChanged(position, mNotes.size());
+                            if(getItemViewType(position-1) == ITEM_TYPE_HEADER){
+                                if(position >= mNotes.size() || getItemViewType(position) == ITEM_TYPE_HEADER){
+                                    deleted_header = (Header) mNotes.get(position-1);
+                                    mNotes.remove(position-1);
+                                    notifyItemRemoved(position-1);
+                                    notifyItemRangeChanged(position-1, mNotes.size());
+                                }
+                            }
+                            mItemManger.closeAllItems();
+                        }
                         }
                     };
 
@@ -358,4 +388,5 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
     public int getSwipeLayoutResourceId(int position) {
         return R.id.list_swipe;
     }
+
 }

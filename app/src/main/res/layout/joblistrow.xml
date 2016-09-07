@@ -78,6 +78,19 @@
         />
 
     <TextView
+        android:id="@+id/number_of_jobs_list_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/listItemPatientNHI"
+        android:layout_toLeftOf="@id/list_age_sex"
+        android:layout_marginEnd="4dp"
+        android:textAppearance="?android:textAppearanceListItem"
+        android:background="@color/minifab"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        android:text="3"/>
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/list_age_sex"

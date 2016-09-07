@@ -36,6 +36,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Activities.Activity_ListView" />
         </activity>
+        <activity
+            android:name=".Activities.AppPreferencesActivity"
+            android:label="@string/title_activity_app_preferences"
+            android:parentActivityName=".Activities.Activity_ListView"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="cbartersolutions.medicalreferralapp.Activities.Activity_ListView" />
+        </activity>
     </application>
 
 </manifest>

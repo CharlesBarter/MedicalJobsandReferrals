@@ -390,7 +390,7 @@ public class ListViewFragment extends android.support.v4.app.ListFragment  {
                 if (!deleted_notes) {
                     jobslist = jobsDbAdapter.getNonDeletedJobs();
                 }else{
-                    jobslist = jobsDbAdapter.getDeleteJobs();
+                    jobslist = jobsDbAdapter.getDeletedJobs();
                 }
                 noteAdapter = new NoteAdapter(getActivity(), jobslist, ListViewFragment.this);
                 noteSwipeAdapter = new NoteSwipeAdapter(getActivity(), jobslist, ListViewFragment.this);

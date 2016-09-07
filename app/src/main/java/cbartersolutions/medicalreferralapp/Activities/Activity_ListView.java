@@ -253,6 +253,10 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
             case android.R.id.home:
                 finish();
             case R.id.action_settings:
+                Intent settings_intent = new Intent(this, AppPreferencesActivity.class);
+                settings_intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
+                settings_intent.putExtra(MainActivity.DELETED_NOTES, deleted_notes);
+                startActivity(settings_intent);
                 return true;
             case R.id.action_add:
                 Intent intent = new Intent(this, DetailActivity.class);
@@ -292,9 +296,6 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
 
         switch (id){
             case R.id.uncompleted_jobs_menu:
-//                intent.putExtra(MainActivity.NOTE_TYPE, (MainActivity.TypeofNote.JOB));
-//                intent.putExtra(MainActivity.DELETED_NOTES, false);
-//                startActivity(intent);
                 bundle.putSerializable(MainActivity.NOTE_TYPE, MainActivity.TypeofNote.JOB);
                 bundle.putBoolean(MainActivity.DELETED_NOTES, false);
                 break;

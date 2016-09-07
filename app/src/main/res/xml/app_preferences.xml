@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="Sorting">
+        <ListPreference
+            android:dialogTitle="Sort by"
+            android:entries="@array/sort_options"
+            android:entryValues="@array/sort_option_values"
+            android:defaultValue="patient_location"
+            android:key="FIRST_SORT_PREFERENCE"
+            android:title="Sort by"
+            android:summary="Select first sort method"/>
+        <ListPreference
+            android:dialogTitle="Ascending or Descending"
+            android:entries="@array/asc_desc"
+            android:entryValues="@array/asc_desc_values"
+            android:defaultValue=" ASC"
+            android:key="ASC_DESC"
+            android:title="Ascending or Descending"
+            android:summary="Sort Ascending or Descending"/>
+    </PreferenceCategory>
+</PreferenceScreen>

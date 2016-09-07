@@ -4,15 +4,19 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ParallelExecutorCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.daimajia.swipe.util.Attributes;
@@ -25,6 +29,7 @@ import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.Adapters.JobsDbAdapter;
 import cbartersolutions.medicalreferralapp.Adapters.RecyclerViewAdapter;
 import cbartersolutions.medicalreferralapp.Adapters.ReferralsDbAdapter;
+import cbartersolutions.medicalreferralapp.ArrayLists.Header;
 import cbartersolutions.medicalreferralapp.Decorations.DividerItemDecoration;
 import cbartersolutions.medicalreferralapp.Listeners.OnSwipeTouchListener;
 import cbartersolutions.medicalreferralapp.Others.AlteringDatabase;
@@ -37,6 +42,7 @@ import cbartersolutions.medicalreferralapp.R;
  */
 public class RecyclerViewFragment extends Fragment {
     private static String TAG = "RecyclerViewFragment";
+    private static final String BUNDLE_RECYCLER_LAYOUT = "cbartersolutions.medicalreferralapp.recycler.layout";
 
     private ArrayList<Note> referralslist, jobslist;
     private RecyclerView recyclerView;
@@ -44,11 +50,12 @@ public class RecyclerViewFragment extends Fragment {
     private View fragmentLayout;
     private AlteringDatabase alteringDatabase;
     private FloatingActionButton fab;
-
     private Intent intent;
-
-    MainActivity.TypeofNote typeofNote;
+    private MainActivity.TypeofNote typeofNote;
     private boolean deleted_notes, job_done;
+    private Header deleted_header;
+    private static int lastFirstVisiblePosition = -1;
+    private static Bundle state;
 
     JobsDbAdapter jobsDbAdapter = new JobsDbAdapter(getActivity());
 
@@ -94,6 +101,11 @@ public class RecyclerViewFragment extends Fragment {
         if(job_done){
             jobDone(getActivity().getIntent().getExtras().getLong(MainActivity.NOTE_ID));
         }
+
+        if(state != null){
+            Parcelable savedRecyclerViewState = state.getParcelable(BUNDLE_RECYCLER_LAYOUT);
+            recyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerViewState);
+        }
     }
 
     public static RecyclerViewFragment newInstance(Bundle bundle){
@@ -108,23 +120,6 @@ public class RecyclerViewFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //set decorations;
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity()));
-
-//        final CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
-
-        //deal with scrolling
-//        recyclerView.addOnScrollListener(new OnRecyclerViewScrollListener() {
-//            @Override
-//            public void onScrollDown() {
-//                fab.animate().translationY(0)
-//                        .setInterpolator(new DecelerateInterpolator()).start();
-//            }
-//
-//            @Override
-//            public void onScrollUp() {
-//                fab.animate().translationY(fab.getHeight()+params.bottomMargin)
-//                        .setInterpolator(new AccelerateInterpolator()).start();
-//            }
-//        });
 
         //create recycler adapter
         mRecyclerViewAdapter = makeAdapter(typeofNote);
@@ -177,9 +172,7 @@ public class RecyclerViewFragment extends Fragment {
 
 
     public void launchDetailActivity(MainActivity.FragmentToLaunch ftl, int position){
-
         Intent intent = putInfoIntoIntent(position);
-
         switch(ftl){
             case VIEW:
                 intent.putExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA, MainActivity.FragmentToLaunch.VIEW);
@@ -204,7 +197,6 @@ public class RecyclerViewFragment extends Fragment {
     private Note note;
 
     public Intent putInfoIntoIntent(int position){
-
         switch (typeofNote) {
             case JOB:
                 note = jobslist.get(position);
@@ -213,37 +205,40 @@ public class RecyclerViewFragment extends Fragment {
                 note = referralslist.get(position);
         }
         intent = new Intent(getActivity(), DetailActivity.class);
-
-        //pass along the information of the clicked note to the note detail activity
-        intent.putExtra(MainActivity.NOTE_PATIENT_NAME, note.getPatientname());
-        intent.putExtra(MainActivity.NOTE_PATIENT_NHI, note.getPatientNHI());
-        intent.putExtra(MainActivity.NOTE_PATIENT_AGE_AND_SEX, note.getPatient_Age_Sex());
-        intent.putExtra(MainActivity.NOTE_PATIENT_LOCATION, note.getPatient_location());
-        intent.putExtra(MainActivity.NOTE_DATE_AND_TIME, note.get_date_and_time());
-        intent.putExtra(MainActivity.NOTE_REFERRER_NAME, note.getReferrerName());
-        intent.putExtra(MainActivity.NOTE_REFERRER_CONTACT, note.getReferrerContact());
-        intent.putExtra(MainActivity.NOTE_DETAILS, note.getdetails());
-        intent.putExtra(MainActivity.NOTE_CATEGORY, note.getCategory());
-        intent.putExtra(MainActivity.NOTE_DATE_CREATED, note.getDateCreatedMilli());
         intent.putExtra(MainActivity.NOTE_ID, note.getNoteId());
         intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
         intent.putExtra(MainActivity.DELETED_NOTES, deleted_notes);
         intent.putExtra(MainActivity.LIST_POSITION, position);
-
         return intent;
     }
 
-    private int is_deleted;
-    private int undo_deleted;
+    private int is_deleted, undo_deleted, position;
     private String snackbar_words, what_happened_to_note;
 
     public void jobDone (final long noteId){
+        //change JOB done back to false so code not run again
+        getActivity().getIntent().putExtra(MainActivity.JOB_DONE, false);
         //create the Java code which allows editing the database
         alteringDatabase = new AlteringDatabase(getActivity());
-
         //work out if a deleted note
         Boolean job_done_deleted_notes = getActivity().getIntent().getBooleanExtra(MainActivity.DELETED_NOTES, false);
-        final int position = getActivity().getIntent().getExtras().getInt(MainActivity.LIST_POSITION);
+        //find note postion in header containing jobslist
+        for (int i=0; i < jobslist.size(); i++){
+            long noteIdtocheck = jobslist.get(i).getNoteId();
+            if(noteIdtocheck == noteId) {
+                position = i;
+                break;
+            }
+        }
+        final Note deleted_note = jobslist.get(position);//create a copy of the note to be deleted
+        //work out if the above and below note is a header and remove the above header if this is true
+        final int ITEM_TYPE_HEADER = 0;
+        if(mRecyclerViewAdapter.getItemViewType(position-1) == ITEM_TYPE_HEADER){
+            if (position + 1 >= jobslist.size() ||
+                    mRecyclerViewAdapter.getItemViewType(position + 1) == ITEM_TYPE_HEADER){
+                deleted_header = (Header) jobslist.get(position - 1);
+            }
+        }
 
         if(!job_done_deleted_notes) { //allows the same code to change the note from deleted to none deleted
             is_deleted = 1;
@@ -254,39 +249,21 @@ public class RecyclerViewFragment extends Fragment {
             undo_deleted = 1; //if UNDO action in snackbar clicked changes back to a completed job
             what_happened_to_note = getString(R.string.restored_snackbar_string);
         }
-
-        switch (typeofNote){
-            case JOB:
-                snackbar_words = getString(R.string.jobSingular) + " " + what_happened_to_note;
-                break;
-            case REFERRAL:
-                snackbar_words = getString(R.string.referralSingular) + " " + what_happened_to_note;
-                break;
-        }
-
-        final Note deleted_note = jobslist.get(position);
-
+        snackbar_words = getString(R.string.jobSingular) + " " + what_happened_to_note;
         //alter note
         Handler handler = new Handler();
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                switch (typeofNote){
-                    case JOB:
-                        alteringDatabase.changeJobDeletedStatus(noteId, is_deleted); //update the job to undeleted
-                        //remove from the visable list
-                        jobslist.remove(position);
-                        mRecyclerViewAdapter.notifyItemRemoved(position);
-                        mRecyclerViewAdapter.notifyItemRangeChanged(position, jobslist.size());
-                        break;
-                    case REFERRAL:
-                        alteringDatabase.changeReferralDeletedStatus(noteId, is_deleted);
-                        snackbar_words = getString(R.string.referralSingular) + " " + what_happened_to_note;
-                        //remove from visible list
-                        referralslist.remove(position);
-                        mRecyclerViewAdapter.notifyItemRemoved(position);
-                        mRecyclerViewAdapter.notifyItemRangeChanged(position, referralslist.size());
-                        break;
+                alteringDatabase.changeJobDeletedStatus(noteId, is_deleted); //update the job to undeleted
+                //remove from the visable list
+                jobslist.remove(position);
+                mRecyclerViewAdapter.notifyItemRemoved(position);
+                mRecyclerViewAdapter.notifyItemRangeChanged(position, jobslist.size());
+                if(deleted_header != null){
+                    jobslist.remove(position - 1);
+                    mRecyclerViewAdapter.notifyItemRemoved(position - 1);
+                    mRecyclerViewAdapter.notifyItemRangeChanged(position - 1, jobslist.size());
                 }
                 mRecyclerViewAdapter.mItemManger.closeAllItems();
             }
@@ -300,18 +277,19 @@ public class RecyclerViewFragment extends Fragment {
             .setAction(R.string.undo, new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    switch (typeofNote){
-                        case JOB:
-                            alteringDatabase.changeJobDeletedStatus(noteId, undo_deleted); //update the job to undeleted
-                            jobslist.add(position, deleted_note);
-                            mRecyclerViewAdapter.notifyItemInserted(position);
-                            mRecyclerViewAdapter.notifyItemRangeChanged(position, jobslist.size());
-                            break;
-                        case REFERRAL:
-                            alteringDatabase.changeReferralDeletedStatus(noteId, undo_deleted);
-                            mRecyclerViewAdapter.notifyItemInserted(position);
-                            mRecyclerViewAdapter.notifyItemRangeChanged(position, referralslist.size());
-                            break;
+                    alteringDatabase.changeJobDeletedStatus(noteId, undo_deleted); //update the job to undeleted
+                    if(deleted_header != null){
+                        jobslist.add(position - 1, deleted_note);
+                        mRecyclerViewAdapter.notifyItemInserted(position - 1);
+                        mRecyclerViewAdapter.notifyItemRangeChanged(position - 1, jobslist.size());
+                        jobslist.add(position - 1, deleted_header);
+                        mRecyclerViewAdapter.notifyItemInserted(position - 1);
+                        mRecyclerViewAdapter.notifyItemRangeChanged(position - 1,
+                        jobslist.size());
+                    }else{
+                        jobslist.add(position, deleted_note);
+                        mRecyclerViewAdapter.notifyItemInserted(position);
+                        mRecyclerViewAdapter.notifyItemRangeChanged(position, jobslist.size());
                     }
                 }
             });
@@ -321,7 +299,6 @@ public class RecyclerViewFragment extends Fragment {
 
     //make the adapter depending on the type of job
     public RecyclerViewAdapter makeAdapter (MainActivity.TypeofNote typeofNote) {
-
         switch (typeofNote) {
             case JOB:
                 jobsDbAdapter = new JobsDbAdapter(getActivity().getBaseContext());
@@ -329,7 +306,7 @@ public class RecyclerViewFragment extends Fragment {
                 if (!deleted_notes) {
                     jobslist = jobsDbAdapter.getNonDeletedJobs();
                 }else{
-                    jobslist = jobsDbAdapter.getDeleteJobs();
+                    jobslist = jobsDbAdapter.getDeletedJobs();
                 }
                 jobsDbAdapter.close();
                 mRecyclerViewAdapter = new RecyclerViewAdapter(getActivity(), jobslist,
@@ -350,5 +327,22 @@ public class RecyclerViewFragment extends Fragment {
         }
         mRecyclerViewAdapter.setMode(Attributes.Mode.Single);
         return mRecyclerViewAdapter;
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if(savedInstanceState != null){
+            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT);
+            recyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(BUNDLE_RECYCLER_LAYOUT, recyclerView.getLayoutManager().onSaveInstanceState());
+        state = new Bundle();
+        state.putParcelable(BUNDLE_RECYCLER_LAYOUT, recyclerView.getLayoutManager().onSaveInstanceState());
+        super.onSaveInstanceState(outState);
     }
 }

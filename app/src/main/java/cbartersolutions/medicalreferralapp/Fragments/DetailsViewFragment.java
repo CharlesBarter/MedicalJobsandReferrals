@@ -48,7 +48,7 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
     private Note.Category noteCat;
 
     private long noteId = 0, datecreated = 0, date_and_time = 0;
-    private int position = -1;
+    private int position = 0;
 
     private MainActivity.TypeofNote typeofNote;
 

@@ -85,8 +85,11 @@
     <string name="gap">__________________</string>
     <string name="navigation_drawer_open">Drawer open</string>
     <string name="navigation_drawer_close">Drawer closed</string>
-    //
+    <string name="title_activity_settings">Settings</string>
 
+    <!-- Strings related to Settings -->
+
+    <string name="title_activity_app_preferences">Preferences</string>
 
 
 </resources>

@@ -3,14 +3,19 @@ package cbartersolutions.medicalreferralapp.Adapters;
 import android.content.ContentValues;
 import android.content.Context;
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
+import cbartersolutions.medicalreferralapp.ArrayLists.Header;
 import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 
 /**
@@ -30,17 +35,17 @@ public class ReferralsDbAdapter {
     public static final String COLUMN_PATIENT_NAME = "patient_name";
     public static final String COLUMN_PATIENT_NHI = "patient_NHI";
     public static final String COLUMN_AGE_AND_SEX = "patient_age_and_sex";
-    public static final String COLUMN_LOCATION = "patient_location";
+    public static final String COLUMN_PATIENT_LOCATION = "patient_location";
+    public static final String COLUMN_DATE_AND_TIME = "date_and_time_on_note";
     public static final String COLUMN_REFERRER_DETAILS = "referrer_details";
     public static final String COLUMN_REFERRER_CONTACT = "referrer_contact";
     public static final String COLUMN_DETAILS = "details";
     public static final String COLUMN_CATEGORY = "category";
-    public static final String COLUMN_DATE_AND_TIME = "date_on_note";
     public static final String COLUMN_DELETED = "deleted";
     public static final String COLUMN_DATE_CREATED = "date";
 
     private String[] allColumns = {COLUMN_ID, COLUMN_PATIENT_NAME, COLUMN_PATIENT_NHI,
-            COLUMN_AGE_AND_SEX, COLUMN_LOCATION, COLUMN_DATE_AND_TIME,
+            COLUMN_AGE_AND_SEX, COLUMN_PATIENT_LOCATION, COLUMN_DATE_AND_TIME,
             COLUMN_REFERRER_DETAILS, COLUMN_REFERRER_CONTACT,
             COLUMN_DETAILS,COLUMN_CATEGORY, COLUMN_DELETED, COLUMN_DATE_CREATED};
 
@@ -49,7 +54,7 @@ public class ReferralsDbAdapter {
             + COLUMN_PATIENT_NAME + " text not null, "
             + COLUMN_PATIENT_NHI + " text not null, "
             + COLUMN_AGE_AND_SEX + " text not null, "
-            + COLUMN_LOCATION + " text not null, "
+            + COLUMN_PATIENT_LOCATION + " text not null, "
             + COLUMN_DATE_AND_TIME + " integer, "
             + COLUMN_REFERRER_DETAILS + " text not null, "
             + COLUMN_REFERRER_CONTACT + " text not null, "
@@ -89,7 +94,7 @@ public class ReferralsDbAdapter {
         values.put(COLUMN_PATIENT_NAME, patient_name);
         values.put(COLUMN_PATIENT_NHI, patient_NHI);
         values.put(COLUMN_AGE_AND_SEX, patient_age_and_sex);
-        values.put(COLUMN_LOCATION, patient_location);
+        values.put(COLUMN_PATIENT_LOCATION, patient_location);
         values.put(COLUMN_DATE_AND_TIME, date_on_note);
         values.put(COLUMN_REFERRER_DETAILS, referrer_details);
         values.put(COLUMN_REFERRER_CONTACT, referrer_contact);
@@ -125,7 +130,7 @@ public class ReferralsDbAdapter {
         values.put(COLUMN_PATIENT_NAME, new_patient_name);
         values.put(COLUMN_PATIENT_NHI, new_patient_NHI);
         values.put(COLUMN_AGE_AND_SEX, new_patient_age_and_sex);
-        values.put(COLUMN_LOCATION, patient_location);
+        values.put(COLUMN_PATIENT_LOCATION, patient_location);
         values.put(COLUMN_DATE_AND_TIME, new_date_on_note);
         values.put(COLUMN_REFERRER_DETAILS, new_referrer_details);
         values.put(COLUMN_REFERRER_CONTACT, new_referrer_contact);
@@ -144,49 +149,56 @@ public class ReferralsDbAdapter {
         return  sqlDB.update(REFERRALS_TABLE, values, COLUMN_ID + " = " + idToUpdate, null);
     }
 
+//    String orderByOverall = getOrderBy();
+
 
    //cycles through the database and creates notes to add to the Arraylist<Note> which is then used by
     //all the other code to populate the data
     public ArrayList<Note> getCurrentReferrals() {
-        ArrayList<Note> notes = new ArrayList<Note>();
-
         int is_deleted = 0;
-
+//        String orderby = getOrderBy();
         //grab all off the information in our database for the notes in it
 //        Cursor cursor = sqlDB.query(REFERRALS_TABLE, allColumns, null, null, null, null, null);
         Cursor cursor = sqlDB.query(REFERRALS_TABLE, allColumns, COLUMN_DELETED + " = " + is_deleted,
-                null, null, null, COLUMN_CATEGORY + " DESC");
+                null, null, null, getOrderBy());
+        ArrayList<Note> notes = createNoteArray(cursor);
+        cursor.close();
+        return notes;
+    }
 
-        //for the entire database runs cursorToNote code on each row in turn
-        for (cursor.moveToLast(); !cursor.isBeforeFirst(); cursor.moveToPrevious()) {
-            Note note = cursorToNote(cursor);
-            notes.add(note);
+    public ArrayList<Note> getCurrentReferralsNoHeaders(){
+        int is_deleted = 0;
+        ArrayList<Note> notes = new ArrayList<>();
+        Cursor cursor = sqlDB.query(REFERRALS_TABLE, allColumns, COLUMN_DELETED + " = " + is_deleted,
+                null,null,null, getOrderBy());
+        for (cursor.moveToLast(); !cursor.isBeforeFirst(); cursor.moveToPrevious()){
+            notes.add(cursorToNote(cursor));
         }
-
         cursor.close();
         return notes;
     }
 
     public ArrayList<Note> getDeletedReferrals() {
-        ArrayList<Note> notes = new ArrayList<Note>();
-
         int is_deleted = 1;
-
         //grab all off the information in our database for the notes in it
-//        Cursor cursor = sqlDB.query(REFERRALS_TABLE, allColumns, null, null, null, null, null);
         Cursor cursor = sqlDB.query(REFERRALS_TABLE, allColumns, COLUMN_DELETED + " = " + is_deleted,
-                null, null, null, COLUMN_CATEGORY + " DESC");
-
-        //for the entire database runs cursorToNote code on each row in turn
-        for (cursor.moveToLast(); !cursor.isBeforeFirst(); cursor.moveToPrevious()) {
-            Note note = cursorToNote(cursor);
-            notes.add(note);
-        }
-
+                null, null, null, getOrderBy());
+        ArrayList<Note> notes = createNoteArray(cursor);//creates a new list based on the cursor;
         cursor.close();
         return notes;
     }
 
+    public ArrayList<Note> getDeletedReferralsNoHeaders(){
+        int is_deleted = 1;
+        ArrayList<Note> notes = new ArrayList<>();
+        Cursor cursor = sqlDB.query(REFERRALS_TABLE, allColumns, COLUMN_DELETED + " = " + is_deleted,
+                null, null, null, getOrderBy());
+        for (cursor.moveToLast(); !cursor.isBeforeFirst(); cursor.moveToPrevious()){
+            notes.add(cursorToNote(cursor));
+        }
+        cursor.close();
+        return notes;
+    }
 
     //takes the data from the row the cursor variable is on in the database
     //and add them to the note array in the correct place
@@ -196,6 +208,56 @@ public class ReferralsDbAdapter {
                 cursor.getString(8),
                 Note.Category.valueOf(cursor.getString(9)), cursor.getLong(0), cursor.getLong(11));
         return newNote;
+    }
+
+    public ArrayList<Note> createNoteArray(Cursor cursor){
+
+        ArrayList<Note> notes = new ArrayList<>();
+
+        String blank_header_name = "No Location";
+
+        String header_item_to_check = "header to check against";
+        for (cursor.moveToLast(); !cursor.isBeforeFirst(); cursor.moveToPrevious()) {
+            String current_header_item = "";
+            //change current header item depending on sort option
+            switch (first_sort_preference){
+                case COLUMN_PATIENT_LOCATION:
+                    current_header_item = cursor.getString(4); //in this case headers are locations
+                    if(current_header_item.contains(" ")){
+                        current_header_item = current_header_item.substring(0, current_header_item.indexOf(" "));
+                    }
+                    break;
+                case COLUMN_CATEGORY:
+                    current_header_item = cursor.getString(9);//get the category as a string
+                    current_header_item = current_header_item
+                            .replace("IMPORTANCE","");//remove IMPORTANCE from the category names
+                    current_header_item = current_header_item.substring(0,1) +
+                            current_header_item.substring(1,current_header_item.length())
+                                    .toLowerCase();//change the categories to lower case
+                    break;
+                case COLUMN_DATE_AND_TIME:
+                    Calendar myCalendar = Calendar.getInstance();
+                    myCalendar.setTimeInMillis(cursor.getLong(5));
+                    SimpleDateFormat date_format = new SimpleDateFormat("E, d MMM", Locale.ENGLISH);
+                    current_header_item = date_format.format(myCalendar.getTime());
+                    break;
+            }
+            Log.d(TAG, "createNoteArray: " + current_header_item);
+
+            if(!header_item_to_check.equals(current_header_item)) {
+                if(current_header_item.equals("")){
+                    notes.add(new Header(blank_header_name));//for locations
+                }else {
+                    notes.add(new Header(current_header_item));
+                }
+                header_item_to_check = current_header_item;
+                notes.add(cursorToNote(cursor));
+            }else {
+                Note note = cursorToNote(cursor);
+                notes.add(note);
+            }
+        }
+        return notes;
     }
 
     private static class ReferralsDbHelper extends SQLiteOpenHelper {
@@ -218,4 +280,21 @@ public class ReferralsDbAdapter {
             onCreate(db);
         }
     }
+
+    private String first_sort_preference;
+
+    public String getOrderBy() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        first_sort_preference = sharedPreferences.getString("FIRST_SORT_PREFERENCE", COLUMN_PATIENT_LOCATION);
+        String asc_desc = sharedPreferences.getString("ASC_DESC", " ASC");
+        String sort_preference = first_sort_preference + " " + asc_desc;
+        if(first_sort_preference.equals(COLUMN_DATE_AND_TIME)){
+            sort_preference = "strftime('%Y-%m-%d', " + COLUMN_DATE_AND_TIME + " /1000, 'unixepoch' )" +
+                    asc_desc + ", " + COLUMN_CATEGORY + " DESC";
+        }else if(!first_sort_preference.equals("category")){
+            sort_preference = sort_preference + ", " + COLUMN_CATEGORY + " DESC";
+        }
+        return sort_preference;
+    }
+
 }

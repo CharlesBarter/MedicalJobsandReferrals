@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:background="@color/colorPrimaryLight">
+
+    <TextView
+        android:id="@+id/recycler_view_header_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:background="@color/colorPrimaryLight"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:textAppearance="?textAppearanceListItem"
+        android:text="TEST"/>
+
+</LinearLayout>

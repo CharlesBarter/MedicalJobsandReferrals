@@ -54,10 +54,10 @@ public class DetailActivity extends AppCompatActivity  {
         getSupportActionBar().setElevation(0);
         getSupportActionBar().setDisplayUseLogoEnabled(false);
 
-                //get the type of Note
+        //get the type of Note
         typeofNote = (MainActivity.TypeofNote) getIntent().getSerializableExtra(MainActivity.NOTE_TYPE);
 
-        //get not ID
+        //get note ID
         noteId = getIntent().getExtras().getLong(MainActivity.NOTE_ID);
         
         //get position
@@ -99,9 +99,9 @@ public class DetailActivity extends AppCompatActivity  {
                 JobsDbAdapter jobsDbAdapter = new JobsDbAdapter(this.getBaseContext());
                 jobsDbAdapter.open();
                 if(!deleted_notes) {
-                    list = jobsDbAdapter.getNonDeletedJobs();
+                    list = jobsDbAdapter.getNonDeletedJobsNoHeaders();
                 }else{
-                    list = jobsDbAdapter.getDeleteJobs();
+                    list = jobsDbAdapter.getDeletedJobsNoHeaders();
                 }
                 jobsDbAdapter.close();
                 break;
@@ -109,9 +109,9 @@ public class DetailActivity extends AppCompatActivity  {
                 ReferralsDbAdapter referralsDbAdapter = new ReferralsDbAdapter(this.getBaseContext());
                 referralsDbAdapter.open();
                 if(!deleted_notes) {
-                    list = referralsDbAdapter.getCurrentReferrals();
+                    list = referralsDbAdapter.getCurrentReferralsNoHeaders();
                 }else{
-                    list = referralsDbAdapter.getDeletedReferrals();
+                    list = referralsDbAdapter.getDeletedReferralsNoHeaders();
                 }
                 referralsDbAdapter.close();
                 break;
@@ -260,19 +260,10 @@ public class DetailActivity extends AppCompatActivity  {
                 //add to R.id.jobdetailview (the id for content_job_details), the fragment above and call it DETAILS_EDIT_FRAGMENT
                 fragmentTransaction.add(R.id.content_detail, detailsEditFragment, "DETAILS_EDIT_FRAGMENT");
                 break;
-//            case VIEW:
-//                //create the VIEW fragment in this activity
-//                DetailsViewFragment detailsViewFragment = new DetailsViewFragment();
-//                //set the full title of the fragment
-//                setTitle(title);
-//                //add the fragment to the code
-//                fragmentTransaction.add(R.id.content_detail, detailsViewFragment, "DETAILS_VIEW_FRAGMENT");
-//                break;
             case CREATE:
                 DetailsEditFragment jobCreateFragment = new DetailsEditFragment();
                 fullTitle = getResources().getString(R.string.create_new) + " " + title;
                 setTitle(fullTitle);
-
                 //create a bundle into which information is added then this information is attached to the fragment
                 Bundle bundle = new Bundle(); //creates bundle
                 bundle.putBoolean(NEW_NOTE_EXTRA, true); //adds the value true, to a variable called NEW_NOTE_EXTRA in a bundle
