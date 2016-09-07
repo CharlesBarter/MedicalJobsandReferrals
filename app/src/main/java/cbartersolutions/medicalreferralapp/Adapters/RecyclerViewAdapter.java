@@ -1,6 +1,7 @@
 package cbartersolutions.medicalreferralapp.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
@@ -19,8 +20,8 @@ import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.RecyclerSwipeAdapter;
 
 import java.util.ArrayList;
-import java.util.List;
 
+import cbartersolutions.medicalreferralapp.Activities.DetailActivity;
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.ArrayLists.Header;
 import cbartersolutions.medicalreferralapp.Fragments.RecyclerViewFragment;
@@ -35,7 +36,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
 
     private String TAG = "RecyclerViewAdapter";
     private Context mContext;
-    private ArrayList<Note> mNotes;
+    private ArrayList<Note> mNotes, arrayListtoSearch;
     private Note deleted_note;
     private Header deleted_header;
     private RecyclerViewFragment fragment_using_adapter;
@@ -43,11 +44,13 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
     private MainActivity.TypeofNote typeofNote;
     private AlteringDatabase alteringDatabase;
     private SwipeLayout.DragEdge currentDragEdge;
-    private int is_change_deleted_status, undo_change_deleted_status;
+    private int is_change_deleted_status, undo_change_deleted_status, number_of_jobs, job_position;
+    private long jobId;
     private String what_happened_to_note, snackbar_words;
     private Handler handler = new Handler();
     private Handler setVisibilityHandler = new Handler();
     private boolean code_run, mOpen;
+    private Intent launchDetailedView;
 
     private static final int ITEM_TYPE_HEADER = 0;
     private static final int ITEM_TYPE_NOTE = 1;
@@ -67,7 +70,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
     public static class SimpleViewHolder extends RecyclerView.ViewHolder{
         SwipeLayout swipeLayout;
         TextView listPatientName, listPatientNHI, listPatientAge_Sex, listPatientLocation,
-                listDetails;
+                listDetails, listNumberofJobs;
         ImageView listIcon;
         TextView mHeader;
 
@@ -78,10 +81,11 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                     swipeLayout = (SwipeLayout) itemView.findViewById(R.id.list_swipe);
                     listPatientName = (TextView) itemView.findViewById(R.id.listItemPatientName);
                     listPatientNHI = (TextView) itemView.findViewById(R.id.listItemPatientNHI);
-                    listPatientAge_Sex = (TextView) itemView.findViewById(R.id.list_age_sex);
+                    listPatientAge_Sex = (TextView) itemView.findViewById(R.id.ListAgeSex);
                     listPatientLocation = (TextView) itemView.findViewById(R.id.listItemLocation);
                     listDetails = (TextView) itemView.findViewById(R.id.listItemDetails);
                     listIcon = (ImageView) itemView.findViewById(R.id.listItemNoteImage);
+                    listNumberofJobs = (TextView) itemView.findViewById(R.id.NumberofJobsListView);
                     break;
                 case ITEM_TYPE_HEADER:
                     mHeader = (TextView) itemView.findViewById(R.id.recycler_view_header_text_view);
@@ -136,6 +140,68 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                 View trash_icon = viewHolder.itemView.findViewById(R.id.trash);
                 View recover_icon = viewHolder.itemView.findViewById(R.id.recover);
                 View while_swiping_color = viewHolder.itemView.findViewById(R.id.swipe_background);
+
+                //create the Intent to launch Detail View
+                launchDetailedView = new Intent(mContext, DetailActivity.class);
+                //check if there is a Job or referral for the same patient
+                //first create the array list to search
+                number_of_jobs = 0;
+                switch (typeofNote) {
+                    case REFERRAL:
+                        JobsDbAdapter jobsDbAdapter = new JobsDbAdapter(mContext);
+                        jobsDbAdapter.open();
+                        arrayListtoSearch = jobsDbAdapter.getJobsNoHeaders(deleted_notes);
+                        jobsDbAdapter.close();
+                        launchDetailedView.putExtra(MainActivity.NOTE_TYPE, MainActivity.TypeofNote.JOB);//say to launch the other type of note
+                        break;
+                    case JOB:
+                        ReferralsDbAdapter referralsDbAdapter = new ReferralsDbAdapter(mContext);
+                        referralsDbAdapter.open();
+                        arrayListtoSearch = referralsDbAdapter.getReferralsNoHeaders(deleted_notes);
+                        referralsDbAdapter.close();
+                        launchDetailedView.putExtra(MainActivity.NOTE_TYPE, MainActivity.TypeofNote.REFERRAL);
+                        break;
+                }
+                //search the array list for the same patient name and NHI
+                for(int i = 0; i < arrayListtoSearch.size(); i++){
+                    String comparing_to_name = arrayListtoSearch.get(i).getPatientname();
+                    String comparing_to_NHI = arrayListtoSearch.get(i).getPatientNHI();
+                    String patient_name = note.getPatientname();
+                    String patient_NHI = note.getPatientNHI();
+                    if(comparing_to_name.equals(patient_name) &&
+                            comparing_to_NHI.equals(patient_NHI)){
+                        number_of_jobs = number_of_jobs + 1;
+                        jobId = arrayListtoSearch.get(i).getNoteId();
+                        job_position = i;
+                    }
+                }
+                if(number_of_jobs > 0){//if there are the same thing in both lists
+                    viewHolder.listNumberofJobs.setVisibility(View.VISIBLE);//make the there is something in the other list bit visible
+                    switch (typeofNote) {
+                        case REFERRAL:
+                            viewHolder.listNumberofJobs.setText(String.valueOf(number_of_jobs));//show number of jobs for each referral
+                            break;
+                        case JOB:
+                            viewHolder.listNumberofJobs.setText("\u2713");//show a tick if there is an assocaited referral
+                            break;
+                    }
+                    viewHolder.listNumberofJobs.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View view, MotionEvent motionEvent) {
+                            launchDetailedView.putExtra(MainActivity.NOTE_PATIENT_NAME, note.getPatientname());
+                            launchDetailedView.putExtra(MainActivity.NOTE_PATIENT_NHI, note.getPatientNHI());
+                            launchDetailedView.putExtra(MainActivity.NOTE_TYPE_LAUNCHED_FROM,
+                                    typeofNote);//say this intent has been launched from something
+                            launchDetailedView.putExtra(MainActivity.DELETED_NOTES, deleted_notes);//add if a deleted note
+                            launchDetailedView.putExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA,
+                                    MainActivity.FragmentToLaunch.VIEW); //tell it to open a view type
+                            launchDetailedView.putExtra(MainActivity.LIST_POSITION, job_position);
+                            //add patient details
+                            mContext.startActivity(launchDetailedView);
+                            return true;
+                        }
+                    });
+                }
 
                 //show items depending on typeOfNot
                 if (deleted_notes) {//if this view is of deleted notes

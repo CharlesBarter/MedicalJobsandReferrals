@@ -24,16 +24,14 @@ public class DetailActivity extends AppCompatActivity  {
 
     private static String TAG = "Details Activity";
 
-    private MainActivity.TypeofNote typeofNote;
-    private String title;
-    private String fullTitle;
+    private MainActivity.TypeofNote typeofNote, note_type_launched_from;
+    private String title, fullTitle, patients_name_to_search, patients_NHI_to_search;
     public static final String NEW_NOTE_EXTRA = "New Note";
     private static int position;
     private static long noteId;
 
     private FragmentTransaction fragmentTransaction;
-
-    MainActivity.FragmentToLaunch fragmentToLaunch;
+    private MainActivity.FragmentToLaunch fragmentToLaunch;
 
     private ViewPager mPager;
     private PagerAdapter mPagerAdapter;
@@ -55,7 +53,14 @@ public class DetailActivity extends AppCompatActivity  {
         getSupportActionBar().setDisplayUseLogoEnabled(false);
 
         //get the type of Note
-        typeofNote = (MainActivity.TypeofNote) getIntent().getSerializableExtra(MainActivity.NOTE_TYPE);
+        typeofNote = (MainActivity.TypeofNote) getIntent()
+                .getSerializableExtra(MainActivity.NOTE_TYPE);
+        note_type_launched_from = (MainActivity.TypeofNote) getIntent()
+                .getSerializableExtra(MainActivity.NOTE_TYPE_LAUNCHED_FROM);
+        if(note_type_launched_from != null){
+            patients_name_to_search = getIntent().getStringExtra(MainActivity.NOTE_PATIENT_NAME);
+            patients_NHI_to_search = getIntent().getStringExtra(MainActivity.NOTE_PATIENT_NHI);
+        }
 
         //get note ID
         noteId = getIntent().getExtras().getLong(MainActivity.NOTE_ID);
@@ -72,7 +77,6 @@ public class DetailActivity extends AppCompatActivity  {
         //pull fragment to launch from the intent
         fragmentToLaunch = (MainActivity.FragmentToLaunch)
                 intent.getSerializableExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA);
-
         switch (fragmentToLaunch) {
             case EDIT:
                 //create the detailed edit fragment
@@ -94,24 +98,27 @@ public class DetailActivity extends AppCompatActivity  {
 
     public void setUpViewFragments (){
         //create the array list again to be used to make the fragments
+
         switch (typeofNote) {
             case JOB:
                 JobsDbAdapter jobsDbAdapter = new JobsDbAdapter(this.getBaseContext());
                 jobsDbAdapter.open();
-                if(!deleted_notes) {
-                    list = jobsDbAdapter.getNonDeletedJobsNoHeaders();
-                }else{
-                    list = jobsDbAdapter.getDeletedJobsNoHeaders();
+                if(note_type_launched_from != null) {
+                    list = jobsDbAdapter.getSinglePatientsJobs
+                            (patients_name_to_search, patients_NHI_to_search, deleted_notes);
+                }else {
+                    list = jobsDbAdapter.getJobsNoHeaders(deleted_notes);
                 }
                 jobsDbAdapter.close();
                 break;
             case REFERRAL:
                 ReferralsDbAdapter referralsDbAdapter = new ReferralsDbAdapter(this.getBaseContext());
                 referralsDbAdapter.open();
-                if(!deleted_notes) {
-                    list = referralsDbAdapter.getCurrentReferralsNoHeaders();
-                }else{
-                    list = referralsDbAdapter.getDeletedReferralsNoHeaders();
+                if(note_type_launched_from != null){
+                    list = referralsDbAdapter.getSinglePatientsReferrals(patients_name_to_search
+                            , patients_NHI_to_search, deleted_notes);
+                }else {
+                    list = referralsDbAdapter.getReferralsNoHeaders(deleted_notes);
                 }
                 referralsDbAdapter.close();
                 break;
@@ -280,8 +287,12 @@ public class DetailActivity extends AppCompatActivity  {
         switch (fragmentToLaunch) {
             case VIEW:
                 Intent intent = new Intent(this, Activity_ListView.class);
-                intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
                 intent.putExtra(MainActivity.DELETED_NOTES, deleted_notes);
+                if(note_type_launched_from == null) {
+                    intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
+                }else{
+                    intent.putExtra(MainActivity.NOTE_TYPE, note_type_launched_from);
+                }
                 startActivity(intent);
                 break;
             case EDIT:

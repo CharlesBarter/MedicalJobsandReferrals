@@ -70,7 +70,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/list_age_sex"
+        android:layout_below="@+id/ListAgeSex"
         android:layout_marginEnd="16dp"
         android:textSize="14sp"
         android:textAppearance="?android:textAppearanceListItem"
@@ -78,12 +78,15 @@
         />
 
     <TextView
-        android:id="@+id/number_of_jobs_list_view"
+        android:id="@+id/NumberofJobsListView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/listItemPatientNHI"
-        android:layout_toLeftOf="@id/list_age_sex"
-        android:layout_marginEnd="4dp"
+        android:layout_toRightOf="@id/listItemDetails"
+        android:paddingStart="3dp"
+        android:paddingEnd="3dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:textAppearance="?android:textAppearanceListItem"
         android:background="@color/minifab"
         android:textColor="@color/white"
@@ -93,7 +96,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/list_age_sex"
+        android:id="@+id/ListAgeSex"
         android:layout_below="@id/listItemPatientNHI"
         android:textAppearance="?android:textAppearanceListItem"
         android:layout_marginEnd="16dp"

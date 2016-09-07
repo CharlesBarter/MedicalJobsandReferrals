@@ -134,7 +134,7 @@ public class NoteSwipeAdapter extends BaseSwipeAdapter {
         //create the text views within this code so they can be used
         TextView notePatientName = (TextView) convertView.findViewById(R.id.listItemPatientName);
         TextView notePatientNHI = (TextView) convertView.findViewById(R.id.listItemPatientNHI);
-        TextView notePatient_Age_Sex = (TextView) convertView.findViewById(R.id.list_age_sex);
+        TextView notePatient_Age_Sex = (TextView) convertView.findViewById(R.id.ListAgeSex);
         TextView noteDetails = (TextView) convertView.findViewById(R.id.listItemDetails);
         TextView noteLocation = (TextView) convertView.findViewById(R.id.listItemLocation);
         ImageView noteIcon = (ImageView) convertView.findViewById(R.id.listItemNoteImage);

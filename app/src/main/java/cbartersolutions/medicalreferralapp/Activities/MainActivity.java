@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String NOTE_DATE_CREATED = "com.cbartersolutions.medicalreferralapp.Date";
     public static final String NOTE_FRAGMENT_TO_LOAD_EXTRA = "com.cbartersolutions.medicalreferralapp.Fragment_To_Load";
     public static String NOTE_TYPE = "com.cbartersolutions.medicalreferralapp.Note_Type";
+    public static String NOTE_TYPE_LAUNCHED_FROM = "com.cbartersolutions.medicalreferralapp.Note_Type_Launched_From";
     public static final String LIST_POSITION = "com.cbartersolutions.medicalreferralapp.List_Position";
     public static final String JOB_DONE = "com.cbartersolutions.medicalreferralapp.JOB_DONE";
     public static final String DELETED_NOTES = "com.cbartersolutions.medicalreferralapp.DELTED_NOTES";

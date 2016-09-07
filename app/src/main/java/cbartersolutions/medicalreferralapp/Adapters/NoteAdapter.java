@@ -63,7 +63,7 @@ public class NoteAdapter extends ArrayAdapter<Note>{
             //create the text views within this code so they can be used
             viewHolder.notePatientName = (TextView) convertView.findViewById(R.id.listItemPatientName);
             viewHolder.notePatientNHI = (TextView) convertView.findViewById(R.id.listItemPatientNHI);
-            viewHolder.notePatient_Age_Sex = (TextView) convertView.findViewById(R.id.list_age_sex);
+            viewHolder.notePatient_Age_Sex = (TextView) convertView.findViewById(R.id.ListAgeSex);
             viewHolder.noteDetails = (TextView) convertView.findViewById(R.id.listItemDetails);
             viewHolder.noteIcon = (ImageView) convertView.findViewById(R.id.listItemNoteImage);
 

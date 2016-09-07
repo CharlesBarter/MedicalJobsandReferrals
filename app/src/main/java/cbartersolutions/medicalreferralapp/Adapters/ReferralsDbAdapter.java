@@ -166,9 +166,14 @@ public class ReferralsDbAdapter {
         return notes;
     }
 
-    public ArrayList<Note> getCurrentReferralsNoHeaders(){
-        int is_deleted = 0;
+    public ArrayList<Note> getReferralsNoHeaders(boolean deleted_notes){
         ArrayList<Note> notes = new ArrayList<>();
+        int is_deleted;
+        if(deleted_notes){
+            is_deleted = 1;
+        }else{
+            is_deleted = 0;
+        }
         Cursor cursor = sqlDB.query(REFERRALS_TABLE, allColumns, COLUMN_DELETED + " = " + is_deleted,
                 null,null,null, getOrderBy());
         for (cursor.moveToLast(); !cursor.isBeforeFirst(); cursor.moveToPrevious()){
@@ -188,16 +193,24 @@ public class ReferralsDbAdapter {
         return notes;
     }
 
-    public ArrayList<Note> getDeletedReferralsNoHeaders(){
-        int is_deleted = 1;
+    public ArrayList<Note> getSinglePatientsReferrals(String patient_name, String patient_NHI, boolean deleted_notes){
         ArrayList<Note> notes = new ArrayList<>();
-        Cursor cursor = sqlDB.query(REFERRALS_TABLE, allColumns, COLUMN_DELETED + " = " + is_deleted,
-                null, null, null, getOrderBy());
-        for (cursor.moveToLast(); !cursor.isBeforeFirst(); cursor.moveToPrevious()){
+        int is_deleted;
+        if(deleted_notes){
+            is_deleted = 1;
+        }else {
+            is_deleted = 0;
+        }
+        Cursor cursor = sqlDB.query(REFERRALS_TABLE, allColumns,
+                COLUMN_PATIENT_NAME + " = '" + patient_name + "'"
+                + " AND " + COLUMN_PATIENT_NHI + " = '" + patient_NHI + "'"
+                + " AND " + COLUMN_DELETED + " = " + is_deleted,
+                null,null,null,getOrderBy());
+        for(cursor.moveToLast(); !cursor.isBeforeFirst(); cursor.moveToPrevious()) {
             notes.add(cursorToNote(cursor));
         }
-        cursor.close();
         return notes;
+
     }
 
     //takes the data from the row the cursor variable is on in the database

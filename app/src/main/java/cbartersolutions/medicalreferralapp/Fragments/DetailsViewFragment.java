@@ -230,7 +230,8 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
                 Intent intent1 = new Intent(getActivity(), DetailActivity.class);
                 intent1 = putInfoIntoIntent(intent1);
                 intent1.putExtra(MainActivity.NOTE_TYPE, MainActivity.TypeofNote.JOB);
-                intent1.putExtra(MainActivity.NOTE_DETAILS, "");
+                intent1.putExtra(MainActivity.NOTE_DATE_AND_TIME, "");//so the time is set for the time the button is clicked, not the time the referral has on it
+                intent1.putExtra(MainActivity.NOTE_DETAILS, "");//remove detail information
                 intent1.putExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA, MainActivity.FragmentToLaunch.CREATE);
                 startActivity(intent1);
                 break;
@@ -248,10 +249,8 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
         returnIntent = putInfoIntoIntent(returnIntent);
         returnIntent.putExtra(MainActivity.JOB_DONE, true);
         startActivity(returnIntent);
-
 //        getActivity().setResult(Activity.RESULT_OK, returnIntent);
 //        getActivity().finish();
-
     }
 
 
@@ -347,7 +346,6 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
                 //do nothing
                 break;
         }
-
         return intent;
     }
 

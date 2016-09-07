@@ -129,8 +129,6 @@ public class RecyclerViewFragment extends Fragment {
             @Override
             public void onItemClick(View itemView, int position) {
                 launchDetailActivity(MainActivity.FragmentToLaunch.VIEW, position);
-//                Toast.makeText(getActivity(), "Single Click " + " " + position,
-//                        Toast.LENGTH_SHORT).show();
             }
 
             @Override

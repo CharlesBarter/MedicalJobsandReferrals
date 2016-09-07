@@ -190,9 +190,14 @@ public class JobsDbAdapter {
         return notes;
     }
 
-    public ArrayList<Note> getNonDeletedJobsNoHeaders() {
+    public ArrayList<Note> getJobsNoHeaders(boolean deleted_notes) {
         ArrayList<Note> notes = new ArrayList<>();
-        int is_deleted = 0;
+        int is_deleted;
+        if(deleted_notes){
+            is_deleted = 1;
+        }else{
+            is_deleted = 0;
+        }
         //grab all off the information in our database for the notes in it
         Cursor cursor = sqlDB.query(JOBS_TABLE, allColumns, COLUMN_DELETED + " = " + is_deleted,
                 null, null, null, getOrderBy());
@@ -212,15 +217,23 @@ public class JobsDbAdapter {
         return notes;
     }
 
-    public ArrayList<Note> getDeletedJobsNoHeaders(){
+    public ArrayList<Note> getSinglePatientsJobs(String patient_name, String patient_NHI,
+                                                 boolean deleted_notes){
         ArrayList<Note> notes = new ArrayList<>();
-        int deleted = 1;
-        Cursor cursor = sqlDB.query(JOBS_TABLE, allColumns, COLUMN_DELETED + " = " + deleted,
+        int is_deleted;
+        if(deleted_notes){
+            is_deleted = 1;
+        }else{
+            is_deleted = 0;
+        }
+        Cursor cursor = sqlDB.query(JOBS_TABLE, allColumns,
+                COLUMN_PATIENT_NAME + " = '" + patient_name +"'"
+                        + " AND " + COLUMN_PATIENT_NHI + " = '" + patient_NHI + "'"
+                        + " AND " + COLUMN_DELETED + " = " + is_deleted,
                 null,null,null,getOrderBy());
         for(cursor.moveToLast(); !cursor.isBeforeFirst(); cursor.moveToPrevious()){
             notes.add(cursorToNote(cursor));
         }
-        cursor.close();
         return notes;
     }
 
