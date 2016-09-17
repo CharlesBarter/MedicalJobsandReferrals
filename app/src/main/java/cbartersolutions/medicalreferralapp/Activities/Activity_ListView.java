@@ -21,7 +21,7 @@ import android.view.View;
 
 import android.support.design.widget.FloatingActionButton;
 
-import cbartersolutions.medicalreferralapp.Fragments.ListViewFragment;
+//import cbartersolutions.medicalreferralapp.Fragments.ListViewFragment;
 import cbartersolutions.medicalreferralapp.Fragments.RecyclerViewFragment;
 import cbartersolutions.medicalreferralapp.Listeners.OnSwipeTouchListener;
 import cbartersolutions.medicalreferralapp.R;
@@ -266,7 +266,6 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
                 return true;
             case R.id.view_deleted_jobs:
                 Boolean deleted_wanted;
-
                 // switches between deleted and current notes using the same menu button
                 deleted_wanted = !deleted_notes;
                 //restart intent

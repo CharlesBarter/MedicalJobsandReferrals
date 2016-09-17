@@ -29,11 +29,10 @@ import java.util.Locale;
 
 import cbartersolutions.medicalreferralapp.Activities.Activity_ListView;
 import cbartersolutions.medicalreferralapp.Activities.DetailActivity;
-import cbartersolutions.medicalreferralapp.Adapters.JobsDbAdapter;
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
+import cbartersolutions.medicalreferralapp.Adapters.NotesDbAdapter;
 import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 import cbartersolutions.medicalreferralapp.R;
-import cbartersolutions.medicalreferralapp.Adapters.ReferralsDbAdapter;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -50,6 +49,7 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
 
     private EditText editPatientName,editPatientNHI, editReferredDetails, editReferredContact,
     editPatientAge_Sex, editDetails, edit_date, edit_time, editLocation;
+    private String referrerDetails, referrerContact;
     private ImageButton editIconButton;
 
     private Note.Category savedIconButtonCategory;
@@ -108,7 +108,6 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
             case JOB:
                 //grab layout
                 fragmentlayout = inflater.inflate(R.layout.fragment_job_details_edit, container, false);
-
                 break;
             case REFERRAL:
                 //grab layout
@@ -120,7 +119,6 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
                 //set the details of the referral edit text
                 editReferredContact.setText(intent.getExtras().getString(MainActivity.NOTE_REFERRER_CONTACT, ""));
                 editReferredDetails.setText(intent.getExtras().getString(MainActivity.NOTE_REFERRER_NAME, ""));
-
                 break;
 
         }
@@ -271,63 +269,92 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
                 //change the calendar date/time to an Integer to allow for storing
                 long convertCalendar = myCalendar.getTimeInMillis();
 
-
-                //open JobdBAdapter
-                JobsDbAdapter jobsDbAdapter= new JobsDbAdapter(getActivity().getBaseContext());
-                jobsDbAdapter.open();
-
-                //open ReferralsDbAdapter
-                ReferralsDbAdapter referralsDbAdapter= new ReferralsDbAdapter(getActivity().getBaseContext());
-                referralsDbAdapter.open();
+//                //open JobdBAdapter
+//                JobsDbAdapter jobsDbAdapter= new JobsDbAdapter(getActivity().getBaseContext());
+//                jobsDbAdapter.open();
+//
+//                //open NotesDbAdapter
+//                NotesDbAdapter referralsDbAdapter= new NotesDbAdapter(getActivity().getBaseContext());
+//                referralsDbAdapter.open();
 
                 //state this note is not a deleted note using 0 1 as booleans
                 int deleted = 0;
 
+                //code for setting referrerDetails
+                switch (typeofNote) {
+                    case JOB:
+                        referrerDetails = "";
+                        referrerContact = "";
+                        break;
+                    case REFERRAL:
+                        referrerDetails = editReferredDetails.getText().toString();
+                        referrerContact = editReferredContact.getText().toString();
+                        break;
+                }
+
+                //create the database
+                NotesDbAdapter dbAdapter = new NotesDbAdapter(getActivity().getBaseContext());
+                dbAdapter.open();
+
                 if(newNote) {
 //                    //if new note then create a new database item depending on typeOfNote
-                    switch (typeofNote) {
-                        case JOB:
-                            jobsDbAdapter.createJob(editPatientName.getText() + "",
-                                    editPatientNHI.getText() + "", editPatientAge_Sex.getText() + "",
-                                    editLocation.getText() + "",
-                                    convertCalendar, editDetails.getText() + "",
-                                   (savedIconButtonCategory == null) ? Note.Category.HIGHIMPORTANCE : savedIconButtonCategory,
-                                    deleted);
-                            break;
-                        case REFERRAL:
-                            referralsDbAdapter.createReferral(editPatientName.getText() + "", editPatientNHI.getText() + "",
-                                    editPatientAge_Sex.getText() + "",
-                                    editLocation.getText() + "", convertCalendar,
-                                    editReferredDetails.getText() + "", editReferredContact.getText() + "",
-                                    editDetails.getText() + "",
-                                    (savedIconButtonCategory == null) ? Note.Category.HIGHIMPORTANCE : savedIconButtonCategory,
-                                    deleted);
-                            break;
-                    }
+                    dbAdapter.createReferral(editPatientName.getText() + "",
+                            editPatientNHI.getText() + "", editPatientAge_Sex.getText() + "",
+                            editLocation.getText() + "", convertCalendar,
+                            referrerDetails,referrerContact,
+                            editDetails.getText() + "",
+                            (savedIconButtonCategory == null) ? Note.Category.HIGHIMPORTANCE : savedIconButtonCategory,
+                            typeofNote, deleted);
+//                    switch (typeofNote) {
+//                        case JOB:
+//                            jobsDbAdapter.createJob(editPatientName.getText() + "",
+//                                    editPatientNHI.getText() + "", editPatientAge_Sex.getText() + "",
+//                                    editLocation.getText() + "",
+//                                    convertCalendar, editDetails.getText() + "",
+//                                   (savedIconButtonCategory == null) ? Note.Category.HIGHIMPORTANCE : savedIconButtonCategory,
+//                                    deleted);
+//                            break;
+//                        case REFERRAL:
+//                            referralsDbAdapter.createReferral(editPatientName.getText() + "", editPatientNHI.getText() + "",
+//                                    editPatientAge_Sex.getText() + "",
+//                                    editLocation.getText() + "", convertCalendar,
+//                                    editReferredDetails.getText() + "", editReferredContact.getText() + "",
+//                                    editDetails.getText() + "",
+//                                    (savedIconButtonCategory == null) ? Note.Category.HIGHIMPORTANCE : savedIconButtonCategory,
+//                                    typeofNote, deleted);
+//                            break;
+//                    }
                 }else{
                     //otherwise its an old note so update the database
-                    switch(typeofNote){
-                        case JOB:
-                            jobsDbAdapter.updateJob(noteId, editPatientName.getText() + "", editPatientNHI.getText() + "",
-                                    editPatientAge_Sex.getText() + "",
-                                    editLocation.getText() + "",
-                                    convertCalendar, editDetails.getText() + "",
-                                    savedIconButtonCategory, deleted,
-                                    date_created);
-                            break;
-                        case REFERRAL:
-                            referralsDbAdapter.updateReferral(noteId, editPatientName.getText() + "", editPatientNHI.getText() + "",
-                                    editPatientAge_Sex.getText() + "", editLocation.getText() + "",
-                                    convertCalendar,
-                                    editReferredDetails.getText() + "", editReferredContact.getText() + "",
-                                    editDetails.getText() + "", savedIconButtonCategory,
-                                    deleted);
-                    }
+                    dbAdapter.updateReferral(noteId, editPatientName.getText() + "", editPatientNHI.getText() + "",
+                            editPatientAge_Sex.getText() + "", editLocation.getText() + "",
+                            convertCalendar,
+                            referrerDetails, referrerContact,
+                            editDetails.getText() + "", savedIconButtonCategory,
+                            typeofNote, deleted);
+//                    switch(typeofNote){
+//                        case JOB:
+//                            jobsDbAdapter.updateJob(noteId, editPatientName.getText() + "", editPatientNHI.getText() + "",
+//                                    editPatientAge_Sex.getText() + "",
+//                                    editLocation.getText() + "",
+//                                    convertCalendar, editDetails.getText() + "",
+//                                    savedIconButtonCategory, deleted,
+//                                    date_created);
+//                            break;
+//                        case REFERRAL:
+//                            referralsDbAdapter.updateReferral(noteId, editPatientName.getText() + "", editPatientNHI.getText() + "",
+//                                    editPatientAge_Sex.getText() + "", editLocation.getText() + "",
+//                                    convertCalendar,
+//                                    editReferredDetails.getText() + "", editReferredContact.getText() + "",
+//                                    editDetails.getText() + "", savedIconButtonCategory,
+//                                    typeofNote, deleted);
+//                    }
                 }
 
                 //close the database's
-                jobsDbAdapter.close();
-                referralsDbAdapter.close();
+                dbAdapter.close();
+//                jobsDbAdapter.close();
+//                referralsDbAdapter.close();
 
                 finishEditing();
                 break;

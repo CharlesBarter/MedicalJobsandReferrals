@@ -24,10 +24,10 @@ import cbartersolutions.medicalreferralapp.Activities.DetailActivity;
 import cbartersolutions.medicalreferralapp.Adapters.JobsDbAdapter;
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.Adapters.NoteSwipeAdapter;
+import cbartersolutions.medicalreferralapp.Adapters.NotesDbAdapter;
 import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 import cbartersolutions.medicalreferralapp.Adapters.NoteAdapter;
 import cbartersolutions.medicalreferralapp.R;
-import cbartersolutions.medicalreferralapp.Adapters.ReferralsDbAdapter;
 
 
 /**
@@ -300,8 +300,7 @@ public class ListViewFragment extends android.support.v4.app.ListFragment  {
     }
 
     public void updateReferral (Intent data, int is_deleted){
-
-        ReferralsDbAdapter referralsDbAdapter = new ReferralsDbAdapter(getActivity().getBaseContext());
+        NotesDbAdapter referralsDbAdapter = new NotesDbAdapter(getActivity().getBaseContext());
         referralsDbAdapter.open();
         referralsDbAdapter.updateReferral(
                 data.getExtras().getLong(MainActivity.NOTE_ID),
@@ -314,13 +313,14 @@ public class ListViewFragment extends android.support.v4.app.ListFragment  {
                 data.getExtras().getString(MainActivity.NOTE_REFERRER_CONTACT),
                 data.getExtras().getString(MainActivity.NOTE_DETAILS) + "",
                 (Note.Category) data.getSerializableExtra(MainActivity.NOTE_CATEGORY),
+                (MainActivity.TypeofNote) data.getExtras().getSerializable(MainActivity.NOTE_TYPE),
                 is_deleted
         );
         referralsDbAdapter.close();
     }
 
     public void permanentlyDeleteReferal(Long noteId){
-        ReferralsDbAdapter referralsDbAdapter = new ReferralsDbAdapter(getActivity().getBaseContext());
+        NotesDbAdapter referralsDbAdapter = new NotesDbAdapter(getActivity().getBaseContext());
         referralsDbAdapter.open();
         referralsDbAdapter.deleteReferral(noteId);
         referralsDbAdapter.close();
@@ -364,7 +364,7 @@ public class ListViewFragment extends android.support.v4.app.ListFragment  {
                 jobsDbAdapter.close();
                 break;
             case REFERRAL:
-                ReferralsDbAdapter referralsDbAdapter = new ReferralsDbAdapter(getActivity().getBaseContext());
+                NotesDbAdapter referralsDbAdapter = new NotesDbAdapter(getActivity().getBaseContext());
                 referralsDbAdapter.open();
                 referralsDbAdapter.deleteReferral(noteId);
                 referralsDbAdapter.close();
@@ -397,7 +397,7 @@ public class ListViewFragment extends android.support.v4.app.ListFragment  {
                 jobsDbAdapter.close();
                 break;
             case REFERRAL:
-                ReferralsDbAdapter referralsDbAdapter = new ReferralsDbAdapter(getActivity().getBaseContext());
+                NotesDbAdapter referralsDbAdapter = new NotesDbAdapter(getActivity().getBaseContext());
                 referralsDbAdapter.open();
                 if(!deleted_notes) {
                     referralslist = referralsDbAdapter.getCurrentReferrals();

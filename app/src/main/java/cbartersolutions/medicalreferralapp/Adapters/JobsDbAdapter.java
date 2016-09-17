@@ -16,9 +16,11 @@ import java.util.Locale;
 
 import cbartersolutions.medicalreferralapp.ArrayLists.Header;
 import cbartersolutions.medicalreferralapp.ArrayLists.Note;
+import cbartersolutions.medicalreferralapp.R;
 
 /**
  * Created by Charles on 17/07/2016.
+ * JobsDbAdapter
  */
 public class JobsDbAdapter {
 
@@ -148,7 +150,7 @@ public class JobsDbAdapter {
         return sqlDB.update(JOBS_TABLE, values, COLUMN_ID + " = " + idToUpdate, null);
     }
 
-    public long changeJobsDeletedStatus (long idToUpdate, int deleted){
+    public long changeDeleteStatus(long idToUpdate, int deleted){
         ContentValues values = new ContentValues();
         values.put(COLUMN_DELETED, deleted);
         return sqlDB.update(JOBS_TABLE, values, COLUMN_ID + " = " + idToUpdate, null);
@@ -238,12 +240,10 @@ public class JobsDbAdapter {
     }
 
     private Note cursorToNote(Cursor cursor) {
-        Note newNote;
-        newNote = new Note(cursor.getString(1), cursor.getString(2), cursor.getString(3),
+        return new Note(cursor.getString(1), cursor.getString(2), cursor.getString(3),
                 cursor.getString(4),
                 cursor.getLong(5), cursor.getString(6),
                 Note.Category.valueOf(cursor.getString(7)), cursor.getLong(0), cursor.getLong(9));
-        return newNote;
     }
 
 
@@ -251,7 +251,7 @@ public class JobsDbAdapter {
 
         ArrayList<Note> notes = new ArrayList<>();
 
-        String blank_header_name = "No Location";
+        String blank_header_name = context.getString(R.string.no_location);
 
         String header_item_to_check = "header to check against";
         for (cursor.moveToLast(); !cursor.isBeforeFirst(); cursor.moveToPrevious()) {
@@ -265,9 +265,12 @@ public class JobsDbAdapter {
                     }
                     break;
                 case COLUMN_CATEGORY:
-                    current_header_item = cursor.getString(9);//get the category as a string
+                    current_header_item = cursor.getString(7);//get the category as a string
                     current_header_item = current_header_item
                             .replace("IMPORTANCE","");//remove IMPORTANCE from the category names
+                    if(current_header_item.substring(0,1).equals("Z")){
+                        current_header_item = current_header_item.substring(2,current_header_item.length());
+                    }
                     current_header_item = current_header_item.substring(0,1) +
                             current_header_item.substring(1,current_header_item.length())
                                     .toLowerCase();//change the categories to lower case
@@ -306,7 +309,7 @@ public class JobsDbAdapter {
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(JOBS_DATABASE_CREATE);
-//            db.execSQL(ReferralsDbAdapter.REFERRALS_DATABASE_CREATE);
+//            db.execSQL(NotesDbAdapter.REFERRALS_DATABASE_CREATE);
         }
 
         @Override

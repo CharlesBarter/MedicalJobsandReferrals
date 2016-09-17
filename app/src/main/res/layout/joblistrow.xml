@@ -2,11 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/background"
     android:paddingBottom="7dp"
     android:paddingTop="7dp"
     android:paddingStart="10dp"
+    android:paddingEnd="0dp"
     android:id="@+id/singleItemOnlistViewLayout"
     android:descendantFocusability="blocksDescendants">
 
@@ -21,6 +21,7 @@
         android:clickable="true"
         android:longClickable="true"
         android:fadingEdgeLength="10dp"
+        android:contentDescription="@string/icon_description"
         />
     <TextView
         android:layout_width="wrap_content"
@@ -37,7 +38,7 @@
         android:layout_marginBottom="2dp"
         android:layout_marginEnd="15dp"/>
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:id="@+id/listItemPatientNHI"
         android:textAppearance="?android:textAppearanceListItem"
@@ -50,7 +51,7 @@
         android:layout_alignTop="@+id/listItemPatientName"
         android:layout_alignParentEnd="true"
         android:scrollbarSize="15sp"
-        android:text="AAA9999"/>
+        android:text="@string/example_NHI"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -63,7 +64,7 @@
         android:textColor="@color/listViewSecondaryText"
         android:ellipsize="end"
         android:maxLines="2"
-        android:text="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"/>
+        android:text="@string/example_details"/>
 
     <TextView
         android:id="@+id/listItemLocation"
@@ -74,7 +75,7 @@
         android:layout_marginEnd="16dp"
         android:textSize="14sp"
         android:textAppearance="?android:textAppearanceListItem"
-        android:text="5N A01"
+        android:text="@string/example_age_sex"
         />
 
     <TextView
@@ -82,7 +83,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/listItemPatientNHI"
-        android:layout_toRightOf="@id/listItemDetails"
+        android:layout_toEndOf="@id/listItemDetails"
         android:paddingStart="3dp"
         android:paddingEnd="3dp"
         android:layout_marginStart="16dp"
@@ -91,7 +92,7 @@
         android:background="@color/minifab"
         android:textColor="@color/white"
         android:visibility="gone"
-        android:text="3"/>
+        android:text="@string/example_number_of_alternative_notes"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -102,6 +103,6 @@
         android:layout_marginEnd="16dp"
         android:layout_alignParentEnd="true"
         android:gravity="end"
-        android:text="101F"/>
+        android:text="@string/example_age_sex"/>
 
 </RelativeLayout>

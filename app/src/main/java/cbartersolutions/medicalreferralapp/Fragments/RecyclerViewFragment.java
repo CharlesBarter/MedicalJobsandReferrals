@@ -6,17 +6,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ParallelExecutorCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.daimajia.swipe.util.Attributes;
@@ -27,8 +23,8 @@ import cbartersolutions.medicalreferralapp.Activities.Activity_ListView;
 import cbartersolutions.medicalreferralapp.Activities.DetailActivity;
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.Adapters.JobsDbAdapter;
+import cbartersolutions.medicalreferralapp.Adapters.NotesDbAdapter;
 import cbartersolutions.medicalreferralapp.Adapters.RecyclerViewAdapter;
-import cbartersolutions.medicalreferralapp.Adapters.ReferralsDbAdapter;
 import cbartersolutions.medicalreferralapp.ArrayLists.Header;
 import cbartersolutions.medicalreferralapp.Decorations.DividerItemDecoration;
 import cbartersolutions.medicalreferralapp.Listeners.OnSwipeTouchListener;
@@ -44,20 +40,16 @@ public class RecyclerViewFragment extends Fragment {
     private static String TAG = "RecyclerViewFragment";
     private static final String BUNDLE_RECYCLER_LAYOUT = "cbartersolutions.medicalreferralapp.recycler.layout";
 
-    private ArrayList<Note> referralslist, jobslist;
+    private ArrayList<Note> referralslist, jobslist, list;
     private RecyclerView recyclerView;
     private RecyclerViewAdapter mRecyclerViewAdapter;
     private View fragmentLayout;
     private AlteringDatabase alteringDatabase;
-    private FloatingActionButton fab;
     private Intent intent;
     private MainActivity.TypeofNote typeofNote;
     private boolean deleted_notes, job_done;
     private Header deleted_header;
-    private static int lastFirstVisiblePosition = -1;
     private static Bundle state;
-
-    JobsDbAdapter jobsDbAdapter = new JobsDbAdapter(getActivity());
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -195,13 +187,14 @@ public class RecyclerViewFragment extends Fragment {
     private Note note;
 
     public Intent putInfoIntoIntent(int position){
-        switch (typeofNote) {
-            case JOB:
-                note = jobslist.get(position);
-                break;
-            case REFERRAL:
-                note = referralslist.get(position);
-        }
+//        switch (typeofNote) {
+//            case JOB:
+//                note = jobslist.get(position);
+//                break;
+//            case REFERRAL:
+//                note = referralslist.get(position);
+//        }
+        note = list.get(position);
         intent = new Intent(getActivity(), DetailActivity.class);
         intent.putExtra(MainActivity.NOTE_ID, note.getNoteId());
         intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
@@ -221,20 +214,20 @@ public class RecyclerViewFragment extends Fragment {
         //work out if a deleted note
         Boolean job_done_deleted_notes = getActivity().getIntent().getBooleanExtra(MainActivity.DELETED_NOTES, false);
         //find note postion in header containing jobslist
-        for (int i=0; i < jobslist.size(); i++){
-            long noteIdtocheck = jobslist.get(i).getNoteId();
+        for (int i=0; i < list.size(); i++){
+            long noteIdtocheck = list.get(i).getNoteId();
             if(noteIdtocheck == noteId) {
                 position = i;
                 break;
             }
         }
-        final Note deleted_note = jobslist.get(position);//create a copy of the note to be deleted
+        final Note deleted_note = list.get(position);//create a copy of the note to be deleted
         //work out if the above and below note is a header and remove the above header if this is true
         final int ITEM_TYPE_HEADER = 0;
         if(mRecyclerViewAdapter.getItemViewType(position-1) == ITEM_TYPE_HEADER){
-            if (position + 1 >= jobslist.size() ||
+            if (position + 1 >= list.size() ||
                     mRecyclerViewAdapter.getItemViewType(position + 1) == ITEM_TYPE_HEADER){
-                deleted_header = (Header) jobslist.get(position - 1);
+                deleted_header = (Header) list.get(position - 1);
             }
         }
 
@@ -255,13 +248,13 @@ public class RecyclerViewFragment extends Fragment {
             public void run() {
                 alteringDatabase.changeJobDeletedStatus(noteId, is_deleted); //update the job to undeleted
                 //remove from the visable list
-                jobslist.remove(position);
+                list.remove(position);
                 mRecyclerViewAdapter.notifyItemRemoved(position);
-                mRecyclerViewAdapter.notifyItemRangeChanged(position, jobslist.size());
+                mRecyclerViewAdapter.notifyItemRangeChanged(position, list.size());
                 if(deleted_header != null){
-                    jobslist.remove(position - 1);
+                    list.remove(position - 1);
                     mRecyclerViewAdapter.notifyItemRemoved(position - 1);
-                    mRecyclerViewAdapter.notifyItemRangeChanged(position - 1, jobslist.size());
+                    mRecyclerViewAdapter.notifyItemRangeChanged(position - 1, list.size());
                 }
                 mRecyclerViewAdapter.mItemManger.closeAllItems();
             }
@@ -277,17 +270,17 @@ public class RecyclerViewFragment extends Fragment {
                 public void onClick(View view) {
                     alteringDatabase.changeJobDeletedStatus(noteId, undo_deleted); //update the job to undeleted
                     if(deleted_header != null){
-                        jobslist.add(position - 1, deleted_note);
+                        list.add(position - 1, deleted_note);
                         mRecyclerViewAdapter.notifyItemInserted(position - 1);
-                        mRecyclerViewAdapter.notifyItemRangeChanged(position - 1, jobslist.size());
-                        jobslist.add(position - 1, deleted_header);
+                        mRecyclerViewAdapter.notifyItemRangeChanged(position - 1, list.size());
+                        list.add(position - 1, deleted_header);
                         mRecyclerViewAdapter.notifyItemInserted(position - 1);
                         mRecyclerViewAdapter.notifyItemRangeChanged(position - 1,
-                        jobslist.size());
+                        list.size());
                     }else{
-                        jobslist.add(position, deleted_note);
+                        list.add(position, deleted_note);
                         mRecyclerViewAdapter.notifyItemInserted(position);
-                        mRecyclerViewAdapter.notifyItemRangeChanged(position, jobslist.size());
+                        mRecyclerViewAdapter.notifyItemRangeChanged(position, list.size());
                     }
                 }
             });
@@ -297,33 +290,11 @@ public class RecyclerViewFragment extends Fragment {
 
     //make the adapter depending on the type of job
     public RecyclerViewAdapter makeAdapter (MainActivity.TypeofNote typeofNote) {
-        switch (typeofNote) {
-            case JOB:
-                jobsDbAdapter = new JobsDbAdapter(getActivity().getBaseContext());
-                jobsDbAdapter.open();
-                if (!deleted_notes) {
-                    jobslist = jobsDbAdapter.getNonDeletedJobs();
-                }else{
-                    jobslist = jobsDbAdapter.getDeletedJobs();
-                }
-                jobsDbAdapter.close();
-                mRecyclerViewAdapter = new RecyclerViewAdapter(getActivity(), jobslist,
-                        RecyclerViewFragment.this);
-                break;
-            case REFERRAL:
-                ReferralsDbAdapter referralsDbAdapter = new ReferralsDbAdapter(getActivity().getBaseContext());
-                referralsDbAdapter.open();
-                if(!deleted_notes) {
-                    referralslist = referralsDbAdapter.getCurrentReferrals();
-                }else {
-                    referralslist = referralsDbAdapter.getDeletedReferrals();
-                }
-                referralsDbAdapter.close();
-                mRecyclerViewAdapter = new RecyclerViewAdapter(getActivity(), referralslist,
-                        RecyclerViewFragment.this);
-                break;
-        }
-        mRecyclerViewAdapter.setMode(Attributes.Mode.Single);
+        NotesDbAdapter dbAdapter = new NotesDbAdapter(getActivity().getBaseContext());
+        dbAdapter.open();
+        list = dbAdapter.getNotes(deleted_notes, typeofNote);
+        dbAdapter.close();
+        mRecyclerViewAdapter = new RecyclerViewAdapter(getActivity(), list, RecyclerViewFragment.this);
         return mRecyclerViewAdapter;
     }
 

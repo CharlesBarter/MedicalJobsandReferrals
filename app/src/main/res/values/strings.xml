@@ -2,7 +2,17 @@
     <string name="app_name">Medical Jobs</string>
     <string name="action_settings">Settings</string>
 
-    <string name="done">Mark job as DONE</string>
+    //fragment titles
+    <string name="edit_job_fragment">Edit Job</string>
+    <string name="edit_referral_fragment">Edit Referral Details</string>
+    <string name="completed_list_title">Completed </string>
+
+    //job or referral titles
+    <string name="jobs">Jobs</string>
+    <string name="referrals">Referrals</string>
+    <string name="jobSingular">Job</string>
+    <string name="referralSingular">Referral</string>
+
 
     //main page strings
     <string name="jobs_list_button">Jobs</string>
@@ -32,6 +42,7 @@
     <string name="delete_referral">Delete Referral</string>
 
     <string name="restore_job_button_string">Make this an active Job</string>
+    <string name="done">Mark job as DONE</string>
 
     //main menu titles
     <string name="AddJob">Add Job</string>
@@ -39,23 +50,10 @@
     <string name="AddReferralWhole">Add Referral</string>
     <string name="create_new_job_from_referral_details">Create a job for this patient</string>
 
-    //fragment titles
-    <string name="edit_job_fragment">Edit Job</string>
-    <string name="edit_referral_fragment">Edit Referral Details</string>
-
-    <string name="completed_list_title">Completed </string>
-
     //titles of type of view edit/view/new
     <string name="edit">Edit</string>
     <string name="view">View</string>
     <string name="create_new">New</string>
-
-
-    //job or referral titles
-    <string name="jobs">Jobs</string>
-    <string name="referrals">Referrals</string>
-    <string name="jobSingular">Job</string>
-    <string name="referralSingular">Referral</string>
 
     //confirm dialog strings
     <string name="confirm_title">Are you sure?</string>
@@ -77,19 +75,27 @@
     <string name="title_activity_referral_list">Referrals</string>
     <string name="title_activity_referral_detail"></string>
 
-    //menu titles
+    //Drawer menu titles
     <string name="view_completed_jobs">Completed jobs</string>
     <string name="view_current_jobs">Current jobs</string>
     <string name="view_completed_referrals">Completed referrals</string>
     <string name="view_current_referrals">Current referrals</string>
-    <string name="gap">__________________</string>
     <string name="navigation_drawer_open">Drawer open</string>
     <string name="navigation_drawer_close">Drawer closed</string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
-
     <string name="title_activity_app_preferences">Preferences</string>
 
+    //list titles
+    <string name="no_location">No Location</string>
+
+    //Example strings for list
+    <string name="icon_description">Importance Icon</string>
+    <string name="example_NHI">AAA9999</string>
+    <string name="example_details">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</string>
+    <string name="example_location">5N A01</string>
+    <string name="example_number_of_alternative_notes">3</string>
+    <string name="example_age_sex">101F</string>
 
 </resources>

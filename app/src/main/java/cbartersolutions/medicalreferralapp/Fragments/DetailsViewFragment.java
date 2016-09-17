@@ -25,7 +25,7 @@ import java.util.Locale;
 import cbartersolutions.medicalreferralapp.Activities.Activity_ListView;
 import cbartersolutions.medicalreferralapp.Activities.DetailActivity;
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
-import cbartersolutions.medicalreferralapp.Adapters.ReferralsDbAdapter;
+import cbartersolutions.medicalreferralapp.Adapters.NotesDbAdapter;
 import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 import cbartersolutions.medicalreferralapp.R;
 
@@ -168,9 +168,6 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
         //get date created
         datecreated = view_pager_bundle.getLong(MainActivity.NOTE_DATE_CREATED, 10);
 
-//        datecreated = intent.getLongExtra(MainActivity.NOTE_DATE_CREATED, 10);
-
-
         //create fab and make it a listener
         fab.setOnClickListener(this);
 
@@ -237,8 +234,7 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
                 break;
             case R.id.done_button:
                   returntoList(noteId);
-
-                    break;
+                  break;
                 }
         }
 
@@ -249,8 +245,6 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
         returnIntent = putInfoIntoIntent(returnIntent);
         returnIntent.putExtra(MainActivity.JOB_DONE, true);
         startActivity(returnIntent);
-//        getActivity().setResult(Activity.RESULT_OK, returnIntent);
-//        getActivity().finish();
     }
 
 
@@ -308,20 +302,17 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
     }
 
     public void deleteReferral (Long noteId){
-        ReferralsDbAdapter referralsDbAdapter = new ReferralsDbAdapter(getActivity().getBaseContext());
-        referralsDbAdapter.open();
+        NotesDbAdapter dbAdapter = new NotesDbAdapter(getActivity().getBaseContext());
 //        referralsDbAdapter.deleteReferral(noteId);
+        dbAdapter.open();
         int is_deleted = 1;
-        if(!deleted_notes) {
-            referralsDbAdapter.updateReferral(noteId, viewPatientName.getText() + "",
-                    viewPatientNHI.getText() + "", viewPatient_Age_and_sex.getText() + "",
-                    viewPatient_Location.getText() + "", date_and_time, viewReferredDetails.getText() + "",
-                    viewReferredContact.getText() + "", viewDetails.getText() + "",
-                    noteCat, is_deleted);
-        }else{
-            referralsDbAdapter.deleteReferral(noteId);
+        int permanentely_deleted = 2;
+        if(deleted_notes){
+            dbAdapter.changeDeleteStatus(noteId, permanentely_deleted);
+        }else{//if not deleted notes make this a deleted note
+            dbAdapter.changeDeleteStatus(noteId, is_deleted);
         }
-        referralsDbAdapter.close();
+        dbAdapter.close();
     }
 
     public Intent putInfoIntoIntent(Intent intent){

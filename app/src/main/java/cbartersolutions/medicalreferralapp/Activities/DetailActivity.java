@@ -13,8 +13,7 @@ import android.support.v7.widget.Toolbar;
 import java.util.ArrayList;
 import java.util.List;
 
-import cbartersolutions.medicalreferralapp.Adapters.JobsDbAdapter;
-import cbartersolutions.medicalreferralapp.Adapters.ReferralsDbAdapter;
+import cbartersolutions.medicalreferralapp.Adapters.NotesDbAdapter;
 import cbartersolutions.medicalreferralapp.Fragments.DetailsEditFragment;
 import cbartersolutions.medicalreferralapp.Fragments.DetailsViewFragment;
 import cbartersolutions.medicalreferralapp.ArrayLists.Note;
@@ -99,35 +98,53 @@ public class DetailActivity extends AppCompatActivity  {
     public void setUpViewFragments (){
         //create the array list again to be used to make the fragments
 
-        switch (typeofNote) {
-            case JOB:
-                JobsDbAdapter jobsDbAdapter = new JobsDbAdapter(this.getBaseContext());
-                jobsDbAdapter.open();
-                if(note_type_launched_from != null) {
-                    list = jobsDbAdapter.getSinglePatientsJobs
-                            (patients_name_to_search, patients_NHI_to_search, deleted_notes);
-                }else {
-                    list = jobsDbAdapter.getJobsNoHeaders(deleted_notes);
-                }
-                jobsDbAdapter.close();
-                break;
-            case REFERRAL:
-                ReferralsDbAdapter referralsDbAdapter = new ReferralsDbAdapter(this.getBaseContext());
-                referralsDbAdapter.open();
-                if(note_type_launched_from != null){
-                    list = referralsDbAdapter.getSinglePatientsReferrals(patients_name_to_search
-                            , patients_NHI_to_search, deleted_notes);
-                }else {
-                    list = referralsDbAdapter.getReferralsNoHeaders(deleted_notes);
-                }
-                referralsDbAdapter.close();
-                break;
+        NotesDbAdapter dbAdapter = new NotesDbAdapter(this.getBaseContext());
+        dbAdapter.open();
+        if(note_type_launched_from != null){
+            list = dbAdapter.getSinglePatientsReferrals(patients_name_to_search, patients_NHI_to_search,
+                    deleted_notes, typeofNote);
+        }else{
+            list = dbAdapter.getNotesNoHeaders(deleted_notes, typeofNote);
         }
+        dbAdapter.close();
+
+//        switch (typeofNote) {
+//            case JOB:
+//                JobsDbAdapter jobsDbAdapter = new JobsDbAdapter(this.getBaseContext());
+//                jobsDbAdapter.open();
+//                if(note_type_launched_from != null) {
+//                    list = jobsDbAdapter.getSinglePatientsJobs
+//                            (patients_name_to_search, patients_NHI_to_search, deleted_notes);
+//                }else {
+//                    list = jobsDbAdapter.getJobsNoHeaders(deleted_notes);
+//                }
+//                jobsDbAdapter.close();
+//                break;
+//            case REFERRAL:
+//                NotesDbAdapter referralsDbAdapter = new NotesDbAdapter(this.getBaseContext());
+//                referralsDbAdapter.open();
+//                if(note_type_launched_from != null){
+//                    list = referralsDbAdapter.getSinglePatientsReferrals(patients_name_to_search
+//                            , patients_NHI_to_search, deleted_notes);
+//                }else {
+//                    list = referralsDbAdapter.getNotesNoHeaders(deleted_notes, typeofNote);
+//                }
+//                referralsDbAdapter.close();
+//                break;
+//        }
 
         fragments = new ArrayList<>();
         for (int i=0; i<list.size(); i++) {
             Bundle bundle = createBundle(i, list);
             fragments.add(createFragments(bundle));
+            //ensure we are opening the view pager on the correct note
+            long note_id_based_on_for_loop = list.get(i).getNoteId();
+            if (note_id_based_on_for_loop == noteId) {
+                position = i;//when the note clicked on or saved, which launched this activity, is the same as the note
+                //being added to the Viewpager fragments using the for loop, set the position which
+                //defines the fragment to open first to this fragment i.e the fragment
+                //which has been saved from or clicked on in the list.
+            }
         }
         //instantiate a ViewPager and a PagerAdapter in the case of a View type detail
         mPager = (ViewPager) findViewById(R.id.details_viewPager);
@@ -163,13 +180,13 @@ public class DetailActivity extends AppCompatActivity  {
         bundle.putSerializable(MainActivity.NOTE_TYPE, typeofNote);
         bundle.putBoolean(MainActivity.DELETED_NOTES, deleted_notes);
         bundle.putInt(MainActivity.LIST_POSITION, i);
-        long note_id_based_on_for_loop = note.getNoteId();
-        if (note_id_based_on_for_loop == noteId) {
-            position = i;//when the note clicked on or saved, which launched this activity is the same as the note
-            //being added to the Viewpager fragments using the for loop, set the position which
-            //defines the fragment to open first to this fragment i.e the fragment
-            //which has been saved from or clicked on in the list.
-        }
+//        long note_id_based_on_for_loop = note.getNoteId();
+//        if (note_id_based_on_for_loop == noteId) {
+//            position = i;//when the note clicked on or saved, which launched this activity is the same as the note
+//            //being added to the Viewpager fragments using the for loop, set the position which
+//            //defines the fragment to open first to this fragment i.e the fragment
+//            //which has been saved from or clicked on in the list.
+//        }
         return bundle;
     }
 
