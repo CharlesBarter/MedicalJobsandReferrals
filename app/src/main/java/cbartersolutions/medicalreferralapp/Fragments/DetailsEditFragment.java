@@ -269,14 +269,6 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
                 //change the calendar date/time to an Integer to allow for storing
                 long convertCalendar = myCalendar.getTimeInMillis();
 
-//                //open JobdBAdapter
-//                JobsDbAdapter jobsDbAdapter= new JobsDbAdapter(getActivity().getBaseContext());
-//                jobsDbAdapter.open();
-//
-//                //open NotesDbAdapter
-//                NotesDbAdapter referralsDbAdapter= new NotesDbAdapter(getActivity().getBaseContext());
-//                referralsDbAdapter.open();
-
                 //state this note is not a deleted note using 0 1 as booleans
                 int deleted = 0;
 
@@ -305,25 +297,6 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
                             editDetails.getText() + "",
                             (savedIconButtonCategory == null) ? Note.Category.HIGHIMPORTANCE : savedIconButtonCategory,
                             typeofNote, deleted);
-//                    switch (typeofNote) {
-//                        case JOB:
-//                            jobsDbAdapter.createJob(editPatientName.getText() + "",
-//                                    editPatientNHI.getText() + "", editPatientAge_Sex.getText() + "",
-//                                    editLocation.getText() + "",
-//                                    convertCalendar, editDetails.getText() + "",
-//                                   (savedIconButtonCategory == null) ? Note.Category.HIGHIMPORTANCE : savedIconButtonCategory,
-//                                    deleted);
-//                            break;
-//                        case REFERRAL:
-//                            referralsDbAdapter.createReferral(editPatientName.getText() + "", editPatientNHI.getText() + "",
-//                                    editPatientAge_Sex.getText() + "",
-//                                    editLocation.getText() + "", convertCalendar,
-//                                    editReferredDetails.getText() + "", editReferredContact.getText() + "",
-//                                    editDetails.getText() + "",
-//                                    (savedIconButtonCategory == null) ? Note.Category.HIGHIMPORTANCE : savedIconButtonCategory,
-//                                    typeofNote, deleted);
-//                            break;
-//                    }
                 }else{
                     //otherwise its an old note so update the database
                     dbAdapter.updateReferral(noteId, editPatientName.getText() + "", editPatientNHI.getText() + "",
@@ -332,29 +305,10 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
                             referrerDetails, referrerContact,
                             editDetails.getText() + "", savedIconButtonCategory,
                             typeofNote, deleted);
-//                    switch(typeofNote){
-//                        case JOB:
-//                            jobsDbAdapter.updateJob(noteId, editPatientName.getText() + "", editPatientNHI.getText() + "",
-//                                    editPatientAge_Sex.getText() + "",
-//                                    editLocation.getText() + "",
-//                                    convertCalendar, editDetails.getText() + "",
-//                                    savedIconButtonCategory, deleted,
-//                                    date_created);
-//                            break;
-//                        case REFERRAL:
-//                            referralsDbAdapter.updateReferral(noteId, editPatientName.getText() + "", editPatientNHI.getText() + "",
-//                                    editPatientAge_Sex.getText() + "", editLocation.getText() + "",
-//                                    convertCalendar,
-//                                    editReferredDetails.getText() + "", editReferredContact.getText() + "",
-//                                    editDetails.getText() + "", savedIconButtonCategory,
-//                                    typeofNote, deleted);
-//                    }
                 }
 
                 //close the database's
                 dbAdapter.close();
-//                jobsDbAdapter.close();
-//                referralsDbAdapter.close();
 
                 finishEditing();
                 break;

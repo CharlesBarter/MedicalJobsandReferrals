@@ -26,7 +26,6 @@ import cbartersolutions.medicalreferralapp.Activities.DetailActivity;
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.ArrayLists.Header;
 import cbartersolutions.medicalreferralapp.Fragments.RecyclerViewFragment;
-import cbartersolutions.medicalreferralapp.Others.AlteringDatabase;
 import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 import cbartersolutions.medicalreferralapp.R;
 
@@ -48,7 +47,6 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
     private int number_of_deleted_notes = 0;
     private RecyclerViewFragment fragment_using_adapter;
     private MainActivity.TypeofNote typeofNote;
-    private AlteringDatabase alteringDatabase;
     private SwipeLayout.DragEdge currentDragEdge;
     private Handler handler = new Handler();
     private Handler setVisibilityHandler = new Handler();
@@ -107,7 +105,6 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                 .getBoolean(MainActivity.DELETED_NOTES, false);
         typeofNote = (MainActivity.TypeofNote) fragment.getArguments()
                 .getSerializable(MainActivity.NOTE_TYPE);
-//        alteringDatabase = new AlteringDatabase(context);
         //set up array list to search
         dbAdapter = new NotesDbAdapter(mContext);
         dbAdapter.open();
@@ -316,16 +313,6 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                                         dbAdapter.open();
                                         dbAdapter.changeDeleteStatus(noteId, undo_change_deleted_status);
                                         dbAdapter.close();
-//                                        switch (typeofNote) {
-//                                            case JOB:
-//                                                alteringDatabase.changeJobDeletedStatus(noteId,
-//                                                        undo_change_deleted_status);
-//                                                break;
-//                                            case REFERRAL:
-//                                                alteringDatabase.changeReferralDeletedStatus(noteId,
-//                                                        undo_change_deleted_status);
-//                                                break;
-//                                        }
                                     }
                                     viewHolder.swipeLayout.getSurfaceView().setVisibility(View.VISIBLE);
                                     mNotes.clear();
@@ -335,20 +322,6 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                                         notifyItemInserted(positions_of_notes.get(i));
                                         notifyItemRangeChanged(positions_of_notes.get(i),mNotes.size());
                                     }
-//                                if(deleted_header != null){//if header deleted
-//                                    mNotes.add(position-1, deleted_note);//add the note
-//                                    notifyItemInserted(position-1);
-//                                    notifyItemRangeChanged(position-1, mNotes.size());
-//                                    //reinsert header
-//                                    mNotes.add(position-1, deleted_header);
-//                                    notifyItemInserted(position-1);
-//                                    notifyItemRangeChanged(position-1, mNotes.size());
-//                                    deleted_header = null;//remove deleted header;
-//                                }else{
-//                                    mNotes.add(position, deleted_note);
-//                                    notifyItemInserted(position);
-//                                    notifyItemRangeChanged(position, mNotes.size());
-//                                }
                                 mItemManger.closeAllItems();
                                 }
                             });

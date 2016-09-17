@@ -212,28 +212,6 @@ public class NotesDbAdapter {
         return notes;
     }
 
-    public ArrayList<Note> getCurrentReferrals() {
-        int is_deleted = 0;
-        //grab all off the information in our database for the notes in it
-//        Cursor cursor = sqlDB.query(REFERRALS_TABLE, allColumns, null, null, null, null, null);
-        Cursor cursor = sqlDB.query(REFERRALS_TABLE, allColumns, COLUMN_DELETED + " = " + is_deleted,
-                null, null, null, getOrderBy());
-        ArrayList<Note> notes = createNoteArray(cursor);
-        cursor.close();
-        return notes;
-    }
-
-    public ArrayList<Note> getDeletedReferrals() {
-        int is_deleted = 1;
-        //grab all off the information in our database for the notes in it
-        Cursor cursor = sqlDB.query(REFERRALS_TABLE, allColumns, COLUMN_DELETED + " = " + is_deleted,
-                null, null, null, getOrderBy());
-        ArrayList<Note> notes = createNoteArray(cursor);
-        cursor.close();
-        return notes;
-    }
-
-
     //takes the data from the row the cursor variable is on in the database
     //and add them to the note array
     private Note cursorToNote(Cursor cursor) {
@@ -322,6 +300,7 @@ public class NotesDbAdapter {
         }
     }
 
+    //set the orderBy based on the preferences
     private String first_sort_preference;
 
     public String getOrderBy() {

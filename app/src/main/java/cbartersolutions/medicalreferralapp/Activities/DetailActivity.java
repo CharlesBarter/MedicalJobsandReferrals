@@ -28,10 +28,8 @@ public class DetailActivity extends AppCompatActivity  {
     public static final String NEW_NOTE_EXTRA = "New Note";
     private static int position;
     private static long noteId;
-
     private FragmentTransaction fragmentTransaction;
     private MainActivity.FragmentToLaunch fragmentToLaunch;
-
     private ViewPager mPager;
     private PagerAdapter mPagerAdapter;
     private Bundle bundle;
@@ -193,8 +191,7 @@ public class DetailActivity extends AppCompatActivity  {
 
     private CharSequence getTitleFromPosition (int position, ArrayList<Note> data){
         Note note = data.get(position);
-        String Patient_Name = note.getPatientname();
-        return Patient_Name;
+        return note.getPatientname();
     }
 
     private class details_View_Pager_Adapter extends FragmentStatePagerAdapter{
@@ -248,8 +245,9 @@ public class DetailActivity extends AppCompatActivity  {
 //        fragmentToLaunch = (MainActivity.FragmentToLaunch)
 //                intent.getSerializableExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA);
         //run code to get the fragment transaction based on the fragment to launch
-        fragmentTransaction = getFragmenttoLaunch(fragmentToLaunch);
-        fragmentTransaction.commit();
+//        fragmentTransaction = getFragmenttoLaunch(fragmentToLaunch);
+//        fragmentTransaction.commit();
+        launchFragment(fragmentToLaunch);
 
     }
 
@@ -268,35 +266,34 @@ public class DetailActivity extends AppCompatActivity  {
         return title;
     }
 
-    public FragmentTransaction getFragmenttoLaunch (MainActivity.FragmentToLaunch fragmentToLaunch) {
+    public void launchFragment (MainActivity.FragmentToLaunch fragmentToLaunch) {
         //set up the fragment manager and begin the ability to import a fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
 
+        //create a new Edit Fragment
+        DetailsEditFragment editFragment = new DetailsEditFragment();
+
         switch (fragmentToLaunch) {
             case EDIT:
                 //create the EDIT fragment in this activity
-                //create a new fragment of DetailsEditFragment
-                DetailsEditFragment detailsEditFragment = new DetailsEditFragment();
                 //set the full title of the fragment
                 fullTitle = getResources().getString(R.string.edit) + " " + title;
 //                setTitle(fullTitle);
-                //add to R.id.jobdetailview (the id for content_job_details), the fragment above and call it DETAILS_EDIT_FRAGMENT
-                fragmentTransaction.add(R.id.content_detail, detailsEditFragment, "DETAILS_EDIT_FRAGMENT");
                 break;
             case CREATE:
-                DetailsEditFragment jobCreateFragment = new DetailsEditFragment();
                 fullTitle = getResources().getString(R.string.create_new) + " " + title;
                 setTitle(fullTitle);
                 //create a bundle into which information is added then this information is attached to the fragment
                 Bundle bundle = new Bundle(); //creates bundle
                 bundle.putBoolean(NEW_NOTE_EXTRA, true); //adds the value true, to a variable called NEW_NOTE_EXTRA in a bundle
-                jobCreateFragment.setArguments(bundle); //adds the bundle information to the fragment
-                fragmentTransaction.add(R.id.content_detail, jobCreateFragment, "CREATE_JOB_FRAGMENT");
+                editFragment.setArguments(bundle); //adds the bundle information to the fragment
                 break;
         }
 
-        return fragmentTransaction;
+        //add to R.id.jobdetailview (the id for content_job_details), the fragment above and call it DETAILS_EDIT_FRAGMENT
+        fragmentTransaction.add(R.id.content_detail, editFragment, "DETAILS_EDIT_FRAGMENT");
+        fragmentTransaction.commit();
     }
 
     @Override

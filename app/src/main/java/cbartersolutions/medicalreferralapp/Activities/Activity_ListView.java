@@ -2,7 +2,6 @@ package cbartersolutions.medicalreferralapp.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.internal.NavigationMenu;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -21,29 +20,25 @@ import android.view.View;
 
 import android.support.design.widget.FloatingActionButton;
 
-//import cbartersolutions.medicalreferralapp.Fragments.ListViewFragment;
 import cbartersolutions.medicalreferralapp.Fragments.RecyclerViewFragment;
 import cbartersolutions.medicalreferralapp.Listeners.OnSwipeTouchListener;
 import cbartersolutions.medicalreferralapp.R;
-//import com.github.clans.fab.FloatingActionButton;
 
 public class Activity_ListView extends AppCompatActivity implements View.OnClickListener,
         NavigationView.OnNavigationItemSelectedListener{
 
     private static String TAG = "Activity_ListView";
 
-    MainActivity.TypeofNote typeofNote;
-    FloatingActionButton fab;
+    private MainActivity.TypeofNote typeofNote;
+    private FloatingActionButton fab;
 
     private String jobs_menu_title, referrals_menu_title,
-            is_deleted_title, fullTitle;;
+            is_deleted_title, fullTitle;
     boolean deleted_notes;
 
     private ViewPager mViewPager;
     private PagerAdapter listViewPagerAdapter;
-
     private Intent intent;
-
     private int position = -1;
 
     @Override
@@ -52,7 +47,6 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
         setContentView(R.layout.drawer_layout_list_view);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         //get intent variables
         intent = getIntent();
@@ -150,7 +144,6 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
         }
     };
 
-
     private void makeViewPager() {
         mViewPager = (ViewPager) findViewById(R.id.list_ViewPager);
         listViewPagerAdapter = new list_View_Pager_Adapter(getSupportFragmentManager());
@@ -172,18 +165,14 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
                 case 0:
                     bundle.putBoolean(MainActivity.DELETED_NOTES, false);
                     bundle.putBoolean(MainActivity.JOB_DONE, false);
-//                    return ListViewFragment.newInstance(bundle);
                     return  RecyclerViewFragment.newInstance(bundle);
-
                 case 1:
                     bundle.putBoolean(MainActivity.DELETED_NOTES, true);
                     bundle.putBoolean(MainActivity.JOB_DONE, false);
-//                    return ListViewFragment.newInstance(bundle);
                     return RecyclerViewFragment.newInstance(bundle);
                 default:
                     bundle.putBoolean(MainActivity.DELETED_NOTES, false);
                     bundle.putBoolean(MainActivity.JOB_DONE, false);
-//                    return ListViewFragment.newInstance(bundle);
                     return RecyclerViewFragment.newInstance(bundle);
             }
         }

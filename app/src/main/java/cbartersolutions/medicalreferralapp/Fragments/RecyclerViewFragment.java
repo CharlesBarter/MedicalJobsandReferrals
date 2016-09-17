@@ -22,13 +22,11 @@ import java.util.ArrayList;
 import cbartersolutions.medicalreferralapp.Activities.Activity_ListView;
 import cbartersolutions.medicalreferralapp.Activities.DetailActivity;
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
-import cbartersolutions.medicalreferralapp.Adapters.JobsDbAdapter;
 import cbartersolutions.medicalreferralapp.Adapters.NotesDbAdapter;
 import cbartersolutions.medicalreferralapp.Adapters.RecyclerViewAdapter;
 import cbartersolutions.medicalreferralapp.ArrayLists.Header;
 import cbartersolutions.medicalreferralapp.Decorations.DividerItemDecoration;
 import cbartersolutions.medicalreferralapp.Listeners.OnSwipeTouchListener;
-import cbartersolutions.medicalreferralapp.Others.AlteringDatabase;
 import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 import cbartersolutions.medicalreferralapp.R;
 
@@ -44,7 +42,7 @@ public class RecyclerViewFragment extends Fragment {
     private RecyclerView recyclerView;
     private RecyclerViewAdapter mRecyclerViewAdapter;
     private View fragmentLayout;
-    private AlteringDatabase alteringDatabase;
+    private NotesDbAdapter dbAdapter;
     private Intent intent;
     private MainActivity.TypeofNote typeofNote;
     private boolean deleted_notes, job_done;
@@ -54,8 +52,6 @@ public class RecyclerViewFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
-
-        alteringDatabase = new AlteringDatabase(getActivity());
 
 ////        Code for using a viewpager
         Bundle fragment_bundle = getArguments();
@@ -187,13 +183,6 @@ public class RecyclerViewFragment extends Fragment {
     private Note note;
 
     public Intent putInfoIntoIntent(int position){
-//        switch (typeofNote) {
-//            case JOB:
-//                note = jobslist.get(position);
-//                break;
-//            case REFERRAL:
-//                note = referralslist.get(position);
-//        }
         note = list.get(position);
         intent = new Intent(getActivity(), DetailActivity.class);
         intent.putExtra(MainActivity.NOTE_ID, note.getNoteId());
@@ -209,11 +198,13 @@ public class RecyclerViewFragment extends Fragment {
     public void jobDone (final long noteId){
         //change JOB done back to false so code not run again
         getActivity().getIntent().putExtra(MainActivity.JOB_DONE, false);
-        //create the Java code which allows editing the database
-        alteringDatabase = new AlteringDatabase(getActivity());
         //work out if a deleted note
         Boolean job_done_deleted_notes = getActivity().getIntent().getBooleanExtra(MainActivity.DELETED_NOTES, false);
-        //find note postion in header containing jobslist
+        //set up the database adapter
+        dbAdapter = new NotesDbAdapter(getActivity().getBaseContext());
+        dbAdapter.open();
+
+        //find note position in header containing jobslist
         for (int i=0; i < list.size(); i++){
             long noteIdtocheck = list.get(i).getNoteId();
             if(noteIdtocheck == noteId) {
@@ -246,7 +237,8 @@ public class RecyclerViewFragment extends Fragment {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                alteringDatabase.changeJobDeletedStatus(noteId, is_deleted); //update the job to undeleted
+                //update the job deleted status
+                dbAdapter.changeDeleteStatus(noteId, is_deleted);
                 //remove from the visable list
                 list.remove(position);
                 mRecyclerViewAdapter.notifyItemRemoved(position);
@@ -268,7 +260,7 @@ public class RecyclerViewFragment extends Fragment {
             .setAction(R.string.undo, new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    alteringDatabase.changeJobDeletedStatus(noteId, undo_deleted); //update the job to undeleted
+                    dbAdapter.changeDeleteStatus(noteId, undo_deleted); //update the job to undeleted
                     if(deleted_header != null){
                         list.add(position - 1, deleted_note);
                         mRecyclerViewAdapter.notifyItemInserted(position - 1);
@@ -286,6 +278,13 @@ public class RecyclerViewFragment extends Fragment {
             });
         snackbar.setActionTextColor(Color.RED);
         snackbar.show();
+        snackbar.setCallback(new Snackbar.Callback() {
+            @Override
+            public void onDismissed(Snackbar snackbar, int event) {
+                super.onDismissed(snackbar, event);
+                dbAdapter.close();
+            }
+        });
     }
 
     //make the adapter depending on the type of job
