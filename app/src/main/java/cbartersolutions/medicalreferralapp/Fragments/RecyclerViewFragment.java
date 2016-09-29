@@ -11,6 +11,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -121,7 +124,7 @@ public class RecyclerViewFragment extends Fragment {
 
             @Override
             public void onLongClick(View itemView, int position) {
-                Toast.makeText(getActivity(), "LongCLick", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Long Click", Toast.LENGTH_SHORT).show();
             }
         });
         recyclerView.setAdapter(mRecyclerViewAdapter);
@@ -129,7 +132,6 @@ public class RecyclerViewFragment extends Fragment {
     }
 
     private View.OnTouchListener onTouchListener = new OnSwipeTouchListener(getActivity()){
-//        Intent intent = new Intent(getActivity(), Activity_ListView.class);
         @Override
         public void onSwipeRight() {
             if(!deleted_notes) {
@@ -150,12 +152,9 @@ public class RecyclerViewFragment extends Fragment {
                 intent.putExtra(MainActivity.DELETED_NOTES, true);
                 intent.putExtra(MainActivity.JOB_DONE, false);
                 startActivity(intent);
-            } else {
-                //DO NOTHING
             }
         }
     };
-
 
     public void launchDetailActivity(MainActivity.FragmentToLaunch ftl, int position){
         Intent intent = putInfoIntoIntent(position);
@@ -289,7 +288,7 @@ public class RecyclerViewFragment extends Fragment {
 
     //make the adapter depending on the type of job
     public RecyclerViewAdapter makeAdapter (MainActivity.TypeofNote typeofNote) {
-        NotesDbAdapter dbAdapter = new NotesDbAdapter(getActivity().getBaseContext());
+        NotesDbAdapter dbAdapter = new NotesDbAdapter(getActivity());
         dbAdapter.open();
         list = dbAdapter.getNotes(deleted_notes, typeofNote);
         dbAdapter.close();
@@ -313,4 +312,10 @@ public class RecyclerViewFragment extends Fragment {
         state.putParcelable(BUNDLE_RECYCLER_LAYOUT, recyclerView.getLayoutManager().onSaveInstanceState());
         super.onSaveInstanceState(outState);
     }
+
+    public void notifyRecyclerViewChanged(){
+        mRecyclerViewAdapter = makeAdapter(typeofNote);
+        recyclerView.setAdapter(mRecyclerViewAdapter);
+    }
+
 }

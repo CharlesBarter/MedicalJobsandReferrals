@@ -10,18 +10,28 @@
     android:id="@+id/singleItemOnlistViewLayout"
     android:descendantFocusability="blocksDescendants">
 
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/list_checkbox"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="13dp"
+        android:scaleX="1.7"
+        android:scaleY="1.7"
+        android:visibility="gone"/>
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/listItemNoteImage"
-        android:src="@drawable/ic_priority_medium_xhdpi"
-        android:layout_marginTop="6dp"
+        android:background="@drawable/ic_priority_high"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="6dp"
         android:layout_alignParentStart="true"
-        android:layout_marginEnd="5dp"
         android:clickable="true"
         android:longClickable="true"
-        android:fadingEdgeLength="10dp"
         android:contentDescription="@string/icon_description"
+        android:visibility="visible"
         />
     <TextView
         android:layout_width="wrap_content"
@@ -38,7 +48,8 @@
         android:layout_marginBottom="2dp"
         android:layout_marginEnd="15dp"/>
     <TextView
-        android:layout_width="80dp"
+        android:layout_width="wrap_content"
+        android:minWidth="80dp"
         android:layout_height="wrap_content"
         android:id="@+id/listItemPatientNHI"
         android:textAppearance="?android:textAppearanceListItem"
@@ -48,9 +59,9 @@
         android:maxLength="7"
         android:layout_marginStart="5dp"
         android:layout_marginEnd="16dp"
-        android:layout_alignTop="@+id/listItemPatientName"
         android:layout_alignParentEnd="true"
-        android:scrollbarSize="15sp"
+        android:layout_alignTop="@+id/listItemPatientName"
+        android:gravity="right"
         android:text="@string/example_NHI"/>
 
     <TextView
@@ -62,19 +73,24 @@
         android:layout_toStartOf="@+id/listItemPatientNHI"
         android:textAppearance="?android:textAppearanceListItem"
         android:textColor="@color/listViewSecondaryText"
+        android:textSize="14sp"
         android:ellipsize="end"
         android:maxLines="2"
         android:text="@string/example_details"/>
 
     <TextView
         android:id="@+id/listItemLocation"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
+        android:gravity="right"
         android:layout_below="@+id/ListAgeSex"
+        android:layout_toEndOf="@id/listItemDetails"
         android:layout_marginEnd="16dp"
         android:textSize="14sp"
         android:textAppearance="?android:textAppearanceListItem"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:text="@string/example_age_sex"
         />
 

@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         app:popupTheme="@style/AppTheme.PopupOverlay"
-        app:theme="@style/AppTheme.AppBarOverlay"
+        app:theme="@style/AppTheme.ToolbarTheme"
         app:contentInsetLeft="16dp"
         app:contentInsetStart="16dp"
         >
@@ -104,18 +104,18 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:id="@+id/view_Details_Relative_Layout">
 
             <ImageView
                 android:id="@+id/viewNoteIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_priority_high_xhdpi"
                 android:layout_alignParentStart="true"
                 android:layout_marginBottom="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="5dp"
-                android:background="@android:color/transparent"
+                android:background="@drawable/ic_priority_high"
                 />
 
             <TextView

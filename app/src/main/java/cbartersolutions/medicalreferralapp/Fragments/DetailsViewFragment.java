@@ -3,11 +3,14 @@ package cbartersolutions.medicalreferralapp.Fragments;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 //import android.support.design.widget.FloatingActionButton;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,6 +29,7 @@ import cbartersolutions.medicalreferralapp.Activities.Activity_ListView;
 import cbartersolutions.medicalreferralapp.Activities.DetailActivity;
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.Adapters.NotesDbAdapter;
+import cbartersolutions.medicalreferralapp.Animations.Animations;
 import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 import cbartersolutions.medicalreferralapp.R;
 
@@ -68,9 +72,6 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
     public DetailsViewFragment() {
         // Required empty public constructor
     }
-
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -153,24 +154,17 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
         //create the fab
         fab = (FloatingActionButton) fragmentlayout.findViewById(R.id.edit_fab);
 
-        //deal with date and time
+        //deal with dateSetListener and time
         setDateandTime();
 
         //code which works for all cases
         setCommonTextViews();
 
-//        viewPatientName.setText(intent.getStringExtra(MainActivity.NOTE_PATIENT_NAME));
-//        viewPatientNHI.setText(intent.getStringExtra(MainActivity.NOTE_PATIENT_NHI));
-//        viewPatient_Age_and_sex.setText(intent.getStringExtra(MainActivity.NOTE_PATIENT_AGE_AND_SEX));
-//        viewDetails.setText(intent.getStringExtra(MainActivity.NOTE_DETAILS));
-//        viewIcon.setImageResource(Note.categoryToDrawable(noteCat));
-
-        //get date created
+        //get dateSetListener created
         datecreated = view_pager_bundle.getLong(MainActivity.NOTE_DATE_CREATED, 10);
 
         //create fab and make it a listener
         fab.setOnClickListener(this);
-
 //
         // Inflate the layout for this fragment
         return fragmentlayout;
@@ -184,7 +178,7 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
         viewPatient_Age_and_sex = (TextView) fragmentlayout.findViewById(R.id.view_age_sex);
         viewPatient_Location = (TextView) fragmentlayout.findViewById(R.id.viewLocation);
         viewDetails = (TextView) fragmentlayout.findViewById(R.id.viewDetails);
-        ImageView viewIcon = (ImageView) fragmentlayout.findViewById(R.id.viewNoteIcon);
+        final ImageView viewIcon = (ImageView) fragmentlayout.findViewById(R.id.viewNoteIcon);
 
         //set the text for the fields
 
@@ -193,11 +187,45 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
         viewPatient_Age_and_sex.setText(view_pager_bundle.getString(MainActivity.NOTE_PATIENT_AGE_AND_SEX));
         viewPatient_Location.setText(view_pager_bundle.getString(MainActivity.NOTE_PATIENT_LOCATION));
         viewDetails.setText(view_pager_bundle.getString(MainActivity.NOTE_DETAILS));
-        viewIcon.setImageResource(Note.categoryToDrawable(noteCat));
+        viewIcon.setBackgroundResource(Note.categoryToDrawable(noteCat));
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        Boolean canCheckImportanceIcon = sharedPreferences.getBoolean("CHECKBOX_VISIBLE", false);
+
+        if(canCheckImportanceIcon) {
+            //if checked add a tick
+            if (view_pager_bundle.getLong(MainActivity.CHECKED_STATUS) == 1) {
+                viewIcon.setImageResource(R.drawable.ic_tick);
+            } else {
+                viewIcon.setImageResource(android.R.color.transparent);
+            }
+            viewIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    NotesDbAdapter dbAdapter = new NotesDbAdapter(getActivity());
+                    dbAdapter.open();
+                    if (view_pager_bundle.getLong(MainActivity.CHECKED_STATUS) == 1) {//if checked
+                        //animate the ICON
+                        Animations.animateIconClick(viewIcon, Note.categoryToDrawable(noteCat));
+                        //change the database
+                        dbAdapter.changeCheckboxStatus(noteId, 0);//change to unchecked
+                        view_pager_bundle.putLong(MainActivity.CHECKED_STATUS, 0);
+                    } else {//if unchecked
+                        //animate the icon
+                        Animations.animateIconClick(viewIcon, R.drawable.ic_tick);
+                        dbAdapter.changeCheckboxStatus(noteId, 1);//change to checked
+                        view_pager_bundle.putLong(MainActivity.CHECKED_STATUS, 1);
+                    }
+                    dbAdapter.close();
+                }
+            });
+        }else{
+            viewIcon.setImageResource(android.R.color.transparent);
+        }
     }
 
     public void setDateandTime(){
-        //call the millis reference of the date from the bundle
+        //call the millis reference of the dateSetListener from the bundle
         date_and_time = view_pager_bundle.getLong(MainActivity.NOTE_DATE_AND_TIME);
         //dim the Textviews so we can populate it
         viewDate_of_Note = (TextView) fragmentlayout.findViewById(R.id.view_date);
@@ -328,6 +356,7 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
         intent.putExtra(MainActivity.LIST_POSITION, position);
         intent.putExtra(MainActivity.DELETED_NOTES, deleted_notes);
         intent.putExtra(MainActivity.NOTE_DATE_CREATED, datecreated);
+        intent.putExtra(MainActivity.CHECKED_STATUS, view_pager_bundle.getLong(MainActivity.CHECKED_STATUS));
         switch(typeofNote){
             case REFERRAL:
                 intent.putExtra(MainActivity.NOTE_REFERRER_NAME, viewReferredDetails.getText());

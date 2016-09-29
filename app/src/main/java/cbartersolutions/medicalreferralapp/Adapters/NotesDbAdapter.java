@@ -46,6 +46,7 @@ public class NotesDbAdapter {
     public static final String COLUMN_DELETED = "deleted";
     public static final String COLUMN_DATE_CREATED = "date";
     public static final String COLUMN_TYPE = "typeOfNote";
+    public static final String COLUMN_CHECKED = "noteChecked";
 
     //generic cursor
     Cursor cursor;
@@ -53,7 +54,8 @@ public class NotesDbAdapter {
     private String[] allColumns = {COLUMN_ID, COLUMN_PATIENT_NAME, COLUMN_PATIENT_NHI,
             COLUMN_AGE_AND_SEX, COLUMN_PATIENT_LOCATION, COLUMN_DATE_AND_TIME,
             COLUMN_REFERRER_DETAILS, COLUMN_REFERRER_CONTACT,
-            COLUMN_DETAILS, COLUMN_CATEGORY, COLUMN_TYPE, COLUMN_DELETED, COLUMN_DATE_CREATED};
+            COLUMN_DETAILS, COLUMN_CATEGORY, COLUMN_TYPE, COLUMN_DELETED, COLUMN_CHECKED,
+            COLUMN_DATE_CREATED};
 
     private String[] jobColumns = {COLUMN_ID, COLUMN_PATIENT_NAME, COLUMN_PATIENT_NHI,
             COLUMN_AGE_AND_SEX, COLUMN_PATIENT_LOCATION, COLUMN_DATE_AND_TIME,
@@ -72,6 +74,7 @@ public class NotesDbAdapter {
             + COLUMN_CATEGORY + " text not null, "
             + COLUMN_TYPE + " text not null, "
             + COLUMN_DELETED + " integer not null, "
+            + COLUMN_CHECKED + " integer not null, "
             + COLUMN_DATE_CREATED + ");";
 
     private SQLiteDatabase sqlDB;
@@ -114,6 +117,7 @@ public class NotesDbAdapter {
         values.put(COLUMN_CATEGORY, category.name());
         values.put(COLUMN_TYPE, typeofNote.name());
         values.put(COLUMN_DELETED, deleted);
+        values.put(COLUMN_CHECKED, 0);
         values.put(COLUMN_DATE_CREATED, Calendar.getInstance().getTimeInMillis() + "");
 
         //insert the new values into the databse at a new position
@@ -151,7 +155,6 @@ public class NotesDbAdapter {
         values.put(COLUMN_DETAILS, new_details);
         values.put(COLUMN_CATEGORY, new_category.name());
         values.put(COLUMN_TYPE, typeofNote.name());
-        values.put(COLUMN_DELETED, deleted);
         values.put(COLUMN_DATE_CREATED, Calendar.getInstance().getTimeInMillis() + "");
 
         //update the database with the new information
@@ -161,6 +164,12 @@ public class NotesDbAdapter {
     public void changeDeleteStatus(long idToUpdate, int deleted){
         ContentValues values = new ContentValues();
         values.put(COLUMN_DELETED, deleted);
+        sqlDB.update(REFERRALS_TABLE, values, COLUMN_ID + " = " + idToUpdate, null);
+    }
+
+    public void changeCheckboxStatus(long idToUpdate, int checked){
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CHECKED, checked);
         sqlDB.update(REFERRALS_TABLE, values, COLUMN_ID + " = " + idToUpdate, null);
     }
 
@@ -218,14 +227,15 @@ public class NotesDbAdapter {
         return new Note(cursor.getString(1), cursor.getString(2), cursor.getString(3),
                 cursor.getString(4), cursor.getLong(5), cursor.getString(6), cursor.getString(7),
                 cursor.getString(8),
-                Note.Category.valueOf(cursor.getString(9)), cursor.getLong(0), cursor.getLong(12));
+                Note.Category.valueOf(cursor.getString(9)), cursor.getLong(0), cursor.getLong(12),
+                cursor.getLong(13));
     }
 
     private Note cursorToJob(Cursor cursor) {
         return new Note(cursor.getString(1), cursor.getString(2), cursor.getString(3),
                 cursor.getString(4),
                 cursor.getLong(5), cursor.getString(6),
-                Note.Category.valueOf(cursor.getString(9)), cursor.getLong(0), cursor.getLong(12));
+                Note.Category.valueOf(cursor.getString(9)), cursor.getLong(0), cursor.getLong(13));
     }
 
     public ArrayList<Note> createNoteArray(Cursor cursor){
@@ -303,7 +313,7 @@ public class NotesDbAdapter {
     //set the orderBy based on the preferences
     private String first_sort_preference;
 
-    public String getOrderBy() {
+    public String getOrderBy() {//get the order by string for the sqlite querys
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         first_sort_preference = sharedPreferences.getString("FIRST_SORT_PREFERENCE", COLUMN_PATIENT_LOCATION);
         String asc_desc = sharedPreferences.getString("ASC_DESC", " ASC");

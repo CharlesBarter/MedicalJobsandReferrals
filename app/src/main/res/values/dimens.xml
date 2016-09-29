@@ -7,5 +7,5 @@
     <dimen name="sizeofAgeSex">115dp</dimen>
 
     //Text Sizes
-    <dimen name="detailsViewDetailsTextSize">17dp</dimen>
+    <dimen name="detailsViewDetailsTextSize">16sp</dimen>
 </resources>

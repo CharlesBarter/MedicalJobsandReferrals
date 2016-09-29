@@ -1,7 +1,9 @@
 package cbartersolutions.medicalreferralapp.Activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -20,6 +22,10 @@ import android.view.View;
 
 import android.support.design.widget.FloatingActionButton;
 
+import java.util.ArrayList;
+
+import cbartersolutions.medicalreferralapp.Adapters.NotesDbAdapter;
+import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 import cbartersolutions.medicalreferralapp.Fragments.RecyclerViewFragment;
 import cbartersolutions.medicalreferralapp.Listeners.OnSwipeTouchListener;
 import cbartersolutions.medicalreferralapp.R;
@@ -34,12 +40,13 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
 
     private String jobs_menu_title, referrals_menu_title,
             is_deleted_title, fullTitle;
-    boolean deleted_notes;
+    boolean deleted_notes, checkedToggleVisible;
 
     private ViewPager mViewPager;
     private PagerAdapter listViewPagerAdapter;
     private Intent intent;
     private int position = -1;
+    private RecyclerViewFragment recyclerViewFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +90,10 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
 
         //for view pager code
 //        makeViewPager();
+
+        //get shared preference
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        checkedToggleVisible = sharedPreferences.getBoolean("CHECKBOX_VISIBLE", false);
     }
 
     public String getTitleString(Bundle bundle){
@@ -93,7 +104,7 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
         //code to handle deleted note vs. not deleted on create title
         if (!deleted_notes){//if current notes wanted
             is_deleted_title = "";
-            jobs_menu_title = getResources().getString(R.string.view_completed_jobs);
+            jobs_menu_title = getResources().getString(R.string.view_completed_jobs);//sets the menu string
             referrals_menu_title = getResources().getString(R.string.view_completed_referrals);
         }else{//if a delete notes wanted
             is_deleted_title = getString(R.string.completed_list_title) + " ";//sets title to deleted + type of note as below
@@ -114,7 +125,7 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
     private void createRecyclerViewFragment(Bundle bundle){
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        RecyclerViewFragment recyclerViewFragment = new RecyclerViewFragment();
+        recyclerViewFragment = new RecyclerViewFragment();
         recyclerViewFragment.setArguments(bundle);
         fragmentTransaction.add(R.id.list_layout, recyclerViewFragment);
         fragmentTransaction.commit();
@@ -188,7 +199,6 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
 
         @Override
         public CharSequence getPageTitle(int pos){
-
             switch (typeofNote){
                 case JOB:
                     title_typeOfNote = getString(R.string.jobs);
@@ -219,7 +229,7 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.list_menu, menu);
-        MenuItem deleted_or_not = menu.findItem(R.id.view_deleted_jobs);
+        MenuItem deleted_or_not = menu.findItem(R.id.view_deleted);
         switch(typeofNote){
             case JOB:
                 deleted_or_not.setTitle(jobs_menu_title);
@@ -227,6 +237,10 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
             case REFERRAL:
                 deleted_or_not.setTitle(referrals_menu_title);
                 break;
+        }
+        if(!checkedToggleVisible){
+            MenuItem reset_checkboxes = menu.findItem(R.id.reset_checkboxes);
+            reset_checkboxes.setVisible(false);
         }
         return true;
     }
@@ -253,7 +267,7 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
                 intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
                 startActivity(intent);
                 return true;
-            case R.id.view_deleted_jobs:
+            case R.id.view_deleted:
                 Boolean deleted_wanted;
                 // switches between deleted and current notes using the same menu button
                 deleted_wanted = !deleted_notes;
@@ -262,6 +276,18 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
                 deleted_intent.putExtra(MainActivity.DELETED_NOTES, deleted_wanted);
                 deleted_intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
                 startActivity(deleted_intent);
+                return true;
+            case R.id.reset_checkboxes:
+                NotesDbAdapter notesDbAdapter = new NotesDbAdapter(this);
+                notesDbAdapter.open();
+                ArrayList<Note> mNotes = notesDbAdapter.getNotesNoHeaders(deleted_notes, typeofNote);
+                for(int i = 0;i < mNotes.size(); i++){
+                    Note note = mNotes.get(i);
+                    notesDbAdapter.changeCheckboxStatus(note.getNoteId(),0);//set checked status to 0
+                }
+                notesDbAdapter.close();
+                recyclerViewFragment.notifyRecyclerViewChanged();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -288,21 +314,14 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
                 bundle.putBoolean(MainActivity.DELETED_NOTES, false);
                 break;
             case R.id.completed_jobs_menu:
-//                intent.putExtra(MainActivity.NOTE_TYPE, (MainActivity.TypeofNote.JOB));
-//                intent.putExtra(MainActivity.DELETED_NOTES, true);
-//                startActivity(intent);
                 bundle.putSerializable(MainActivity.NOTE_TYPE, MainActivity.TypeofNote.JOB);
                 bundle.putBoolean(MainActivity.DELETED_NOTES, true);
                 break;
             case R.id.uncompleted_referrals_menu:
-//                intent.putExtra(MainActivity.NOTE_TYPE, (MainActivity.TypeofNote.REFERRAL));
-//                intent.putExtra(MainActivity.DELETED_NOTES, false);
                 bundle.putSerializable(MainActivity.NOTE_TYPE, MainActivity.TypeofNote.REFERRAL);
                 bundle.putBoolean(MainActivity.DELETED_NOTES, false);
                 break;
             case R.id.completed_referrals_menu:
-//                intent.putExtra(MainActivity.NOTE_TYPE, (MainActivity.TypeofNote.REFERRAL));
-//                intent.putExtra(MainActivity.DELETED_NOTES, true);
                 bundle.putSerializable(MainActivity.NOTE_TYPE, MainActivity.TypeofNote.REFERRAL);
                 bundle.putBoolean(MainActivity.DELETED_NOTES, true);
                 break;

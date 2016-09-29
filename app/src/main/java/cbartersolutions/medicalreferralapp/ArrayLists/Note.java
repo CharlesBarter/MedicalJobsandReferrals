@@ -8,7 +8,7 @@ import cbartersolutions.medicalreferralapp.R;
 public class Note {
     private String patientname, patientNHI, patient_Age_Sex, patient_location,
             referrerName, referrerContact, details, is_header, header_string;
-    private long noteId, date_and_time, dateCreatedMilli;
+    private long noteId, date_and_time, dateCreatedMilli, checkedStatus;
     private Category category;
 
     public enum Category{ HIGHIMPORTANCE, MODERATEIMPORTANCE, Z_LOWIMPORTANCE}
@@ -35,11 +35,14 @@ public class Note {
     public Note(String patientname, String patientNHI, String patient_Age_Sex,
                 String patient_location, long date_and_time,
                 String referrerName, String referrerContact,
-                String details, Category category, long noteId, long dateCreatedMilli){
+                String details, Category category, long noteId,
+                long checkedStatus, long dateCreatedMilli){
+
         this(patientname, patientNHI, patient_Age_Sex, patient_location, date_and_time,
                 details, category, noteId, dateCreatedMilli);
         this.referrerName = referrerName;
         this.referrerContact = referrerContact;
+        this.checkedStatus = checkedStatus;
     }
 
     public String getPatientname(){
@@ -76,9 +79,11 @@ public class Note {
         return noteId;
     }
 
-    public long getDateCreatedMilli (){
-        return dateCreatedMilli;
-    }
+    public long getDateCreatedMilli (){return dateCreatedMilli;}
+
+    public long getCheckedStatus (){return checkedStatus;}
+
+    public void setCheckedStatus (long checked){checkedStatus = checked;}
 
     public String toString() {
         return "ID: " + noteId + "Patient Name: " + patientname + "NHI:" + patientNHI
@@ -96,13 +101,13 @@ public class Note {
     public static int categoryToDrawable(Category noteCategory){
         switch(noteCategory){
             case HIGHIMPORTANCE:
-                return R.drawable.ic_priority_high_xhdpi;
+                return R.drawable.ic_priority_high;
             case MODERATEIMPORTANCE:
-                return R.drawable.ic_priority_medium_xhdpi;
+                return R.drawable.ic_priority_medium;
             case Z_LOWIMPORTANCE:
-                return R.drawable.ic_priority_low_xhdpi;
+                return R.drawable.ic_priority_low;
         }
-        return R.drawable.ic_priority_high_xhdpi;
+        return R.drawable.ic_priority_high;
     }
 
     public static int categorytoInteger(Category noteCategory){

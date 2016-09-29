@@ -18,10 +18,15 @@
     <color name="swipeBackground">#d50000</color>
     <color name="recoverSwipeBackground">#64dd17</color>
     <color name="permanentDeleteSwipeBackground">#000000</color>
+    <color name="noteRowListCheckedBackground">#e0e0e0</color>
 
     //Text Colours
     <color name="listViewSecondaryText">#757575</color>
-    
     <color name="detailsViewDetailsText">#757575</color>
+
+    //Priority Colours
+    <color name="HighPriority">#d50000</color>
+    <color name="MediumPriority">#2979ff</color>
+    <color name="LowPriority">#64dd17</color>
 
 </resources>

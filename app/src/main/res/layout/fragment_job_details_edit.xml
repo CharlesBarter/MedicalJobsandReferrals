@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:theme="@style/AppTheme.AppBarOverlay"
+            app:theme="@style/AppTheme.ToolbarTheme"
             app:contentInsetLeft="16dp"
             app:contentInsetStart="16dp"
             >
@@ -43,6 +43,7 @@
                     android:ellipsize="end"
                     android:textColor="@color/white"
                     android:textColorHint="@color/toolbar_hint_colour"
+                    android:inputType="textCapWords"
                     android:background="@android:color/transparent"
                     />
 
@@ -89,6 +90,7 @@
                     android:layout_marginStart="25dp"
                     android:textColor="@color/white"
                     android:textColorHint="@color/toolbar_hint_colour"
+                    android:inputType="textCapWords"
                     android:background="@android:color/transparent"
                     />
 
@@ -114,12 +116,11 @@
                     android:id="@+id/editNoteIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_priority_high_xhdpi"
                     android:layout_alignParentStart="true"
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="5dp"
-                    android:background="@android:color/transparent"
+                    android:background="@drawable/ic_priority_high"
                     />
 
                 <EditText

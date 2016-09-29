@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportHeight="32"
+    android:viewportWidth="32">
+
+        <path
+            android:name="tick"
+            android:pathData="M7.4,19 L12.6,23.7 M13.1,23.2 L24.1,10.7"
+            android:strokeWidth="4"
+            android:strokeLineCap="square"
+            android:strokeLineJoin="miter"
+            android:strokeColor="@android:color/black"/>
+
+</vector>

@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Medical Jobs</string>
+
+    //menu strings
     <string name="action_settings">Settings</string>
+    <string name="reset_checkbox">Uncheck ALL</string>
 
     //fragment titles
     <string name="edit_job_fragment">Edit Job</string>
@@ -12,7 +15,6 @@
     <string name="referrals">Referrals</string>
     <string name="jobSingular">Job</string>
     <string name="referralSingular">Referral</string>
-
 
     //main page strings
     <string name="jobs_list_button">Jobs</string>
@@ -87,7 +89,7 @@
     <!-- Strings related to Settings -->
     <string name="title_activity_app_preferences">Preferences</string>
 
-    //list titles
+    //listView titles
     <string name="no_location">No Location</string>
 
     //Example strings for list

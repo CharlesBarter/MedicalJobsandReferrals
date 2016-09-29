@@ -37,11 +37,12 @@ public class MainActivity extends AppCompatActivity {
     public static final String JOB_DONE = "com.cbartersolutions.medicalreferralapp.JOB_DONE";
     public static final String DELETED_NOTES = "com.cbartersolutions.medicalreferralapp.DELTED_NOTES";
     public static final String NEW_NOTE = "com.cbartersolutions.medicalreferralapp.NEW_NOTE";
+    public static final String CHECKED_STATUS = "com.cbartersolutions.medicalreferralapp.checked_status";
 
     MainActivity.TypeofNote typeOfNote;
 
     //enum for which type of note it is
-    public enum TypeofNote {JOB, REFERRAL};
+    public enum TypeofNote {JOB, REFERRAL}
 
     //define a new enum to say which fragment is to be launched
     public enum FragmentToLaunch{ VIEW, EDIT, CREATE}
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
               if (typeOfNote != null){
                   openList(typeOfNote);
               }
-            };
+            }
         });
 
 

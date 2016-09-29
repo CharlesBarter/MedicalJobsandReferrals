@@ -19,4 +19,14 @@
             android:title="Ascending or Descending"
             android:summary="Sort Ascending or Descending"/>
     </PreferenceCategory>
+    <PreferenceCategory
+        android:title="Referrals">
+        <CheckBoxPreference
+            android:title="Can Check Importance Icon"
+            android:key="CHECKBOX_VISIBLE"
+            android:summaryOn="Can Check Importance Icon"
+            android:summaryOff="Cannot Check Importance Icon"
+            android:defaultValue="true"
+            />
+    </PreferenceCategory>
 </PreferenceScreen>

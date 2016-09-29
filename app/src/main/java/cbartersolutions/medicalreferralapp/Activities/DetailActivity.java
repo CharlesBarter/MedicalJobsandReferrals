@@ -74,17 +74,21 @@ public class DetailActivity extends AppCompatActivity  {
         //pull fragment to launch from the intent
         fragmentToLaunch = (MainActivity.FragmentToLaunch)
                 intent.getSerializableExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA);
+
         switch (fragmentToLaunch) {
             case EDIT:
                 //create the detailed edit fragment
-                createAndAddFragment(fragmentToLaunch);
+                launchFragment(fragmentToLaunch);
                 fullTitle = "Edit" + " " + getTitle(typeofNote);
                 setTitle(fullTitle);
 //                toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.minifab));
                 break;
             case CREATE:
                 //create the detailed create fragment
-                createAndAddFragment(fragmentToLaunch);
+                launchFragment(fragmentToLaunch);
+                //set the title to create
+                fullTitle = getResources().getString(R.string.create_new) + " " + getTitle(typeofNote);
+                setTitle(fullTitle);
                 break;
             case VIEW:    //for the VIEW case we will add a viewPager
                 //create an array of fragment with all the fragments for every list item so they can be swiped through
@@ -106,31 +110,7 @@ public class DetailActivity extends AppCompatActivity  {
         }
         dbAdapter.close();
 
-//        switch (typeofNote) {
-//            case JOB:
-//                JobsDbAdapter jobsDbAdapter = new JobsDbAdapter(this.getBaseContext());
-//                jobsDbAdapter.open();
-//                if(note_type_launched_from != null) {
-//                    list = jobsDbAdapter.getSinglePatientsJobs
-//                            (patients_name_to_search, patients_NHI_to_search, deleted_notes);
-//                }else {
-//                    list = jobsDbAdapter.getJobsNoHeaders(deleted_notes);
-//                }
-//                jobsDbAdapter.close();
-//                break;
-//            case REFERRAL:
-//                NotesDbAdapter referralsDbAdapter = new NotesDbAdapter(this.getBaseContext());
-//                referralsDbAdapter.open();
-//                if(note_type_launched_from != null){
-//                    list = referralsDbAdapter.getSinglePatientsReferrals(patients_name_to_search
-//                            , patients_NHI_to_search, deleted_notes);
-//                }else {
-//                    list = referralsDbAdapter.getNotesNoHeaders(deleted_notes, typeofNote);
-//                }
-//                referralsDbAdapter.close();
-//                break;
-//        }
-
+        //set view pager fragments
         fragments = new ArrayList<>();
         for (int i=0; i<list.size(); i++) {
             Bundle bundle = createBundle(i, list);
@@ -175,19 +155,12 @@ public class DetailActivity extends AppCompatActivity  {
         bundle.putString(MainActivity.NOTE_REFERRER_CONTACT, note.getReferrerContact());
         bundle.putSerializable(MainActivity.NOTE_CATEGORY, note.getCategory());
         bundle.putLong(MainActivity.NOTE_ID, note.getNoteId());
+        bundle.putLong(MainActivity.CHECKED_STATUS, note.getCheckedStatus());
         bundle.putSerializable(MainActivity.NOTE_TYPE, typeofNote);
         bundle.putBoolean(MainActivity.DELETED_NOTES, deleted_notes);
         bundle.putInt(MainActivity.LIST_POSITION, i);
-//        long note_id_based_on_for_loop = note.getNoteId();
-//        if (note_id_based_on_for_loop == noteId) {
-//            position = i;//when the note clicked on or saved, which launched this activity is the same as the note
-//            //being added to the Viewpager fragments using the for loop, set the position which
-//            //defines the fragment to open first to this fragment i.e the fragment
-//            //which has been saved from or clicked on in the list.
-//        }
         return bundle;
     }
-
 
     private CharSequence getTitleFromPosition (int position, ArrayList<Note> data){
         Note note = data.get(position);
@@ -206,12 +179,6 @@ public class DetailActivity extends AppCompatActivity  {
         public int getCount(){
             return list.size();
         }
-
-//        public CharSequence getPageTitle(ArrayList<Note> data, int position){
-//            Note note = data.get(position);
-//            return note.getPatientname();
-//        }
-
     }
 
     //code to run when the page is changed ia a swipe with viewpager
@@ -232,27 +199,7 @@ public class DetailActivity extends AppCompatActivity  {
         }
     };
 
-    //code to create a fragment for the EDIT and CREATE Fragments
-    private void createAndAddFragment (MainActivity.FragmentToLaunch fragmentToLaunch) {
-
-        //create a variable called intent with the data passed into the intent of this class
-        Intent intent = getIntent();
-
-        //set title depending on typeofNote
-        title = getTitle(typeofNote);
-
-//        //get the type of fragment to launch, this is a serializable extra as it is an enum, not a string
-//        fragmentToLaunch = (MainActivity.FragmentToLaunch)
-//                intent.getSerializableExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA);
-        //run code to get the fragment transaction based on the fragment to launch
-//        fragmentTransaction = getFragmenttoLaunch(fragmentToLaunch);
-//        fragmentTransaction.commit();
-        launchFragment(fragmentToLaunch);
-
-    }
-
     public String getTitle (MainActivity.TypeofNote typeofNote){
-
         //set part of the title based on the note type
         switch (typeofNote){
             case JOB:
@@ -262,35 +209,24 @@ public class DetailActivity extends AppCompatActivity  {
                 title = getResources().getString(R.string.referralSingular);
                 break;
         }
-
         return title;
     }
 
     public void launchFragment (MainActivity.FragmentToLaunch fragmentToLaunch) {
         //set up the fragment manager and begin the ability to import a fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentTransaction = fragmentManager.beginTransaction();
 
         //create a new Edit Fragment
         DetailsEditFragment editFragment = new DetailsEditFragment();
 
-        switch (fragmentToLaunch) {
-            case EDIT:
-                //create the EDIT fragment in this activity
-                //set the full title of the fragment
-                fullTitle = getResources().getString(R.string.edit) + " " + title;
-//                setTitle(fullTitle);
-                break;
-            case CREATE:
-                fullTitle = getResources().getString(R.string.create_new) + " " + title;
-                setTitle(fullTitle);
-                //create a bundle into which information is added then this information is attached to the fragment
-                Bundle bundle = new Bundle(); //creates bundle
-                bundle.putBoolean(NEW_NOTE_EXTRA, true); //adds the value true, to a variable called NEW_NOTE_EXTRA in a bundle
-                editFragment.setArguments(bundle); //adds the bundle information to the fragment
-                break;
+        if (fragmentToLaunch == MainActivity.FragmentToLaunch.CREATE){
+            //create a bundle into which information is added then this information is attached to the fragment
+            Bundle bundle = new Bundle(); //creates bundle
+            bundle.putBoolean(NEW_NOTE_EXTRA, true); //adds the value true, to a variable called NEW_NOTE_EXTRA in a bundle
+            editFragment.setArguments(bundle); //adds the bundle information to the fragment
         }
 
+        fragmentTransaction = fragmentManager.beginTransaction();
         //add to R.id.jobdetailview (the id for content_job_details), the fragment above and call it DETAILS_EDIT_FRAGMENT
         fragmentTransaction.add(R.id.content_detail, editFragment, "DETAILS_EDIT_FRAGMENT");
         fragmentTransaction.commit();

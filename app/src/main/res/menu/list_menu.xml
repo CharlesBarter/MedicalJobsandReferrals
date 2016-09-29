@@ -6,9 +6,14 @@
         android:title=""
         android:icon="@drawable/ic_add_white_mdpi"
         app:showAsAction="ifRoom" />
-    <item android:id="@+id/view_deleted_jobs"
-        android:title="@string/view_completed_jobs"
+    <item android:id="@+id/view_deleted"
+        android:title=""
         android:orderInCategory="2"
+        app:showAsAction="never">
+    </item>
+    <item android:id="@+id/reset_checkboxes"
+        android:title="@string/reset_checkbox"
+        android:orderInCategory="3"
         app:showAsAction="never">
     </item>
     <item

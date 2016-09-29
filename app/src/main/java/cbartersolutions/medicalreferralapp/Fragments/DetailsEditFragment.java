@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 //import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -129,7 +130,7 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
         //set common EditText Fields
         setEditTextViewsDetails();
 
-        //set up the date and time fields
+        //set up the dateSetListener and time fields
         setUpEditDateandTime();
 
         setDateField(); //set the value of edit_date field
@@ -142,18 +143,22 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
 
 
         if (savedIconButtonCategory != null) { //if a rotated note same view field of edit
-            editIconButton.setImageResource(Note.categoryToDrawable(savedIconButtonCategory));
+            editIconButton.setBackgroundResource(Note.categoryToDrawable(savedIconButtonCategory));
         } else if (!newNote) { //if a note that is being edited from view position
             //set the icon
             Note.Category noteCat = (Note.Category) intent.getSerializableExtra(MainActivity.NOTE_CATEGORY);
             savedIconButtonCategory = noteCat;
-            editIconButton.setImageResource(Note.categoryToDrawable(noteCat));
+            editIconButton.setBackgroundResource(Note.categoryToDrawable(noteCat));
             //collect an integer to define which category has been chosen
             //allows the dialog to correctly have selected the current choice
             ChoiceofIcon = Note.categorytoInteger(savedIconButtonCategory);
         } else { //if new note
-            ChoiceofIcon = 0; //if a new note set choice of icon for the dialog box below to 0 as HIGH IMPORTANCE is default;
+            editIconButton.setBackgroundResource(R.drawable.ic_priority_medium);
+            ChoiceofIcon = 1; //if a new note set choice of icon for the dialog box below to 2 as LOW IMPORTANCE is default;
         }
+        if(intent.getExtras().getLong(MainActivity.CHECKED_STATUS) == 1){
+            editIconButton.setImageResource(R.drawable.ic_tick);
+        }else{editIconButton.setImageResource(android.R.color.transparent);}
 
         //set focus to first unfilled important section
         setFocus();
@@ -175,9 +180,7 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
     }
 
     public void setEditTextViewsDetails(){
-
         //irrespective of type of note do this code
-
         //grab widget references from layout
         editPatientName = (EditText) fragmentlayout.findViewById(R.id.editPatientName);
         editPatientNHI = (EditText) fragmentlayout.findViewById(R.id.editPatientNHI);
@@ -204,7 +207,7 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
     }
 
     public void setUpEditDateandTime() {
-        //create the date and time buttons
+        //create the dateSetListener and time buttons
         edit_date = (EditText) fragmentlayout.findViewById(R.id.edit_date);
         edit_date.setOnClickListener(this);
         edit_time = (EditText) fragmentlayout.findViewById(R.id.edit_time);
@@ -239,9 +242,9 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
         edit_time.setText(time_format.format(myCalendar.getTime()));
     }
 
-    DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() { //"date" becomes the listener for the DatePickerDialog
+    DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() { //"dateSetListener" becomes the listener for the DatePickerDialog
         @Override
-        //set the date chosen into the calendar myCalendar
+        //set the dateSetListener chosen into the calendar myCalendar
         public void onDateSet(DatePicker view, int year, int monthOfYear,
                               int dayOfMonth) {
             // TODO Auto-generated method stub
@@ -266,7 +269,7 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
         switch (view.getId()){
             case R.id.save_fab:
 
-                //change the calendar date/time to an Integer to allow for storing
+                //change the calendar dateSetListener/time to an Integer to allow for storing
                 long convertCalendar = myCalendar.getTimeInMillis();
 
                 //state this note is not a deleted note using 0 1 as booleans
@@ -284,6 +287,19 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
                         break;
                 }
 
+                //code for Location capitalisation
+                //set Text code to capitalise single letters
+                String location = editLocation.getText().toString();
+                for (int i=1; i<location.length(); i++){
+                    if(Character.isDigit(location.charAt(i-1))
+                            && !Character.isDigit(location.charAt(i))
+                            ) {
+                            editLocation.setText(location.substring(0, i) + location.substring(i, i + 1).toUpperCase()
+                                    +location.substring(i+1,location.length()));
+                    }
+                }
+
+
                 //create the database
                 NotesDbAdapter dbAdapter = new NotesDbAdapter(getActivity().getBaseContext());
                 dbAdapter.open();
@@ -295,7 +311,7 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
                             editLocation.getText() + "", convertCalendar,
                             referrerDetails,referrerContact,
                             editDetails.getText() + "",
-                            (savedIconButtonCategory == null) ? Note.Category.HIGHIMPORTANCE : savedIconButtonCategory,
+                            (savedIconButtonCategory == null) ? Note.Category.MODERATEIMPORTANCE : savedIconButtonCategory,
                             typeofNote, deleted);
                 }else{
                     //otherwise its an old note so update the database
@@ -314,9 +330,9 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
                 break;
 
             case R.id.edit_date:
-                //create a new DatePickerDialog with the listener as date (code below) plus sets
-                //the date to the date in myCalendar, if this is the first time this is opened it will be todays date
-                new DatePickerDialog(getContext(), date,
+                //create a new DatePickerDialog with the listener as dateSetListener (code below) plus sets
+                //the dateSetListener to the dateSetListener in myCalendar, if this is the first time this is opened it will be todays dateSetListener
+                new DatePickerDialog(getContext(), dateSetListener,
                         myCalendar.get(Calendar.YEAR),
                         myCalendar.get(Calendar.MONTH),
                         myCalendar.get(Calendar.DAY_OF_MONTH)).show();
@@ -379,15 +395,15 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
                 switch (item){
                     case 0:
                         savedIconButtonCategory = Note.Category.HIGHIMPORTANCE;
-                        editIconButton.setImageResource(R.drawable.ic_priority_high_xhdpi);
+                        editIconButton.setBackgroundResource(R.drawable.ic_priority_high);
                         break;
                     case 1:
                         savedIconButtonCategory = Note.Category.MODERATEIMPORTANCE;
-                        editIconButton.setImageResource(R.drawable.ic_priority_medium_xhdpi);
+                        editIconButton.setBackgroundResource(R.drawable.ic_priority_medium);
                         break;
                     case 2:
                         savedIconButtonCategory = Note.Category.Z_LOWIMPORTANCE;
-                        editIconButton.setImageResource(R.drawable.ic_priority_low_xhdpi);
+                        editIconButton.setBackgroundResource(R.drawable.ic_priority_low);
                         break;
                 }
             }
@@ -426,7 +442,7 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
         intent.putExtra(MainActivity.NOTE_PATIENT_AGE_AND_SEX, editPatientAge_Sex.getText().toString());
         intent.putExtra(MainActivity.NOTE_PATIENT_LOCATION, editLocation.getText().toString());
         intent.putExtra(MainActivity.NOTE_DETAILS, editDetails.getText().toString());
-        intent.putExtra(MainActivity.NOTE_CATEGORY, (savedIconButtonCategory == null) ? Note.Category.HIGHIMPORTANCE : savedIconButtonCategory);
+        intent.putExtra(MainActivity.NOTE_CATEGORY, (savedIconButtonCategory == null) ? Note.Category.Z_LOWIMPORTANCE : savedIconButtonCategory);
         intent.putExtra(MainActivity.NOTE_ID, noteId);
         intent.putExtra(MainActivity.LIST_POSITION, position);
         intent.putExtra(MainActivity.NOTE_DATE_CREATED, date_created);
