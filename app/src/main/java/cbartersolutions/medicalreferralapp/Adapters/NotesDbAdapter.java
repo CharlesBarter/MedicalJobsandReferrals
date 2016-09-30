@@ -182,7 +182,7 @@ public class NotesDbAdapter {
         Cursor cursor = sqlDB.query(REFERRALS_TABLE, allColumns,
                 COLUMN_TYPE + " = '" + typeofNote.name() + "'"
                 + " AND " + COLUMN_DELETED + " = " + is_deleted,
-                null, null, null, getOrderBy());
+                null, null, null, getOrderBy(typeofNote));
         ArrayList<Note> notes = createNoteArray(cursor);
         cursor.close();
         return notes;
@@ -196,7 +196,7 @@ public class NotesDbAdapter {
         cursor = sqlDB.query(REFERRALS_TABLE, allColumns,
                 COLUMN_TYPE + " = '" + typeofNote.name() + "'"
                 + " AND " + COLUMN_DELETED + " = " + is_deleted,
-            null, null, null, getOrderBy());
+            null, null, null, getOrderBy(typeofNote));
         for (cursor.moveToLast(); !cursor.isBeforeFirst(); cursor.moveToPrevious()) {
             notes.add(cursorToNote(cursor));
         }
@@ -214,7 +214,7 @@ public class NotesDbAdapter {
                 + " AND " + COLUMN_DELETED + " = " + is_deleted //correct deleted or non deleted
                 + " AND " + COLUMN_PATIENT_NAME + " = '" + patient_name + "'"
                 + " AND " + COLUMN_PATIENT_NHI + " = '" + patient_NHI + "'",
-                null,null,null,getOrderBy());
+                null,null,null,getOrderBy(typeofNote));
         for(cursor.moveToLast(); !cursor.isBeforeFirst(); cursor.moveToPrevious()) {
             notes.add(cursorToNote(cursor));
         }
@@ -313,9 +313,18 @@ public class NotesDbAdapter {
     //set the orderBy based on the preferences
     private String first_sort_preference;
 
-    public String getOrderBy() {//get the order by string for the sqlite querys
+    public String getOrderBy(MainActivity.TypeofNote typeofNote) {//get the order by string for the sqlite querys
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        first_sort_preference = sharedPreferences.getString("FIRST_SORT_PREFERENCE", COLUMN_PATIENT_LOCATION);
+        switch (typeofNote){
+            case JOB:
+                first_sort_preference = sharedPreferences.getString("JOB_FIRST_SORT_PREFERENCE",
+                        COLUMN_PATIENT_LOCATION);
+                break;
+            case REFERRAL:
+                first_sort_preference = sharedPreferences.getString("REFERRAL_FIRST_SORT_PREFERENCE",
+                        COLUMN_PATIENT_LOCATION);
+                break;
+        }
         String asc_desc = sharedPreferences.getString("ASC_DESC", " ASC");
         String sort_preference = first_sort_preference + " " + asc_desc;
         if(first_sort_preference.equals(COLUMN_DATE_AND_TIME)){

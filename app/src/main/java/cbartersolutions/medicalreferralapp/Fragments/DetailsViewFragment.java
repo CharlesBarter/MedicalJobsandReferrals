@@ -6,11 +6,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-//import android.support.design.widget.FloatingActionButton;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -57,10 +55,8 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
     private MainActivity.TypeofNote typeofNote;
 
     private AlertDialog confirmDialogObject;
-
     private boolean newNote;
-
-    private boolean deleted_notes;
+    private boolean deleted_notes, canCheckImportanceIcon ;
 
     //define the format for dates and times
     String myDateFormat = "E, d MMM yyyy";
@@ -163,12 +159,11 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
         //get dateSetListener created
         datecreated = view_pager_bundle.getLong(MainActivity.NOTE_DATE_CREATED, 10);
 
-        //create fab and make it a listener
+        //create fab and make it a animationsListener
         fab.setOnClickListener(this);
 //
         // Inflate the layout for this fragment
         return fragmentlayout;
-
     }
 
     public void setCommonTextViews(){
@@ -190,7 +185,17 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
         viewIcon.setBackgroundResource(Note.categoryToDrawable(noteCat));
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        Boolean canCheckImportanceIcon = sharedPreferences.getBoolean("CHECKBOX_VISIBLE", false);
+        switch (typeofNote) {
+            case JOB:
+                canCheckImportanceIcon = sharedPreferences.getBoolean("JOB_CHECKBOX_VISIBLE", false);
+                break;
+            case REFERRAL:
+                canCheckImportanceIcon = sharedPreferences.getBoolean("REFERRAL_CHECKBOX_VISIBLE", false);
+                break;
+            default:
+                canCheckImportanceIcon = true;
+                break;
+        }
 
         if(canCheckImportanceIcon) {
             //if checked add a tick
@@ -203,6 +208,7 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
                 @Override
                 public void onClick(View view) {
                     NotesDbAdapter dbAdapter = new NotesDbAdapter(getActivity());
+                    Animations.setAnimationDuration(200);
                     dbAdapter.open();
                     if (view_pager_bundle.getLong(MainActivity.CHECKED_STATUS) == 1) {//if checked
                         //animate the ICON
@@ -242,10 +248,13 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.edit_fab:
+                Animations.setAnimationDuration(80);
+                Animations.animateIconClick(fab, android.R.drawable.ic_menu_save);
                 //have to put all the data into the intent as this has been launch from the viewPager where the
-//                data is in a bundle, not in the intent
+                //data is in a bundle, not in the intent
                 Intent intent = new Intent (getActivity(), DetailActivity.class);
-                intent = putInfoIntoIntent(intent);
+                //  intent = putInfoIntoIntent(intent);
+                intent.putExtras(view_pager_bundle);
                 //change the view type within the intent data
                 intent.putExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA, MainActivity.FragmentToLaunch.EDIT);
                 //restart the DetailActivity with the new fragment to load

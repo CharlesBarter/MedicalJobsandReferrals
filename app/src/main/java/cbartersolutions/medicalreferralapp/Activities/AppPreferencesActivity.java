@@ -25,9 +25,11 @@ public class AppPreferencesActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-    //take info from calling intent
-    typeofNote = (MainActivity.TypeofNote) getIntent().getSerializableExtra(MainActivity.NOTE_TYPE);
-    deleted_notes = getIntent().getBooleanExtra(MainActivity.DELETED_NOTES, false);
+    if(getIntent().getSerializableExtra(MainActivity.NOTE_TYPE) != null) {
+        //take info from calling intent
+        typeofNote = (MainActivity.TypeofNote) getIntent().getSerializableExtra(MainActivity.NOTE_TYPE);
+        deleted_notes = getIntent().getBooleanExtra(MainActivity.DELETED_NOTES, false);
+    }
 
     FragmentManager fragmentManager = getFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -40,7 +42,20 @@ public static class SettingsFragment extends PreferenceFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.app_preferences);
+        MainActivity.TypeofNote typeofNote = (MainActivity.TypeofNote)
+                getActivity().getIntent().getSerializableExtra(MainActivity.NOTE_TYPE);
+        switch (typeofNote){
+            case JOB:
+                addPreferencesFromResource(R.xml.job_app_preferences);
+                getActivity().setTitle(getResources().getString(R.string.jobSingular) + " "
+                        + getResources().getString(R.string.title_activity_app_preferences));
+                break;
+            case REFERRAL:
+                addPreferencesFromResource(R.xml.referral_app_preferences);
+                getActivity().setTitle(getResources().getString(R.string.referralSingular) + " "
+                        + getResources().getString(R.string.title_activity_app_preferences));
+                break;
+        }
     }
 }
 
@@ -61,10 +76,13 @@ public static class SettingsFragment extends PreferenceFragment {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent intent = new Intent(this, Activity_ListView.class);
-        intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
-        intent.putExtra(MainActivity.DELETED_NOTES, deleted_notes);
-        startActivity(intent);
+        if(getIntent().getSerializableExtra(MainActivity.NOTE_TYPE) != null) {
+            Intent intent = new Intent(this, Activity_ListView.class);
+            intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
+            intent.putExtra(MainActivity.DELETED_NOTES, deleted_notes);
+            startActivity(intent);
+        }else{
+            finish();
+        }
     }
-
 }

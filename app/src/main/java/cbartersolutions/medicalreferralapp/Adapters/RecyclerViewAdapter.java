@@ -1,19 +1,12 @@
 package cbartersolutions.medicalreferralapp.Adapters;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.NotificationCompatExtras;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,12 +14,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AnimationSet;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -45,8 +33,6 @@ import cbartersolutions.medicalreferralapp.ArrayLists.Header;
 import cbartersolutions.medicalreferralapp.Fragments.RecyclerViewFragment;
 import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 import cbartersolutions.medicalreferralapp.R;
-
-import static cbartersolutions.medicalreferralapp.R.string.view;
 
 /**
  * Created by Charles on 24/08/2016.
@@ -68,10 +54,10 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
     private MainActivity.TypeofNote typeofNote;
     private SwipeLayout.DragEdge currentDragEdge;
     private Handler handler = new Handler();
-    private boolean deleted_notes, handReleased;
-    private boolean code_run, mOpen;
+    private boolean deleted_notes, code_run, mOpen;
     private Intent launchDetailedView;
     private NotesDbAdapter dbAdapter;
+    private long removeNoteDelay = 0;
 
     private static final int ITEM_TYPE_HEADER = 0;
     private static final int ITEM_TYPE_NOTE = 1;
@@ -89,6 +75,10 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
 
     public void setOnItemClickListener(OnItemClickListener listener){
         this.listener = listener;
+    }
+
+    public void setRemoveNoteDelay(long delay){
+        removeNoteDelay = delay;
     }
 
     public static class SimpleViewHolder extends RecyclerView.ViewHolder{
@@ -132,6 +122,16 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                 .getSerializable(MainActivity.NOTE_TYPE);
         getArrayListtoSearch();
         getSharedPreferences();
+        Animations.setAnimationDuration(180);
+        if(deleted_notes){
+            is_change_deleted_status = 0; //as deleted note change status to not deleted note
+            undo_change_deleted_status = 1; //as deleted note when UNDO pressed return to deleted note
+            what_happened_to_note = mContext.getString(R.string.restored_snackbar_string); //set the words of the snackbar
+        }else{
+            is_change_deleted_status = 1;//as NOT a deleted note change it to a deleted note
+            undo_change_deleted_status = 0;//as NOT a deleted note, UNDO back to not deleted
+            what_happened_to_note = mContext.getString(R.string.marked_done);
+        }
     }
 
     public ArrayList<Note> getArrayListtoSearch(){
@@ -152,7 +152,17 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
 
     public void getSharedPreferences(){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-        checkImportanceIcon = sharedPreferences.getBoolean("CHECKBOX_VISIBLE", false);
+        switch (typeofNote) {
+            case JOB:
+                checkImportanceIcon = sharedPreferences.getBoolean("JOB_CHECKBOX_VISIBLE", false);
+                break;
+            case REFERRAL:
+                checkImportanceIcon = sharedPreferences.getBoolean("REFERRAL_CHECKBOX_VISIBLE", false);
+                break;
+            default:
+                checkImportanceIcon = true;
+                break;
+        }
     }
 
     @Override
@@ -276,9 +286,6 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                     viewHolder.swipeLayout.setBackgroundColor(ContextCompat
                             .getColor(mContext, R.color.recoverSwipeBackground));//set colour of background to recover background
                     viewHolder.swipeLayout.addDrag(SwipeLayout.DragEdge.Right, R.id.swipe_background_recover);
-                    is_change_deleted_status = 0; //as deleted note change status to not deleted note
-                    undo_change_deleted_status = 1; //as deleted note when UNDO pressed return to deleted note
-                    what_happened_to_note = mContext.getString(R.string.restored_snackbar_string); //set the words of the snackbar
                 } else {//if NOT a deleted note
                     trash_icon.setVisibility(View.VISIBLE); //only trash icon visible
                     recover_icon.setVisibility(View.GONE);
@@ -287,9 +294,6 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                     viewHolder.swipeLayout.setBackgroundColor(ContextCompat
                             .getColor(mContext, R.color.swipeBackground));//set whole swipe layout background to red when delete occurs
                     viewHolder.swipeLayout.setRightSwipeEnabled(false);
-                    is_change_deleted_status = 1;//as NOT a deleted note change it to a deleted note
-                    undo_change_deleted_status = 0;//as NOT a deleted note, UNDO back to not deleted
-                    what_happened_to_note = mContext.getString(R.string.marked_done);
                 }
 
                 //add main delete/recover swipe
@@ -309,7 +313,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
 
                 code_run = false;
 
-                //add swipe listener
+                //add swipe animationsListener
                 viewHolder.swipeLayout.addSwipeListener(new SimpleSwipeListener() {
 
                     int position;
@@ -333,14 +337,10 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                         mOpen = true;
                     }
 
-                    Runnable runnable = new Runnable() {
+                    Runnable removeNoteRunnable = new Runnable() {
                         public void run() {
                         if (currentDragEdge == SwipeLayout.DragEdge.Right) {
                             code_run = false;
-                            int permanently_deleted = 2;
-                            dbAdapter.open();
-                            dbAdapter.changeDeleteStatus(note.getNoteId(), permanently_deleted);
-                            dbAdapter.close();
                             mNotes.remove(viewHolder.getAdapterPosition());//remove from mNotes
                             notifyItemRemoved(position);
                             notifyItemRangeChanged(position, mNotes.size());
@@ -356,9 +356,11 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                             mItemManger.closeAllItems();
                         } else if (currentDragEdge == SwipeLayout.DragEdge.Left) {
                             code_run = false;
+                            //remove the note from the adapter
                             mNotes.remove(position);//remove the note from mNotes
                             notifyItemRemoved(position);//remove the note from the RecyclerView
                             notifyItemRangeChanged(position, mNotes.size());
+                            //remove headers if necessary
                             if(getItemViewType(position-1) == ITEM_TYPE_HEADER){ //if the one under a header
                                 if(position >= mNotes.size() || getItemViewType(position) == ITEM_TYPE_HEADER){ //if either the last one or a header is below
                                     deleted_header = (Header) mNotes.get(position-1); //get the header so it can be recovered
@@ -370,17 +372,11 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                             }else{
                                 deleted_header = null;
                             }
-                            long noteId = deleted_note.getNoteId();
-                            dbAdapter.open();
-                            dbAdapter.changeDeleteStatus(noteId, is_change_deleted_status);
-                            dbAdapter.close();
                             mItemManger.closeAllItems();
                         }
                         }
                     };
 
-
-/*
                     Runnable setVisibilityRunnable = new Runnable() {
                         @Override
                         public void run() {
@@ -388,13 +384,10 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                             Log.d(TAG, "run: Visible code");
                         }
                     };
-*/
 
                     @Override
                     public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
                         super.onHandRelease(layout, xvel, yvel);
-                        Log.d(TAG, "onHandRelease: ");
-                        handReleased = true;
                         position = viewHolder.getAdapterPosition();
                         if (position >= 0 && !code_run && mOpen) { //stops error when position =-1;
                             code_run = true;
@@ -407,18 +400,33 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                             if (currentDragEdge == SwipeLayout.DragEdge.Right) {
                                 viewHolder.swipeLayout.setBackgroundColor(ContextCompat.getColor(mContext,
                                         R.color.permanentDeleteSwipeBackground)); //set the colour to black if a permanent delete
+                                code_run = false;
+                                //change the note to permanently deleted in the database
+                                int permanently_deleted = 2;
+                                dbAdapter.open();
+                                dbAdapter.changeDeleteStatus(note.getNoteId(), permanently_deleted);
+                                dbAdapter.close();
                             }
-                            handler.removeCallbacks(runnable);
-                            handler.postDelayed(runnable, 100);//run the runnable which removes the field
+                            //run the remove code
+//                            handler.removeCallbacks(removeNoteRunnable);
+//                            handler.postDelayed(removeNoteRunnable, 0);//run the removeNoteRunnable which removes the field
                             //change the status to deleted in the database
                             if (currentDragEdge == SwipeLayout.DragEdge.Left) {
-                                deleted_note = mNotes.get(position);//make the note remove a note so it can be recovered, needs to be done here because the earlier note creation can result in errors
+                                code_run = false;
+                                //create an index of the deleted notes
+                                deleted_note = mNotes.get(position);//make the note removed a note so it can be recovered, needs to be done here because the earlier note creation can result in errors
                                 deleted_notes_array.add(deleted_note);
                                 positions_of_notes.add(cloneOfmNotes.indexOf(deleted_note));
                                 number_of_deleted_notes ++;
+                                //change the deleted status of the note in the database
+                                long noteId = deleted_note.getNoteId();
+                                dbAdapter.open();
+                                dbAdapter.changeDeleteStatus(noteId, is_change_deleted_status);
+                                dbAdapter.close();
                                 snackbar(viewHolder);//run snackbar code
                             }
-//                            handler.postDelayed(setVisibilityRunnable, 300);
+                            handler.postDelayed(removeNoteRunnable, removeNoteDelay);
+                            handler.postDelayed(setVisibilityRunnable, 150);
                         }
                     }
                 });

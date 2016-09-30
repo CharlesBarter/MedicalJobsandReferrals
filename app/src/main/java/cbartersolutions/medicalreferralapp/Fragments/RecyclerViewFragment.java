@@ -202,7 +202,6 @@ public class RecyclerViewFragment extends Fragment {
         //set up the database adapter
         dbAdapter = new NotesDbAdapter(getActivity().getBaseContext());
         dbAdapter.open();
-
         //find note position in header containing jobslist
         for (int i=0; i < list.size(); i++){
             long noteIdtocheck = list.get(i).getNoteId();
@@ -220,7 +219,6 @@ public class RecyclerViewFragment extends Fragment {
                 deleted_header = (Header) list.get(position - 1);
             }
         }
-
         if(!job_done_deleted_notes) { //allows the same code to change the note from deleted to none deleted
             is_deleted = 1;
             undo_deleted = 0; //allow for the undo button to do the opposite
@@ -251,8 +249,7 @@ public class RecyclerViewFragment extends Fragment {
             }
         };
         handler.removeCallbacks(runnable);
-        handler.postDelayed(runnable, 200);
-
+        handler.postDelayed(runnable, 0);
         //snackbar code
         Snackbar snackbar = Snackbar
             .make(fragmentLayout, snackbar_words, Snackbar.LENGTH_LONG)

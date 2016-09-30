@@ -40,7 +40,7 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
 
     private String jobs_menu_title, referrals_menu_title,
             is_deleted_title, fullTitle;
-    boolean deleted_notes, checkedToggleVisible;
+    boolean deleted_notes, canCheckImportanceIcon;
 
     private ViewPager mViewPager;
     private PagerAdapter listViewPagerAdapter;
@@ -93,7 +93,17 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
 
         //get shared preference
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        checkedToggleVisible = sharedPreferences.getBoolean("CHECKBOX_VISIBLE", false);
+        switch (typeofNote){
+            case JOB:
+                canCheckImportanceIcon = sharedPreferences.getBoolean("JOB_CHECKBOX_VISIBLE", false);
+                break;
+            case REFERRAL:
+                canCheckImportanceIcon = sharedPreferences.getBoolean("REFERRAL_CHECKBOX_VISIBLE", false);
+                break;
+            default:
+                canCheckImportanceIcon = true;
+                break;
+        }
     }
 
     public String getTitleString(Bundle bundle){
@@ -238,7 +248,7 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
                 deleted_or_not.setTitle(referrals_menu_title);
                 break;
         }
-        if(!checkedToggleVisible){
+        if(!canCheckImportanceIcon){
             MenuItem reset_checkboxes = menu.findItem(R.id.reset_checkboxes);
             reset_checkboxes.setVisible(false);
         }

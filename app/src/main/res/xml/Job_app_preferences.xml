@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="Sorting">
+        <ListPreference
+            android:dialogTitle="Sort by"
+            android:entries="@array/sort_options"
+            android:entryValues="@array/sort_option_values"
+            android:defaultValue="patient_location"
+            android:key="JOB_FIRST_SORT_PREFERENCE"
+            android:title="Sort by"
+            android:summary="Select first sort method"/>
+        <ListPreference
+            android:dialogTitle="Ascending or Descending"
+            android:entries="@array/asc_desc"
+            android:entryValues="@array/asc_desc_values"
+            android:defaultValue=" ASC"
+            android:key="ASC_DESC"
+            android:title="Ascending or Descending"
+            android:summary="Sort Ascending or Descending"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="Checking Notes">
+        <CheckBoxPreference
+            android:title="Can Check Importance Icon"
+            android:key="JOB_CHECKBOX_VISIBLE"
+            android:summaryOn="Can Check Importance Icon"
+            android:summaryOff="Cannot Check Importance Icon"
+            android:defaultValue="true"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="New Job Defaults">
+        <ListPreference
+            android:dialogTitle="Default Job Importance Icon"
+            android:entries="@array/default_importance_icons"
+            android:entryValues="@array/default_importance_icon_values"
+            android:defaultValue="Low"
+            android:key="JOB_DEFAULT_IMPORTANCE_ICON"
+            android:title="Default Importance Icon"
+            android:summary="Select the default Importance Icon for jobs">
+        </ListPreference>
+    </PreferenceCategory>
+</PreferenceScreen>

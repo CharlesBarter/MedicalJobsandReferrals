@@ -7,7 +7,7 @@
             android:entries="@array/sort_options"
             android:entryValues="@array/sort_option_values"
             android:defaultValue="patient_location"
-            android:key="FIRST_SORT_PREFERENCE"
+            android:key="JOB_FIRST_SORT_PREFERENCE"
             android:title="Sort by"
             android:summary="Select first sort method"/>
         <ListPreference
@@ -20,13 +20,25 @@
             android:summary="Sort Ascending or Descending"/>
     </PreferenceCategory>
     <PreferenceCategory
-        android:title="Referrals">
+        android:title="Checking Notes">
         <CheckBoxPreference
             android:title="Can Check Importance Icon"
-            android:key="CHECKBOX_VISIBLE"
+            android:key="REFERRAL_CHECKBOX_VISIBLE"
             android:summaryOn="Can Check Importance Icon"
             android:summaryOff="Cannot Check Importance Icon"
             android:defaultValue="true"
             />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="New Referral Defaults">
+        <ListPreference
+            android:dialogTitle="Default Referral Importance Icon"
+            android:entries="@array/default_importance_icons"
+            android:entryValues="@array/default_importance_icon_values"
+            android:defaultValue="Low"
+            android:key="REFERRAL_DEFAULT_IMPORTANCE_ICON"
+            android:title="Default Importance Icon"
+            android:summary="Select the default Importance Icon for referrals">
+        </ListPreference>
     </PreferenceCategory>
 </PreferenceScreen>

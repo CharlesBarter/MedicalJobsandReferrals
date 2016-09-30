@@ -4,10 +4,11 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-//import android.support.design.widget.FloatingActionButton;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -32,6 +33,7 @@ import cbartersolutions.medicalreferralapp.Activities.Activity_ListView;
 import cbartersolutions.medicalreferralapp.Activities.DetailActivity;
 import cbartersolutions.medicalreferralapp.Activities.MainActivity;
 import cbartersolutions.medicalreferralapp.Adapters.NotesDbAdapter;
+import cbartersolutions.medicalreferralapp.Animations.Animations;
 import cbartersolutions.medicalreferralapp.ArrayLists.Note;
 import cbartersolutions.medicalreferralapp.R;
 
@@ -50,10 +52,10 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
 
     private EditText editPatientName,editPatientNHI, editReferredDetails, editReferredContact,
     editPatientAge_Sex, editDetails, edit_date, edit_time, editLocation;
-    private String referrerDetails, referrerContact;
+    private String referrerDetails, referrerContact, default_importance_icon_string ;
     private ImageButton editIconButton;
 
-    private Note.Category savedIconButtonCategory;
+    private Note.Category savedIconButtonCategory, default_importance_icon;
     private AlertDialog iconCategoryDialog;
     private MainActivity.TypeofNote typeofNote;
 
@@ -141,6 +143,29 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
         //get position from intent
         position = intent.getExtras().getInt(MainActivity.LIST_POSITION);
 
+        //get shared preferences
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        switch (typeofNote) {
+            case JOB:
+                default_importance_icon_string = sharedPreferences.getString("JOB_DEFAULT_IMPORTANCE_ICON",
+                    "Low");
+                break;
+            case REFERRAL:
+                default_importance_icon_string = sharedPreferences.getString("REFERRAL_DEFAULT_IMPORTANCE_ICON",
+                        "Low");
+        }
+
+        switch (default_importance_icon_string) {
+            case "High":
+                default_importance_icon = Note.Category.HIGHIMPORTANCE;
+                break;
+            case "Medium":
+                default_importance_icon = Note.Category.MODERATEIMPORTANCE;
+                break;
+            case "Low":
+                default_importance_icon = Note.Category.Z_LOWIMPORTANCE;
+                break;
+        }
 
         if (savedIconButtonCategory != null) { //if a rotated note same view field of edit
             editIconButton.setBackgroundResource(Note.categoryToDrawable(savedIconButtonCategory));
@@ -153,7 +178,7 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
             //allows the dialog to correctly have selected the current choice
             ChoiceofIcon = Note.categorytoInteger(savedIconButtonCategory);
         } else { //if new note
-            editIconButton.setBackgroundResource(R.drawable.ic_priority_medium);
+            editIconButton.setBackgroundResource(Note.categoryToDrawable(default_importance_icon));
             ChoiceofIcon = 1; //if a new note set choice of icon for the dialog box below to 2 as LOW IMPORTANCE is default;
         }
         if(intent.getExtras().getLong(MainActivity.CHECKED_STATUS) == 1){
@@ -163,7 +188,7 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
         //set focus to first unfilled important section
         setFocus();
 
-        //create fab and make it a listener
+        //create fab and make it a animationsListener
         fab.setOnClickListener(this);
 
         buildIconCategoryDialog();
@@ -242,7 +267,7 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
         edit_time.setText(time_format.format(myCalendar.getTime()));
     }
 
-    DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() { //"dateSetListener" becomes the listener for the DatePickerDialog
+    DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() { //"dateSetListener" becomes the animationsListener for the DatePickerDialog
         @Override
         //set the dateSetListener chosen into the calendar myCalendar
         public void onDateSet(DatePicker view, int year, int monthOfYear,
@@ -311,7 +336,7 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
                             editLocation.getText() + "", convertCalendar,
                             referrerDetails,referrerContact,
                             editDetails.getText() + "",
-                            (savedIconButtonCategory == null) ? Note.Category.MODERATEIMPORTANCE : savedIconButtonCategory,
+                            (savedIconButtonCategory == null) ? default_importance_icon : savedIconButtonCategory,
                             typeofNote, deleted);
                 }else{
                     //otherwise its an old note so update the database
@@ -330,7 +355,7 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
                 break;
 
             case R.id.edit_date:
-                //create a new DatePickerDialog with the listener as dateSetListener (code below) plus sets
+                //create a new DatePickerDialog with the animationsListener as dateSetListener (code below) plus sets
                 //the dateSetListener to the dateSetListener in myCalendar, if this is the first time this is opened it will be todays dateSetListener
                 new DatePickerDialog(getContext(), dateSetListener,
                         myCalendar.get(Calendar.YEAR),
@@ -427,6 +452,8 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
 
     //put information into an intent
     public void finishEditing () {
+        Animations.setAnimationDuration(80);
+        Animations.animateIconClick(fab, android.R.drawable.ic_menu_edit);
         //reload back into the list view based on the typeOfNote
         Intent intent;
         //create an intent depending on if this is a new note or not
@@ -446,7 +473,7 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
         intent.putExtra(MainActivity.NOTE_ID, noteId);
         intent.putExtra(MainActivity.LIST_POSITION, position);
         intent.putExtra(MainActivity.NOTE_DATE_CREATED, date_created);
-//        intent.putExtra(MainActivity.NEW_NOTE, newNote);
+        //intent.putExtra(MainActivity.NEW_NOTE, newNote);
 
         //add the extra detail for the referral type of note
         switch (typeofNote) {
