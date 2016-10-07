@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     MainActivity.TypeofNote typeOfNote;
 
     //enum for which type of note it is
-    public enum TypeofNote {JOB, REFERRAL}
+    public enum TypeofNote {JOB, REFERRAL, REFERRAL_DETAILED_VIEW}
 
     //define a new enum to say which fragment is to be launched
     public enum FragmentToLaunch{ VIEW, EDIT, CREATE}

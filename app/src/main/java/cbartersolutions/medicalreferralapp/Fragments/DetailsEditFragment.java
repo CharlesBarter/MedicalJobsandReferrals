@@ -1,5 +1,6 @@
 package cbartersolutions.medicalreferralapp.Fragments;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
@@ -52,20 +53,17 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
 
     private EditText editPatientName,editPatientNHI, editReferredDetails, editReferredContact,
     editPatientAge_Sex, editDetails, edit_date, edit_time, editLocation;
-    private String referrerDetails, referrerContact, default_importance_icon_string ;
+    private String referrerDetails, referrerContact, default_importance_icon_string;
     private ImageButton editIconButton;
-
     private Note.Category savedIconButtonCategory, default_importance_icon;
     private AlertDialog iconCategoryDialog;
-    private MainActivity.TypeofNote typeofNote;
-
+    private MainActivity.TypeofNote typeofNote, noteTypeLaunchedFrom;
     private long noteId = 0;
     private long date_created = -1;
     private int ChoiceofIcon, position;
-
     private static final String mCat = "mCat";
-
     private boolean newNote = false; //creates the boolean to know if this is editing an old note or creating a new note.
+    private SharedPreferences sharedPreferences;
 
     Calendar myCalendar = Calendar.getInstance();//set calendar
 
@@ -83,6 +81,9 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
+
+        //get shared preferences
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         //set options menu
         setHasOptionsMenu(true);
@@ -123,8 +124,11 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
                 editReferredContact.setText(intent.getExtras().getString(MainActivity.NOTE_REFERRER_CONTACT, ""));
                 editReferredDetails.setText(intent.getExtras().getString(MainActivity.NOTE_REFERRER_NAME, ""));
                 break;
-
         }
+
+        //see if luanched from another type of note
+        noteTypeLaunchedFrom = (MainActivity.TypeofNote) intent.getExtras()
+                .getSerializable(MainActivity.NOTE_TYPE_LAUNCHED_FROM);
 
         //create the floating action button
         fab = (FloatingActionButton) fragmentlayout.findViewById(R.id.save_fab);
@@ -345,7 +349,7 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
                             convertCalendar,
                             referrerDetails, referrerContact,
                             editDetails.getText() + "", savedIconButtonCategory,
-                            typeofNote, deleted);
+                            typeofNote);
                 }
 
                 //close the database's
@@ -456,36 +460,19 @@ public class DetailsEditFragment extends Fragment implements View.OnClickListene
         Animations.animateIconClick(fab, android.R.drawable.ic_menu_edit);
         //reload back into the list view based on the typeOfNote
         Intent intent;
-        //create an intent depending on if this is a new note or not
-        if (newNote) {
-            intent = new Intent(getActivity(), Activity_ListView.class);// if this is a new note, go back to the list view
-        }else{
-            intent = new Intent(getActivity(), DetailActivity.class); //if this is a note being edited, go back to the view note
+        if(newNote){//if a new note created from another type of note
+            sharedPreferences.edit().putBoolean("CHANGE_TO_DATABASE_OCCURRED", true).apply();
+            getActivity().onBackPressed();//if launched from another note type, go back to that note type
+        }else {
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("SAVED", true);
+            getActivity().setResult(Activity.RESULT_OK, returnIntent);
+            getActivity().finish();
         }
-        intent.putExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA, MainActivity.FragmentToLaunch.VIEW);//make it a view fragment
-        intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
-        intent.putExtra(MainActivity.NOTE_PATIENT_NAME, editPatientName.getText().toString());
-        intent.putExtra(MainActivity.NOTE_PATIENT_NHI, editPatientNHI.getText().toString());
-        intent.putExtra(MainActivity.NOTE_PATIENT_AGE_AND_SEX, editPatientAge_Sex.getText().toString());
-        intent.putExtra(MainActivity.NOTE_PATIENT_LOCATION, editLocation.getText().toString());
-        intent.putExtra(MainActivity.NOTE_DETAILS, editDetails.getText().toString());
-        intent.putExtra(MainActivity.NOTE_CATEGORY, (savedIconButtonCategory == null) ? Note.Category.Z_LOWIMPORTANCE : savedIconButtonCategory);
-        intent.putExtra(MainActivity.NOTE_ID, noteId);
-        intent.putExtra(MainActivity.LIST_POSITION, position);
-        intent.putExtra(MainActivity.NOTE_DATE_CREATED, date_created);
-        //intent.putExtra(MainActivity.NEW_NOTE, newNote);
-
-        //add the extra detail for the referral type of note
-        switch (typeofNote) {
-            case REFERRAL:
-                //add the referral specific stuff
-                intent.putExtra(MainActivity.NOTE_REFERRER_NAME, editReferredDetails.getText().toString());
-                intent.putExtra(MainActivity.NOTE_REFERRER_CONTACT, editReferredContact.getText().toString());
-                break;
-            case JOB:
-                // do nothing additional
-                break;
-        }
-        startActivity(intent);
     }
+
+    public void updateAllPatientNotes(){
+
+    }
+
 }

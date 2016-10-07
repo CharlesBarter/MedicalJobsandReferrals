@@ -9,15 +9,28 @@
             android:defaultValue="patient_location"
             android:key="JOB_FIRST_SORT_PREFERENCE"
             android:title="Sort by"
-            android:summary="Select first sort method"/>
+            android:summary="Select first sort method"
+            android:icon="@drawable/ic_sort_by_alpha_black_24dp_xxxhdpi"/>
         <ListPreference
             android:dialogTitle="Ascending or Descending"
             android:entries="@array/asc_desc"
             android:entryValues="@array/asc_desc_values"
             android:defaultValue=" ASC"
-            android:key="ASC_DESC"
+            android:key="JOB_ASC_DESC"
             android:title="Ascending or Descending"
             android:summary="Sort Ascending or Descending"/>
+        </PreferenceCategory>
+    <PreferenceCategory
+    android:title="New Job Defaults">
+        <ListPreference
+        android:dialogTitle="Default Job Importance Icon"
+        android:entries="@array/default_importance_icons"
+        android:entryValues="@array/default_importance_icon_values"
+        android:defaultValue="Low"
+        android:key="JOB_DEFAULT_IMPORTANCE_ICON"
+        android:title="Default Importance Icon"
+        android:summary="Select the default Importance Icon for jobs">
+    </ListPreference>
     </PreferenceCategory>
     <PreferenceCategory
         android:title="Checking Notes">
@@ -28,17 +41,5 @@
             android:summaryOff="Cannot Check Importance Icon"
             android:defaultValue="true"
             />
-    </PreferenceCategory>
-    <PreferenceCategory
-        android:title="New Job Defaults">
-        <ListPreference
-            android:dialogTitle="Default Job Importance Icon"
-            android:entries="@array/default_importance_icons"
-            android:entryValues="@array/default_importance_icon_values"
-            android:defaultValue="Low"
-            android:key="JOB_DEFAULT_IMPORTANCE_ICON"
-            android:title="Default Importance Icon"
-            android:summary="Select the default Importance Icon for jobs">
-        </ListPreference>
     </PreferenceCategory>
 </PreferenceScreen>

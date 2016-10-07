@@ -1,7 +1,10 @@
 package cbartersolutions.medicalreferralapp.Activities;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
@@ -9,6 +12,8 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +39,8 @@ public class DetailActivity extends AppCompatActivity  {
     private PagerAdapter mPagerAdapter;
     private Bundle bundle;
     private static List<android.support.v4.app.Fragment> fragments;
-//
+    private NotesDbAdapter dbAdapter;
+    //
     ArrayList<Note> list;
     private Boolean deleted_notes;
 
@@ -49,31 +55,7 @@ public class DetailActivity extends AppCompatActivity  {
         getSupportActionBar().setElevation(0);
         getSupportActionBar().setDisplayUseLogoEnabled(false);
 
-        //get the type of Note
-        typeofNote = (MainActivity.TypeofNote) getIntent()
-                .getSerializableExtra(MainActivity.NOTE_TYPE);
-        note_type_launched_from = (MainActivity.TypeofNote) getIntent()
-                .getSerializableExtra(MainActivity.NOTE_TYPE_LAUNCHED_FROM);
-        if(note_type_launched_from != null){
-            patients_name_to_search = getIntent().getStringExtra(MainActivity.NOTE_PATIENT_NAME);
-            patients_NHI_to_search = getIntent().getStringExtra(MainActivity.NOTE_PATIENT_NHI);
-        }
-
-        //get note ID
-        noteId = getIntent().getExtras().getLong(MainActivity.NOTE_ID);
-        
-        //get position
-        position = getIntent().getExtras().getInt(MainActivity.LIST_POSITION);
-
-        //is this a deleted note?
-        deleted_notes = getIntent().getBooleanExtra(MainActivity.DELETED_NOTES, false);
-
-        //dim fragment to launch
-        Intent intent = getIntent();
-
-        //pull fragment to launch from the intent
-        fragmentToLaunch = (MainActivity.FragmentToLaunch)
-                intent.getSerializableExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA);
+        getInfoFromIntent();
 
         switch (fragmentToLaunch) {
             case EDIT:
@@ -97,10 +79,38 @@ public class DetailActivity extends AppCompatActivity  {
         }
     }
 
+    public void getInfoFromIntent(){
+        //get the type of Note
+        typeofNote = (MainActivity.TypeofNote) getIntent()
+                .getSerializableExtra(MainActivity.NOTE_TYPE);
+        note_type_launched_from = (MainActivity.TypeofNote) getIntent()
+                .getSerializableExtra(MainActivity.NOTE_TYPE_LAUNCHED_FROM);
+        if(note_type_launched_from != null){
+            patients_name_to_search = getIntent().getStringExtra(MainActivity.NOTE_PATIENT_NAME);
+            patients_NHI_to_search = getIntent().getStringExtra(MainActivity.NOTE_PATIENT_NHI);
+        }
+
+        //get note ID
+        noteId = getIntent().getExtras().getLong(MainActivity.NOTE_ID);
+
+        //get position
+        position = getIntent().getExtras().getInt(MainActivity.LIST_POSITION);
+
+        //is this a deleted note?
+        deleted_notes = getIntent().getBooleanExtra(MainActivity.DELETED_NOTES, false);
+
+        //dim fragment to launch
+        Intent intent = getIntent();
+
+        //pull fragment to launch from the intent
+        fragmentToLaunch = (MainActivity.FragmentToLaunch)
+                intent.getSerializableExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA);
+    }
+
     public void setUpViewFragments (){
         //create the array list again to be used to make the fragments
 
-        NotesDbAdapter dbAdapter = new NotesDbAdapter(this.getBaseContext());
+        dbAdapter = new NotesDbAdapter(this.getBaseContext());
         dbAdapter.open();
         if(note_type_launched_from != null){
             list = dbAdapter.getSinglePatientsReferrals(patients_name_to_search, patients_NHI_to_search,
@@ -119,9 +129,8 @@ public class DetailActivity extends AppCompatActivity  {
             long note_id_based_on_for_loop = list.get(i).getNoteId();
             if (note_id_based_on_for_loop == noteId) {
                 position = i;//when the note clicked on or saved, which launched this activity, is the same as the note
-                //being added to the Viewpager fragments using the for loop, set the position which
-                //defines the fragment to open first to this fragment i.e the fragment
-                //which has been saved from or clicked on in the list.
+                //being added to the Viewpager fragments, set the first visible fragement to this position
+                // i.e the fragment which has been saved from or clicked on in the list.
             }
         }
         //instantiate a ViewPager and a PagerAdapter in the case of a View type detail
@@ -234,25 +243,17 @@ public class DetailActivity extends AppCompatActivity  {
 
     @Override
     public void onBackPressed() {
-        switch (fragmentToLaunch) {
-            case VIEW:
-                Intent intent = new Intent(this, Activity_ListView.class);
-                intent.putExtra(MainActivity.DELETED_NOTES, deleted_notes);
-                if(note_type_launched_from == null) {
-                    intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
-                }else{
-                    intent.putExtra(MainActivity.NOTE_TYPE, note_type_launched_from);
-                }
-                startActivity(intent);
-                break;
-            case EDIT:
-                finish();
-                break;
-            case CREATE:
-                finish();
-                break;
-        }
+        finish();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == Activity.RESULT_OK){
+            if(data.getBooleanExtra("SAVED", false)){
+                setUpViewFragments();
+            }
+        }
+    }
 }
 

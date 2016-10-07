@@ -184,6 +184,15 @@
     android:layout_marginEnd="16dp"
     android:background="@android:color/transparent"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/minifab"
+        android:id="@+id/number_of_other_type_of_note"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
+        android:background="@android:color/transparent"/>
+
 </RelativeLayout>
 
 
@@ -203,7 +212,7 @@
     android:onClick="onClick"/>
 
 
-    </android.support.design.widget.CoordinatorLayout>
+</android.support.design.widget.CoordinatorLayout>
 
 
 

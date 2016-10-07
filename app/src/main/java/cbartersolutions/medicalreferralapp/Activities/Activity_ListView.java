@@ -35,7 +35,7 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
 
     private static String TAG = "Activity_ListView";
 
-    private MainActivity.TypeofNote typeofNote;
+    private MainActivity.TypeofNote typeofNote, noteTypeLaunchedFrom;
     private FloatingActionButton fab;
 
     private String jobs_menu_title, referrals_menu_title,
@@ -58,6 +58,11 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
         //get intent variables
         intent = getIntent();
         typeofNote = (MainActivity.TypeofNote) intent.getSerializableExtra(MainActivity.NOTE_TYPE);
+        noteTypeLaunchedFrom = (MainActivity.TypeofNote)
+                intent.getSerializableExtra(MainActivity.NOTE_TYPE_LAUNCHED_FROM);
+        if(noteTypeLaunchedFrom != null){
+            typeofNote = noteTypeLaunchedFrom;
+        }
 
         deleted_notes = intent.getBooleanExtra(MainActivity.DELETED_NOTES, false);
         if(deleted_notes){position = 1;}else{position = 0;}
@@ -82,6 +87,9 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
         Bundle bundle = new Bundle();
         bundle.putSerializable(MainActivity.NOTE_TYPE, typeofNote);
         bundle.putBoolean(MainActivity.DELETED_NOTES, deleted_notes);
+        if(noteTypeLaunchedFrom != null){
+            bundle.putSerializable(MainActivity.NOTE_TYPE_LAUNCHED_FROM, noteTypeLaunchedFrom);
+        }
 
         setTitle(getTitleString(bundle));
 
@@ -158,9 +166,6 @@ public class Activity_ListView extends AppCompatActivity implements View.OnClick
                 intent.putExtra(MainActivity.DELETED_NOTES, true);
                 intent.putExtra(MainActivity.JOB_DONE, false);
                 startActivity(intent);
-            } else {
-                //DO NOTHING
-//                    intent.putExtra(MainActivity.DELETED_NOTES, false);
             }
         }
     };

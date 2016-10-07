@@ -7,17 +7,31 @@
             android:entries="@array/sort_options"
             android:entryValues="@array/sort_option_values"
             android:defaultValue="patient_location"
-            android:key="JOB_FIRST_SORT_PREFERENCE"
+            android:key="REFERRAL_FIRST_SORT_PREFERENCE"
             android:title="Sort by"
-            android:summary="Select first sort method"/>
+            android:summary="Select first sort method"
+            android:icon="@drawable/ic_sort_by_alpha_black_24dp_xxxhdpi"/>
         <ListPreference
             android:dialogTitle="Ascending or Descending"
             android:entries="@array/asc_desc"
             android:entryValues="@array/asc_desc_values"
             android:defaultValue=" ASC"
-            android:key="ASC_DESC"
+            android:key="REFERRAL_ASC_DESC"
             android:title="Ascending or Descending"
             android:summary="Sort Ascending or Descending"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="New Referral Defaults">
+        <ListPreference
+            android:dialogTitle="Default Referral Importance Icon"
+            android:entries="@array/default_importance_icons"
+            android:entryValues="@array/default_importance_icon_values"
+            android:defaultValue="Low"
+            android:key="REFERRAL_DEFAULT_IMPORTANCE_ICON"
+            android:icon="@drawable/ic_priority_low"
+            android:title="Default Importance Icon"
+            android:summary="Select the default Importance Icon for referrals">
+        </ListPreference>
     </PreferenceCategory>
     <PreferenceCategory
         android:title="Checking Notes">
@@ -28,17 +42,5 @@
             android:summaryOff="Cannot Check Importance Icon"
             android:defaultValue="true"
             />
-    </PreferenceCategory>
-    <PreferenceCategory
-        android:title="New Referral Defaults">
-        <ListPreference
-            android:dialogTitle="Default Referral Importance Icon"
-            android:entries="@array/default_importance_icons"
-            android:entryValues="@array/default_importance_icon_values"
-            android:defaultValue="Low"
-            android:key="REFERRAL_DEFAULT_IMPORTANCE_ICON"
-            android:title="Default Importance Icon"
-            android:summary="Select the default Importance Icon for referrals">
-        </ListPreference>
     </PreferenceCategory>
 </PreferenceScreen>

@@ -63,7 +63,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
     private static final int ITEM_TYPE_NOTE = 1;
 
     //preferences
-    private boolean checkImportanceIcon;
+    private boolean checkableImportanceIcon;
 
 
     private static OnItemClickListener listener;
@@ -112,6 +112,21 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
         }
     }
 
+    @Override
+    public SimpleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if(viewType == ITEM_TYPE_HEADER){
+            View header_View = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.recycler_view_headers, parent, false);
+            return new SimpleViewHolder(header_View, viewType);
+        }
+        else if(viewType == ITEM_TYPE_NOTE){
+            View note_View = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_swipe_layout, parent, false);
+            return new SimpleViewHolder(note_View, viewType);
+        }
+        return null;
+    }
+
     public RecyclerViewAdapter (Context context, ArrayList<Note> notes, RecyclerViewFragment fragment){
         mContext = context;
         mNotes = notes;
@@ -151,33 +166,21 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
     }
 
     public void getSharedPreferences(){
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(mContext);
         switch (typeofNote) {
             case JOB:
-                checkImportanceIcon = sharedPreferences.getBoolean("JOB_CHECKBOX_VISIBLE", false);
+                checkableImportanceIcon = sharedPreferences
+                        .getBoolean("JOB_CHECKBOX_VISIBLE", false);
                 break;
             case REFERRAL:
-                checkImportanceIcon = sharedPreferences.getBoolean("REFERRAL_CHECKBOX_VISIBLE", false);
+                checkableImportanceIcon = sharedPreferences
+                        .getBoolean("REFERRAL_CHECKBOX_VISIBLE", false);
                 break;
             default:
-                checkImportanceIcon = true;
+                checkableImportanceIcon = true;
                 break;
         }
-    }
-
-    @Override
-    public SimpleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if(viewType == ITEM_TYPE_HEADER){
-            View header_View = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.recycler_view_headers, parent, false);
-            return new SimpleViewHolder(header_View, viewType);
-        }
-        else if(viewType == ITEM_TYPE_NOTE){
-            View note_View = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.list_swipe_layout, parent, false);
-            return new SimpleViewHolder(note_View, viewType);
-        }
-        return null;
     }
 
     @Override
@@ -199,9 +202,11 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                 //create the 2 icons
                 View trash_icon = viewHolder.itemView.findViewById(R.id.trash);
                 View recover_icon = viewHolder.itemView.findViewById(R.id.recover);
-                final View while_swiping_color = viewHolder.itemView.findViewById(R.id.swipe_background);
+                //create the background of the actual swipe
+                final View while_swiping_color = viewHolder
+                        .itemView.findViewById(R.id.swipe_background);
 
-                if (checkImportanceIcon) {//if can check importance icon has been selected from the preferences
+                if (checkableImportanceIcon) {//if can check importance icon has been selected from the preferences
                     if (note.getCheckedStatus() == 1) {//if note already checked
                         viewHolder.listIcon.setImageResource(R.drawable.ic_tick);//set ICON to tick
                         viewHolder.wholeView.setBackgroundColor(ContextCompat.getColor(mContext,
@@ -215,9 +220,8 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                         @Override
                         public void onClick(View view) {
                             dbAdapter.open();
-                            if(note.getCheckedStatus() == 1){//if checked
+                            if(note.getCheckedStatus() == 1){//if checked note
                                 //animate the ICON
-//                                Animations.animateIconClick(viewHolder.listIcon, note.getAssociatedDrawable());
                                 Animations.animateIconPlusBackground(mContext, viewHolder.listIcon,
                                         note.getAssociatedDrawable(), viewHolder.wholeView,
                                         R.color.noteRowListCheckedBackground, R.color.background);
@@ -226,24 +230,21 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                                 //change the note in mNotes
                                 note.setCheckedStatus(0);//change the note checked status to 0
 //                                    notifyDataSetChanged();
-                            }else{//if unchecked
-                                //animate the icon
-//                                Animations.animateIconClick(viewHolder.listIcon, R.drawable.ic_tick);
+                            }else{//if unchecked note
+                                //animate the ICON
                                 Animations.animateIconPlusBackground(mContext, viewHolder.listIcon,
                                         R.drawable.ic_tick, viewHolder.wholeView,
                                         R.color.background, R.color.noteRowListCheckedBackground);
                                 dbAdapter.changeCheckboxStatus(note.getNoteId(),1);//change to checked
+                                //change the note status
                                 note.setCheckedStatus(1);
-//                                    notifyDataSetChanged();
                             }
                             dbAdapter.close();
                         }
                     });
                 }
-                //set checkbox or importance icon for referral view
 
                 //check if there is a Job or referral for the same patient
-                //first create the array list to search
                 number_of_jobs = 0;
                 //search the array list for the same patient name and NHI
                 for(int i = 0; i < arrayListtoSearch.size(); i++){
@@ -277,7 +278,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                         viewHolder.listNumberofJobs.setVisibility(View.GONE);//if a viewholder no longer has a matched field in another list, make the number invisible
                     }
                 }
-                //show items depending on typeOfNote
+                //set swipe items depending on typeOfNote
                 if (deleted_notes) {//if this view is of deleted notes
                     trash_icon.setVisibility(View.GONE); //only show recover add button
                     recover_icon.setVisibility(View.VISIBLE);
@@ -337,54 +338,6 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                         mOpen = true;
                     }
 
-                    Runnable removeNoteRunnable = new Runnable() {
-                        public void run() {
-                        if (currentDragEdge == SwipeLayout.DragEdge.Right) {
-                            code_run = false;
-                            mNotes.remove(viewHolder.getAdapterPosition());//remove from mNotes
-                            notifyItemRemoved(position);
-                            notifyItemRangeChanged(position, mNotes.size());
-                            //remove header
-                            if(getItemViewType(position-1) == ITEM_TYPE_HEADER){
-                                if(position >= mNotes.size() || getItemViewType(position) == ITEM_TYPE_HEADER) {
-                                    deleted_header = (Header) mNotes.get(position - 1);
-                                    mNotes.remove(position - 1);
-                                    notifyItemRemoved(position - 1);
-                                    notifyItemRangeChanged(position - 1, mNotes.size());
-                                }
-                            }
-                            mItemManger.closeAllItems();
-                        } else if (currentDragEdge == SwipeLayout.DragEdge.Left) {
-                            code_run = false;
-                            //remove the note from the adapter
-                            mNotes.remove(position);//remove the note from mNotes
-                            notifyItemRemoved(position);//remove the note from the RecyclerView
-                            notifyItemRangeChanged(position, mNotes.size());
-                            //remove headers if necessary
-                            if(getItemViewType(position-1) == ITEM_TYPE_HEADER){ //if the one under a header
-                                if(position >= mNotes.size() || getItemViewType(position) == ITEM_TYPE_HEADER){ //if either the last one or a header is below
-                                    deleted_header = (Header) mNotes.get(position-1); //get the header so it can be recovered
-                                    positions_of_notes.add(position - 1);
-                                    mNotes.remove(position-1);
-                                    notifyItemRemoved(position-1);
-                                    notifyItemRangeChanged(position-1, mNotes.size());
-                                }
-                            }else{
-                                deleted_header = null;
-                            }
-                            mItemManger.closeAllItems();
-                        }
-                        }
-                    };
-
-                    Runnable setVisibilityRunnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            viewHolder.swipeLayout.getSurfaceView().setVisibility(View.VISIBLE);
-                            Log.d(TAG, "run: Visible code");
-                        }
-                    };
-
                     @Override
                     public void onHandRelease(SwipeLayout layout, float xvel, float yvel) {
                         super.onHandRelease(layout, xvel, yvel);
@@ -400,7 +353,6 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                             if (currentDragEdge == SwipeLayout.DragEdge.Right) {
                                 viewHolder.swipeLayout.setBackgroundColor(ContextCompat.getColor(mContext,
                                         R.color.permanentDeleteSwipeBackground)); //set the colour to black if a permanent delete
-                                code_run = false;
                                 //change the note to permanently deleted in the database
                                 int permanently_deleted = 2;
                                 dbAdapter.open();
@@ -412,7 +364,6 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
 //                            handler.postDelayed(removeNoteRunnable, 0);//run the removeNoteRunnable which removes the field
                             //change the status to deleted in the database
                             if (currentDragEdge == SwipeLayout.DragEdge.Left) {
-                                code_run = false;
                                 //create an index of the deleted notes
                                 deleted_note = mNotes.get(position);//make the note removed a note so it can be recovered, needs to be done here because the earlier note creation can result in errors
                                 deleted_notes_array.add(deleted_note);
@@ -429,8 +380,55 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                             handler.postDelayed(setVisibilityRunnable, 150);
                         }
                     }
-                });
 
+                    Runnable removeNoteRunnable = new Runnable() {
+                        public void run() {
+                            if (currentDragEdge == SwipeLayout.DragEdge.Right) {
+                                code_run = false;
+                                mNotes.remove(viewHolder.getAdapterPosition());//remove from mNotes
+                                notifyItemRemoved(position);
+                                notifyItemRangeChanged(position, mNotes.size());
+                                //remove header
+                                if(getItemViewType(position-1) == ITEM_TYPE_HEADER){
+                                    if(position >= mNotes.size() || getItemViewType(position) == ITEM_TYPE_HEADER) {
+                                        deleted_header = (Header) mNotes.get(position - 1);
+                                        mNotes.remove(position - 1);
+                                        notifyItemRemoved(position - 1);
+                                        notifyItemRangeChanged(position - 1, mNotes.size());
+                                    }
+                                }
+                                mItemManger.closeAllItems();
+                            } else if (currentDragEdge == SwipeLayout.DragEdge.Left) {
+                                code_run = false;
+                                //remove the note from the adapter
+                                mNotes.remove(position);//remove the note from mNotes
+                                notifyItemRemoved(position);//remove the note from the RecyclerView
+                                notifyItemRangeChanged(position, mNotes.size());
+                                //remove headers if necessary
+                                if(getItemViewType(position-1) == ITEM_TYPE_HEADER){ //if the one under a header
+                                    if(position >= mNotes.size() || getItemViewType(position) == ITEM_TYPE_HEADER){ //if either the last one or a header is below
+                                        deleted_header = (Header) mNotes.get(position-1); //get the header so it can be recovered
+                                        positions_of_notes.add(position - 1);
+                                        mNotes.remove(position-1);
+                                        notifyItemRemoved(position-1);
+                                        notifyItemRangeChanged(position-1, mNotes.size());
+                                    }
+                                }else{
+                                    deleted_header = null;
+                                }
+                                mItemManger.closeAllItems();
+                            }
+                        }
+                    };
+
+                    Runnable setVisibilityRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            viewHolder.swipeLayout.getSurfaceView().setVisibility(View.VISIBLE);
+                            Log.d(TAG, "run: Visible code");
+                        }
+                    };
+                });
 
                 viewHolder.swipeLayout.getSurfaceView().setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
@@ -505,7 +503,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                             dbAdapter.changeDeleteStatus(noteId, undo_change_deleted_status);
                             dbAdapter.close();
                         }
-                        viewHolder.swipeLayout.getSurfaceView().setVisibility(View.VISIBLE);
+//                        viewHolder.swipeLayout.getSurfaceView().setVisibility(View.VISIBLE);
                         mNotes.clear();
                         mNotes.addAll(0, cloneOfmNotes);
                         Collections.sort(positions_of_notes);//sort position o
@@ -541,6 +539,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
+                Log.d(TAG, "onTouch: " + "1");
                 //create the Intent to launch Detail View if there are notes for the same patient in another area
                 launchDetailedView = new Intent(mContext, DetailActivity.class);
                 switch (typeofNote){//say to launch other type of note
@@ -561,6 +560,7 @@ public class RecyclerViewAdapter extends RecyclerSwipeAdapter<RecyclerViewAdapte
                 launchDetailedView.putExtra(MainActivity.DELETED_NOTES, deleted_notes);//add if a deleted note
                 launchDetailedView.putExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA,
                         MainActivity.FragmentToLaunch.VIEW); //tell it to open a view type
+                launchDetailedView.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 mContext.startActivity(launchDetailedView);
                 return true;
             }

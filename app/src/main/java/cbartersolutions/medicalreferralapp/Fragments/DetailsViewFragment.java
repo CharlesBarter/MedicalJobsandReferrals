@@ -4,11 +4,18 @@ package cbartersolutions.medicalreferralapp.Fragments;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
+import android.net.wifi.ScanResult;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.text.SpannableString;
+import android.text.style.UnderlineSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +27,7 @@ import android.widget.*;
 import com.github.clans.fab.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -40,23 +48,23 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
     private static String TAG = "DetailsViewFragment";
 
     private Bundle view_pager_bundle;
-
     private View fragmentlayout;
     private FloatingActionButton fab;
-
     private TextView viewPatientName, viewPatientNHI, viewPatient_Age_and_sex,
             viewPatient_Location, viewDetails,
             viewReferredDetails, viewReferredContact, viewDate_of_Note, viewTime_of_Note;
-    private Note.Category noteCat;
-
+    private Button button_to_associated_jobs;
     private long noteId = 0, datecreated = 0, date_and_time = 0;
     private int position = 0;
-
-    private MainActivity.TypeofNote typeofNote;
-
-    private AlertDialog confirmDialogObject;
     private boolean newNote;
     private boolean deleted_notes, canCheckImportanceIcon ;
+    private MainActivity.TypeofNote typeofNote, noteLaunchedFrom;
+    private Note.Category noteCat;
+    private ArrayList<Note> arrayListtoSearch;
+    private AlertDialog confirmDialogObject;
+    private NotesDbAdapter dbAdapter;
+    private SharedPreferences sharedPreferences;
+
 
     //define the format for dates and times
     String myDateFormat = "E, d MMM yyyy";
@@ -73,13 +81,22 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        //get Shared preferences
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
         //get data from intent
 //        final Intent intent = getActivity().getIntent();
         view_pager_bundle = getArguments();
 
+
         //set typeOfNote
         typeofNote = (MainActivity.TypeofNote) view_pager_bundle.getSerializable(MainActivity.NOTE_TYPE);
 //        typeofNote = (MainActivity.TypeofNote) intent.getSerializableExtra(MainActivity.NOTE_TYPE);
+        noteLaunchedFrom = (MainActivity.TypeofNote)
+                getActivity().getIntent().getSerializableExtra(MainActivity.NOTE_TYPE_LAUNCHED_FROM);
+
+        //define adapters
+        dbAdapter = new NotesDbAdapter(getActivity());
 
         //set noteId
         noteId = view_pager_bundle.getLong(MainActivity.NOTE_ID);
@@ -128,8 +145,13 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
                 viewReferredDetails = (TextView) fragmentlayout.findViewById(R.id.viewReferrerDetails);
                 viewReferredContact = (TextView) fragmentlayout.findViewById(R.id.viewReferrerContact);
                 //then by adding data to them
-                viewReferredContact.setText(view_pager_bundle.getString(MainActivity.NOTE_REFERRER_CONTACT));
                 viewReferredDetails.setText(view_pager_bundle.getString(MainActivity.NOTE_REFERRER_NAME));
+                //contact code to change it to blue and clickable
+                String referrer_contact_details = view_pager_bundle
+                        .getString(MainActivity.NOTE_REFERRER_CONTACT);
+                SpannableString spannableString = new SpannableString(referrer_contact_details);
+                spannableString.setSpan(new UnderlineSpan(), 0, spannableString.length(), 0);
+                viewReferredContact.setText(spannableString);
 
                 //add job from referral button code
                 Button create_job_for_patient = (Button) fragmentlayout.findViewById(R.id.create_new_job_for_patient);
@@ -144,29 +166,146 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
                         startActivity(callIntent );
                     }
                 });
+
+//                setAssociatedNotes();
+
                 break;
         }
 
         //create the fab
         fab = (FloatingActionButton) fragmentlayout.findViewById(R.id.edit_fab);
+        //it a animationsListener
+        fab.setOnClickListener(this);
 
         //deal with dateSetListener and time
         setDateandTime();
-
-        //code which works for all cases
-        setCommonTextViews();
-
         //get dateSetListener created
         datecreated = view_pager_bundle.getLong(MainActivity.NOTE_DATE_CREATED, 10);
 
-        //create fab and make it a animationsListener
-        fab.setOnClickListener(this);
+        //code which works for all cases
+        setCommonTextViews();
+        //remove scrollbars
+        removeVerticalScrollBar();
+
+        //set size of scrollable window based on size of buttons on all screens;
+        button_to_associated_jobs.post(new Runnable() {//put as a post runnable otehrwise .getHeight returns 0 as not yet drawn;
+            @Override
+            public void run() {
+                setScrollViewSize(button_to_associated_jobs.getHeight());
+            }
+        });
 //
         // Inflate the layout for this fragment
         return fragmentlayout;
     }
 
+
+    public void removeVerticalScrollBar(){
+        //remove the vertical scroll from scroll view
+        ScrollView scrollView = (ScrollView) fragmentlayout.findViewById(R.id.ScrollViewDetailsView);
+        scrollView.setVerticalScrollBarEnabled(false);
+    }
+
+    public void setScrollViewSize(int bottom_margin){
+        ScrollView scrollView = (ScrollView) fragmentlayout.findViewById(R.id.ScrollViewDetailsView);
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)
+                scrollView.getLayoutParams();
+        layoutParams.setMargins(0,0,0,bottom_margin);
+        scrollView.setLayoutParams(layoutParams);
+    }
+
+    public void setAssociatedNotes (){
+        //check if there is a Job or referral for the same patient
+        int number_of_jobs = 0;
+        //create the array list
+        dbAdapter.open();
+        switch (typeofNote) {
+            case REFERRAL:
+                arrayListtoSearch = dbAdapter
+                        .getNotesNoHeaders(deleted_notes, MainActivity.TypeofNote.JOB);
+
+                break;
+            case JOB:
+                arrayListtoSearch = dbAdapter
+                        .getNotesNoHeaders(deleted_notes, MainActivity.TypeofNote.REFERRAL);
+                break;
+            default:
+                arrayListtoSearch = dbAdapter
+                        .getNotesNoHeaders(deleted_notes, MainActivity.TypeofNote.JOB);
+        }
+        dbAdapter.close();
+        //search the array list for the same patient name and NHI
+        for(int i = 0; i < arrayListtoSearch.size(); i++){
+            String comparing_to_name = arrayListtoSearch.get(i).getPatientname();
+            String comparing_to_NHI = arrayListtoSearch.get(i).getPatientNHI();
+            String patient_name = view_pager_bundle.getString(MainActivity.NOTE_PATIENT_NAME);
+            String patient_NHI = view_pager_bundle.getString(MainActivity.NOTE_PATIENT_NHI);
+            if(comparing_to_name.equals(patient_name) &&
+                    comparing_to_NHI.equals(patient_NHI)){
+                number_of_jobs ++;
+            }
+        }
+        switch (typeofNote) {
+            case REFERRAL:
+                if (number_of_jobs == 1) {
+                    button_to_associated_jobs.setText(String.valueOf(number_of_jobs)
+                            + " " + getResources().getString(R.string.jobSingular));
+                } else if (number_of_jobs > 1) {
+                    button_to_associated_jobs.setText(String.valueOf(number_of_jobs)
+                            + " " + getResources().getString(R.string.jobs));
+                }
+                break;
+            case JOB:
+                if (number_of_jobs > 0) {
+                    button_to_associated_jobs.setText(getResources().getString(R.string.associated_referral));
+                }
+        }
+        if(number_of_jobs > 0){
+            button_to_associated_jobs.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //create the Intent to launch Detail View if there are notes for the same patient in another area
+                    Intent launchDetailedView = new Intent(getContext(), DetailActivity.class);
+                    switch (typeofNote){//say to launch other type of note
+                        case REFERRAL:
+                            launchDetailedView.putExtra
+                                    (MainActivity.NOTE_TYPE, MainActivity.TypeofNote.JOB);
+                            break;
+                        case JOB:
+                            launchDetailedView.putExtra
+                                    (MainActivity.NOTE_TYPE, MainActivity.TypeofNote.REFERRAL);
+                            break;
+                    }
+                    launchDetailedView.putExtra(MainActivity.NOTE_PATIENT_NAME,
+                            view_pager_bundle.getString(MainActivity.NOTE_PATIENT_NAME));//add patient name so view pager only has that patients notes
+                    launchDetailedView.putExtra(MainActivity.NOTE_PATIENT_NHI,
+                            view_pager_bundle.getString(MainActivity.NOTE_PATIENT_NHI));//add patient NHI to ensure same patient
+                    launchDetailedView.putExtra(MainActivity.LIST_POSITION, 0); //put list position in
+                    if(typeofNote == MainActivity.TypeofNote.REFERRAL) {
+                        launchDetailedView.putExtra(MainActivity.NOTE_TYPE_LAUNCHED_FROM,
+                                MainActivity.TypeofNote.REFERRAL_DETAILED_VIEW);
+                    }else{
+                        launchDetailedView.putExtra(MainActivity.NOTE_TYPE_LAUNCHED_FROM,
+                                typeofNote);//say this intent has been launched from something
+                    }
+                    launchDetailedView.putExtra(MainActivity.DELETED_NOTES, deleted_notes);//add if a deleted note
+                    launchDetailedView.putExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA,
+                            MainActivity.FragmentToLaunch.VIEW); //tell it to open a view type
+                    startActivity(launchDetailedView);
+                    //then relaunching the viewPager;
+//                    switch (typeofNote){//say to launch
+                }
+            });
+        }else{
+            button_to_associated_jobs.setText("");
+        }
+    }
+
     public void setCommonTextViews(){
+        //set Buttons
+        button_to_associated_jobs = (Button) fragmentlayout
+                .findViewById(R.id.number_of_other_type_of_note);
+
         //create the Textview variables
         viewPatientName = (TextView) fragmentlayout.findViewById(R.id.viewPatientName);
         viewPatientNHI = (TextView) fragmentlayout.findViewById(R.id.viewPatientNHI);
@@ -184,7 +323,6 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
         viewDetails.setText(view_pager_bundle.getString(MainActivity.NOTE_DETAILS));
         viewIcon.setBackgroundResource(Note.categoryToDrawable(noteCat));
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         switch (typeofNote) {
             case JOB:
                 canCheckImportanceIcon = sharedPreferences.getBoolean("JOB_CHECKBOX_VISIBLE", false);
@@ -207,7 +345,6 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
             viewIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    NotesDbAdapter dbAdapter = new NotesDbAdapter(getActivity());
                     Animations.setAnimationDuration(200);
                     dbAdapter.open();
                     if (view_pager_bundle.getLong(MainActivity.CHECKED_STATUS) == 1) {//if checked
@@ -252,13 +389,15 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
                 Animations.animateIconClick(fab, android.R.drawable.ic_menu_save);
                 //have to put all the data into the intent as this has been launch from the viewPager where the
                 //data is in a bundle, not in the intent
-                Intent intent = new Intent (getActivity(), DetailActivity.class);
+                Intent intent = new Intent(getActivity(), DetailActivity.class);
                 //  intent = putInfoIntoIntent(intent);
                 intent.putExtras(view_pager_bundle);
                 //change the view type within the intent data
                 intent.putExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA, MainActivity.FragmentToLaunch.EDIT);
+                //stop the edit activity from being in the backstack
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 //restart the DetailActivity with the new fragment to load
-                startActivity(intent);
+                startActivityForResult(intent, 1);
                 break;
             case R.id.create_new_job_for_patient:
                 Intent intent1 = new Intent(getActivity(), DetailActivity.class);
@@ -266,22 +405,103 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
                 intent1.putExtra(MainActivity.NOTE_TYPE, MainActivity.TypeofNote.JOB);
                 intent1.putExtra(MainActivity.NOTE_DATE_AND_TIME, "");//so the time is set for the time the button is clicked, not the time the referral has on it
                 intent1.putExtra(MainActivity.NOTE_DETAILS, "");//remove detail information
+                intent1.putExtra(MainActivity.NOTE_TYPE_LAUNCHED_FROM, typeofNote);
                 intent1.putExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA, MainActivity.FragmentToLaunch.CREATE);
                 startActivity(intent1);
                 break;
             case R.id.done_button:
-                  returntoList(noteId);
-                  break;
+                if (noteLaunchedFrom == MainActivity.TypeofNote.REFERRAL_DETAILED_VIEW) {
+                    changedNoteDeleteStatus();
+                    sharedPreferences.edit()
+                            .putLong("NOTE_ID", noteId).apply();//save the correct noteId
+                    sharedPreferences.edit()
+                            .putBoolean("JOB_DELETED_CHANGED", true).apply();//tell the code a job's deleted status has been changed
+                    sharedPreferences.edit()
+                            .putBoolean("CHANGE_TO_DATABASE_OCCURRED", true).apply();
+                    getActivity().onBackPressed();
+                } else {
+                    returntoList();
                 }
+                break;
+            }
         }
 
 
     //code to return to the listView sending back details to allow for undo button
-    public void returntoList(Long noteId) {
+    public void returntoList() {
         Intent returnIntent = new Intent(getActivity(), Activity_ListView.class);
-        returnIntent = putInfoIntoIntent(returnIntent);
+        returnIntent.putExtra(MainActivity.NOTE_ID, noteId);
+        returnIntent.putExtra(MainActivity.DELETED_NOTES, deleted_notes);
+        returnIntent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
+        if(noteLaunchedFrom != null) {
+            returnIntent.putExtra(MainActivity.NOTE_TYPE_LAUNCHED_FROM, noteLaunchedFrom);
+            changedNoteDeleteStatus();
+        }
         returnIntent.putExtra(MainActivity.JOB_DONE, true);
         startActivity(returnIntent);
+    }
+
+    public void changedNoteDeleteStatus(){
+        int is_deleted;
+        if(deleted_notes){
+            is_deleted = 0;
+        }else {
+            is_deleted = 1;
+        }
+        dbAdapter.open();
+        dbAdapter.changeDeleteStatus(noteId, is_deleted);
+        dbAdapter.close();
+    }
+
+    public void snackbar(){
+        //reset shared preferences
+        sharedPreferences.edit().putBoolean("JOB_DELETED_CHANGED", false).apply();
+        //get info from shared preferences
+        final long noteIdDeleted = sharedPreferences.getLong("NOTE_ID",0);
+        //create the crrect values depending on if these are deleted notes
+        final int undo_deleted;
+        String what_happened_to_note, toastEndText;
+        if(!deleted_notes) { //allows the same code to change the note from deleted to none deleted
+            undo_deleted = 0; //allow for the undo button to do the opposite
+            what_happened_to_note = getString(R.string.marked_done); //set the words of the snackbar
+            toastEndText = getString(R.string.restored_snackbar_string);
+        }else {
+            undo_deleted = 1; //if UNDO action in snackbar clicked changes back to a completed job
+            what_happened_to_note = getString(R.string.restored_snackbar_string);
+            toastEndText = getString(R.string.marked_done);
+        }
+        //make full snackbar workds
+        String snackbarWords = getString(R.string.jobSingular)
+                + " " + what_happened_to_note;
+        final String toastText = getString(R.string.jobSingular)
+                + " " + toastEndText;
+        Snackbar snackbar = Snackbar
+                .make(fragmentlayout, snackbarWords, Snackbar.LENGTH_LONG)
+                .setAction(R.string.undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dbAdapter.open();
+                        dbAdapter.changeDeleteStatus(noteIdDeleted, undo_deleted);
+                        dbAdapter.close();
+                        Toast.makeText(getActivity(), toastText, Toast.LENGTH_SHORT).show();
+                        setAssociatedNotes();
+                    }
+                })
+                .setActionTextColor(Color.RED);
+        snackbar.setCallback(new Snackbar.Callback() {
+            @Override
+            public void onShown(Snackbar snackbar) {
+                super.onShown(snackbar);
+                setScrollViewSize(button_to_associated_jobs.getHeight() + snackbar.getView().getHeight());
+            }
+
+            @Override
+            public void onDismissed(Snackbar snackbar, int event) {
+                super.onDismissed(snackbar, event);
+                setScrollViewSize(button_to_associated_jobs.getHeight());
+            }
+        });
+        snackbar.show();
     }
 
 
@@ -339,7 +559,6 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
     }
 
     public void deleteReferral (Long noteId){
-        NotesDbAdapter dbAdapter = new NotesDbAdapter(getActivity().getBaseContext());
 //        referralsDbAdapter.deleteReferral(noteId);
         dbAdapter.open();
         int is_deleted = 1;
@@ -378,13 +597,14 @@ public class DetailsViewFragment extends Fragment implements View.OnClickListene
         return intent;
     }
 
-    // code to force back pressed when in view mode to send to list view
-//    public void onBackPressed(){
-//        Intent intent  = new Intent(getActivity(), Activity_ListView.class);
-//        intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
-//        startActivity(intent);
-//    }
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        setAssociatedNotes();
+        if (sharedPreferences.getBoolean("JOB_DELETED_CHANGED", false)){//if a job has been deleted to load this view run snackbar code
+            snackbar();
+        }
+    }
 }
 
 

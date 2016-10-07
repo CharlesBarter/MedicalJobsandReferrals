@@ -9,6 +9,4 @@
     tools:showIn="@layout/activity_list"
     android:id="@+id/list_layout"
     android:orientation="vertical">
-
-
 </LinearLayout>

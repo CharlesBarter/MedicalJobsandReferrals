@@ -1,19 +1,18 @@
 package cbartersolutions.medicalreferralapp.Fragments;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -47,14 +46,18 @@ public class RecyclerViewFragment extends Fragment {
     private View fragmentLayout;
     private NotesDbAdapter dbAdapter;
     private Intent intent;
-    private MainActivity.TypeofNote typeofNote;
+    private MainActivity.TypeofNote typeofNote, noteTypeLaunchedFrom;
     private boolean deleted_notes, job_done;
     private Header deleted_header;
     private static Bundle state;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
+
+        //get shared preference
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
 ////        Code for using a viewpager
         Bundle fragment_bundle = getArguments();
@@ -68,6 +71,8 @@ public class RecyclerViewFragment extends Fragment {
             typeofNote = (MainActivity.TypeofNote) getActivity().getIntent()
                     .getExtras().getSerializable(MainActivity.NOTE_TYPE);
         }
+        noteTypeLaunchedFrom = (MainActivity.TypeofNote) getActivity().getIntent()
+                .getExtras().getSerializable(MainActivity.NOTE_TYPE_LAUNCHED_FROM);
 
         fragmentLayout = inflater.inflate(R.layout.recycler_view_fragment, container, false);
 
@@ -78,7 +83,7 @@ public class RecyclerViewFragment extends Fragment {
         setUpRecyclerView();
 
         //fling code
-        RecyclerView view = (RecyclerView) fragmentLayout.findViewById(R.id.recycler_list_widget);
+//        RecyclerView view = (RecyclerView) fragmentLayout.findViewById(R.id.recycler_list_widget);
 //        view.setOnTouchListener(onTouchListener);
 
         return fragmentLayout;
@@ -166,18 +171,9 @@ public class RecyclerViewFragment extends Fragment {
                 intent.putExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA, MainActivity.FragmentToLaunch.EDIT);
                 break;
         }
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivityForResult(intent, 0);
     }
-
-    public View.OnClickListener createNewfab = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Intent intent = new Intent(getActivity(), DetailActivity.class);
-            intent.putExtra(MainActivity.NOTE_FRAGMENT_TO_LOAD_EXTRA, MainActivity.FragmentToLaunch.CREATE);
-            intent.putExtra(MainActivity.NOTE_TYPE, typeofNote);
-            startActivity(intent);
-        }
-    };
 
     private Note note;
 
@@ -198,10 +194,19 @@ public class RecyclerViewFragment extends Fragment {
         //change JOB done back to false so code not run again
         getActivity().getIntent().putExtra(MainActivity.JOB_DONE, false);
         //work out if a deleted note
-        Boolean job_done_deleted_notes = getActivity().getIntent().getBooleanExtra(MainActivity.DELETED_NOTES, false);
+        Boolean job_already_done = getActivity().getIntent()
+                .getBooleanExtra(MainActivity.DELETED_NOTES, false);
         //set up the database adapter
         dbAdapter = new NotesDbAdapter(getActivity().getBaseContext());
         dbAdapter.open();
+        //if this was launched from a JOB details view which was launched from referral, as we are returning to referral need to make sure list for this section is JOB
+        if(noteTypeLaunchedFrom != null){
+            switch (noteTypeLaunchedFrom){
+                case REFERRAL:
+                    list = dbAdapter.getNotes(deleted_notes, MainActivity.TypeofNote.JOB);
+                    break;
+            }
+        }
         //find note position in header containing jobslist
         for (int i=0; i < list.size(); i++){
             long noteIdtocheck = list.get(i).getNoteId();
@@ -210,16 +215,7 @@ public class RecyclerViewFragment extends Fragment {
                 break;
             }
         }
-        final Note deleted_note = list.get(position);//create a copy of the note to be deleted
-        //work out if the above and below note is a header and remove the above header if this is true
-        final int ITEM_TYPE_HEADER = 0;
-        if(mRecyclerViewAdapter.getItemViewType(position-1) == ITEM_TYPE_HEADER){
-            if (position + 1 >= list.size() ||
-                    mRecyclerViewAdapter.getItemViewType(position + 1) == ITEM_TYPE_HEADER){
-                deleted_header = (Header) list.get(position - 1);
-            }
-        }
-        if(!job_done_deleted_notes) { //allows the same code to change the note from deleted to none deleted
+        if(!job_already_done) { //allows the same code to change the note from deleted to none deleted
             is_deleted = 1;
             undo_deleted = 0; //allow for the undo button to do the opposite
             what_happened_to_note = getString(R.string.marked_done); //set the words of the snackbar
@@ -229,50 +225,69 @@ public class RecyclerViewFragment extends Fragment {
             what_happened_to_note = getString(R.string.restored_snackbar_string);
         }
         snackbar_words = getString(R.string.jobSingular) + " " + what_happened_to_note;
-        //alter note
-        Handler handler = new Handler();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                //update the job deleted status
-                dbAdapter.changeDeleteStatus(noteId, is_deleted);
-                //remove from the visable list
-                list.remove(position);
-                mRecyclerViewAdapter.notifyItemRemoved(position);
-                mRecyclerViewAdapter.notifyItemRangeChanged(position, list.size());
-                if(deleted_header != null){
-                    list.remove(position - 1);
-                    mRecyclerViewAdapter.notifyItemRemoved(position - 1);
-                    mRecyclerViewAdapter.notifyItemRangeChanged(position - 1, list.size());
+        //create a copy of the note to be deleted so it can be re-added
+        final Note deleted_note = list.get(position);
+        //remove the view from the recyclerview and show the snackbar
+        //if the DETAIL view with the job done code was launched from somthing other thatn the JOB recyclerview, only show the snackbar
+        if(noteTypeLaunchedFrom == null) {
+            //work out if the above and below note is a header and remove the above header if this is true
+            final int ITEM_TYPE_HEADER = 0;
+            if (mRecyclerViewAdapter.getItemViewType(position - 1) == ITEM_TYPE_HEADER) {
+                if (position + 1 >= list.size() ||
+                        mRecyclerViewAdapter.getItemViewType(position + 1) == ITEM_TYPE_HEADER) {
+                    deleted_header = (Header) list.get(position - 1);
                 }
-                mRecyclerViewAdapter.mItemManger.closeAllItems();
             }
-        };
-        handler.removeCallbacks(runnable);
-        handler.postDelayed(runnable, 0);
+            //alter note
+            Handler handler = new Handler();
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    //remove from the visible list
+                    list.remove(position);
+                    //update the job deleted status
+                    dbAdapter.changeDeleteStatus(noteId, is_deleted);
+                    mRecyclerViewAdapter.notifyItemRemoved(position);
+                    mRecyclerViewAdapter.notifyItemRangeChanged(position, list.size());
+                    if (deleted_header != null) {
+                        list.remove(position - 1);
+                        mRecyclerViewAdapter.notifyItemRemoved(position - 1);
+                        mRecyclerViewAdapter.notifyItemRangeChanged(position - 1, list.size());
+                    }
+                    mRecyclerViewAdapter.mItemManger.closeAllItems();
+                }
+            };
+            handler.removeCallbacks(runnable);
+            handler.postDelayed(runnable, 50);
+        }
         //snackbar code
         Snackbar snackbar = Snackbar
             .make(fragmentLayout, snackbar_words, Snackbar.LENGTH_LONG)
             .setAction(R.string.undo, new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    //irrespective of what lunch the deatiled view with the done button
                     dbAdapter.changeDeleteStatus(noteId, undo_deleted); //update the job to undeleted
-                    if(deleted_header != null){
-                        list.add(position - 1, deleted_note);
-                        mRecyclerViewAdapter.notifyItemInserted(position - 1);
-                        mRecyclerViewAdapter.notifyItemRangeChanged(position - 1, list.size());
-                        list.add(position - 1, deleted_header);
-                        mRecyclerViewAdapter.notifyItemInserted(position - 1);
-                        mRecyclerViewAdapter.notifyItemRangeChanged(position - 1,
-                        list.size());
+                    if(noteTypeLaunchedFrom == null) {//only reinsert the note if the Detailed view was not launched from JOB recyclerview
+                        if (deleted_header != null) {
+                            list.add(position - 1, deleted_note);
+                            mRecyclerViewAdapter.notifyItemInserted(position - 1);
+                            mRecyclerViewAdapter.notifyItemRangeChanged(position - 1, list.size());
+                            list.add(position - 1, deleted_header);
+                            mRecyclerViewAdapter.notifyItemInserted(position - 1);
+                            mRecyclerViewAdapter.notifyItemRangeChanged(position - 1,
+                                    list.size());
+                        } else {
+                            list.add(position, deleted_note);
+                            mRecyclerViewAdapter.notifyItemInserted(position);
+                            mRecyclerViewAdapter.notifyItemRangeChanged(position, list.size());
+                        }
                     }else{
-                        list.add(position, deleted_note);
-                        mRecyclerViewAdapter.notifyItemInserted(position);
-                        mRecyclerViewAdapter.notifyItemRangeChanged(position, list.size());
+                        notifyRecyclerViewChanged();
                     }
                 }
-            });
-        snackbar.setActionTextColor(Color.RED);
+            })
+                .setActionTextColor(Color.RED);
         snackbar.show();
         snackbar.setCallback(new Snackbar.Callback() {
             @Override
@@ -315,4 +330,13 @@ public class RecyclerViewFragment extends Fragment {
         recyclerView.setAdapter(mRecyclerViewAdapter);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        //reset the recyclerview if a change to the database has occured
+        if(sharedPreferences.getBoolean("CHANGE_TO_DATABASE_OCCURRED", false)) {
+            notifyRecyclerViewChanged();
+            sharedPreferences.edit().putBoolean("CHANGE_TO_DATABASE_OCCURRED", false).apply();
+        }
+    }
 }

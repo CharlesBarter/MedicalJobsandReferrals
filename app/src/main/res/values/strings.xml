@@ -43,14 +43,15 @@
     <string name="delete_job">Delete Job</string>
     <string name="delete_referral">Delete Referral</string>
 
-    <string name="restore_job_button_string">Make this an active Job</string>
-    <string name="done">Mark job as DONE</string>
+    <string name="restore_job_button_string">Make an active Job</string>
+    <string name="done">JOB DONE</string>
 
     //main menu titles
     <string name="AddJob">Add Job</string>
     <string name="AddReferralShort">Add Refer</string>
     <string name="AddReferralWhole">Add Referral</string>
-    <string name="create_new_job_from_referral_details">Create a job for this patient</string>
+    <string name="create_new_job_from_referral_details">Create a new job for this patient</string>
+    <string name="associated_referral">Associated Referral</string>
 
     //titles of type of view edit/view/new
     <string name="edit">Edit</string>
@@ -67,7 +68,7 @@
 
     //snackbar strings
     <string name="marked_done"> marked DONE</string>
-    <string name="restored_snackbar_string"> restored</string>
+    <string name="restored_snackbar_string"> marked ACTIVE</string>
 
 
     <!-- Activity Titles -->
@@ -100,6 +101,8 @@
     <string name="example_number_of_alternative_notes">3</string>
     <string name="example_age_sex">101F</string>
 
+
+    <string name="MoveUpBehaviour">cbartersolutions.medicalreferralapp.Behaviours.MoveUpBehaviour</string>
 
 
 </resources>

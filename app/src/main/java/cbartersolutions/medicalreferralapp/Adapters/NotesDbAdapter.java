@@ -61,7 +61,7 @@ public class NotesDbAdapter {
             COLUMN_AGE_AND_SEX, COLUMN_PATIENT_LOCATION, COLUMN_DATE_AND_TIME,
             COLUMN_DETAILS, COLUMN_CATEGORY, COLUMN_DELETED, COLUMN_DATE_CREATED};
 
-    public static final String REFERRALS_DATABASE_CREATE = "create table " + REFERRALS_TABLE + " ( "
+    private static final String REFERRALS_DATABASE_CREATE = "create table " + REFERRALS_TABLE + " ( "
             + COLUMN_ID + " integer primary key autoincrement, "
             + COLUMN_PATIENT_NAME + " text not null, "
             + COLUMN_PATIENT_NHI + " text not null, "
@@ -142,8 +142,7 @@ public class NotesDbAdapter {
                                 String patient_location, long new_date_on_note,
                                 String new_referrer_details, String new_referrer_contact,
                                 String new_details, Note.Category new_category,
-                                MainActivity.TypeofNote typeofNote,
-                                int deleted){
+                                MainActivity.TypeofNote typeofNote){
         ContentValues values = new ContentValues();
         values.put(COLUMN_PATIENT_NAME, new_patient_name);
         values.put(COLUMN_PATIENT_NHI, new_patient_NHI);
@@ -238,7 +237,7 @@ public class NotesDbAdapter {
                 Note.Category.valueOf(cursor.getString(9)), cursor.getLong(0), cursor.getLong(13));
     }
 
-    public ArrayList<Note> createNoteArray(Cursor cursor){
+    private ArrayList<Note> createNoteArray(Cursor cursor){
         ArrayList<Note> notes = new ArrayList<>();
         String blank_header_name = context.getString(R.string.no_location);//header name if No Location
         String header_item_to_check = "header to check against";//header to check against
@@ -313,25 +312,27 @@ public class NotesDbAdapter {
     //set the orderBy based on the preferences
     private String first_sort_preference;
 
-    public String getOrderBy(MainActivity.TypeofNote typeofNote) {//get the order by string for the sqlite querys
+    private String getOrderBy(MainActivity.TypeofNote typeofNote) {//get the order by string for the sqlite querys
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String asc_desc = " ASC";
         switch (typeofNote){
             case JOB:
                 first_sort_preference = sharedPreferences.getString("JOB_FIRST_SORT_PREFERENCE",
                         COLUMN_PATIENT_LOCATION);
+                asc_desc = sharedPreferences.getString("JOB_ASC_DESC", " ASC");
                 break;
             case REFERRAL:
                 first_sort_preference = sharedPreferences.getString("REFERRAL_FIRST_SORT_PREFERENCE",
                         COLUMN_PATIENT_LOCATION);
+                asc_desc = sharedPreferences.getString("REFERRAL_ASC_DESC", " ASC");
                 break;
         }
-        String asc_desc = sharedPreferences.getString("ASC_DESC", " ASC");
         String sort_preference = first_sort_preference + " " + asc_desc;
         if(first_sort_preference.equals(COLUMN_DATE_AND_TIME)){
-            sort_preference = "strftime('%Y-%m-%d', " + COLUMN_DATE_AND_TIME + " /1000, 'unixepoch' )" +
-                    asc_desc + ", " + COLUMN_CATEGORY + " DESC";
+            sort_preference = "date(" + COLUMN_DATE_AND_TIME + "/1000, 'unixepoch', 'localtime') "
+                    + asc_desc + ", " + COLUMN_CATEGORY + " DESC";
         }else if(!first_sort_preference.equals("category")){
-            sort_preference = sort_preference + ", " + COLUMN_CATEGORY + " DESC";
+            return sort_preference + ", " + COLUMN_CATEGORY + " DESC";
         }
         return sort_preference;
     }
